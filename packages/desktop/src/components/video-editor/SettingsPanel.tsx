@@ -869,8 +869,14 @@ export function SettingsPanel({
 					<button
 						type="button"
 						title={t("crop.cropVideo")}
+						disabled={!videoElement}
 						onClick={handleCropToggle}
-						className="mt-1 flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground transition-all hover:border-border hover:bg-accent hover:text-foreground"
+						className={cn(
+							"mt-1 flex h-8 w-8 items-center justify-center rounded-lg border border-transparent transition-all",
+							videoElement
+								? "text-muted-foreground hover:border-border hover:bg-accent hover:text-foreground"
+								: "cursor-not-allowed text-muted-foreground/40",
+						)}
 					>
 						<Crop className="h-4 w-4" />
 					</button>
@@ -885,7 +891,7 @@ export function SettingsPanel({
 						className={cn(
 							"mt-auto flex h-8 w-8 items-center justify-center rounded-lg border transition-all",
 							activePanelMode === "export" && !hasTimelineSelection
-								? "border-primary/50 bg-primary/15 text-primary shadow-[0_0_0_1px_rgba(52,178,123,0.12)]"
+								? "border-primary/50 bg-primary/15 text-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
 								: "border-transparent text-muted-foreground hover:border-border hover:bg-accent hover:text-foreground",
 						)}
 					>
@@ -952,7 +958,7 @@ export function SettingsPanel({
 														? "opacity-100 cursor-pointer"
 														: "opacity-40 cursor-not-allowed",
 													isActive
-														? "border-primary/70 bg-primary text-primary-foreground shadow-[0_8px_20px_rgba(52,178,123,0.18)]"
+														? "border-primary/70 bg-primary text-primary-foreground shadow-[0_8px_20px_rgba(204, 120, 92,0.18)]"
 														: "border-border bg-muted text-muted-foreground hover:bg-accent hover:border-border hover:text-foreground",
 												)}
 											>
@@ -992,7 +998,7 @@ export function SettingsPanel({
 													"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 													"disabled:pointer-events-none disabled:opacity-50 cursor-grab active:cursor-grabbing",
 													selectedZoomCustomScale != null
-														? "border-primary bg-primary shadow-[0_0_6px_rgba(52,178,123,0.4)]"
+														? "border-primary bg-primary shadow-[0_0_6px_rgba(204, 120, 92,0.4)]"
 														: "border-border bg-muted hover:border-border",
 												)}
 											/>

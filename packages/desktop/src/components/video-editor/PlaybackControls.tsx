@@ -38,7 +38,7 @@ export default function PlaybackControls({
 	const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
 	return (
-		<div className="flex items-center gap-2 px-1 py-0.5 rounded-full bg-black/60 backdrop-blur-md border border-border shadow-xl transition-all duration-300 hover:bg-black/70 hover:border-border">
+		<div className="flex items-center gap-2 px-1 py-0.5 rounded-full bg-card/80 backdrop-blur-md border border-border shadow-xl transition-all duration-300 hover:bg-card hover:border-border">
 			<Button
 				onClick={onTogglePlayPause}
 				size="icon"

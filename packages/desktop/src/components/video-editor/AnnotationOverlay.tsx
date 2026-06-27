@@ -579,11 +579,11 @@ export function AnnotationOverlay({
 				zIndex: isSelectedBoost ? zIndex + 1000 : zIndex, // keep the selected annotation on top
 				pointerEvents: isSelected ? "auto" : "none",
 				border:
-					isSelected && annotation.type !== "blur" ? "2px solid rgba(52, 178, 123, 0.8)" : "none",
+					isSelected && annotation.type !== "blur" ? "2px solid rgba(204, 120, 92, 0.8)" : "none",
 				backgroundColor:
-					isSelected && annotation.type !== "blur" ? "rgba(52, 178, 123, 0.1)" : "transparent",
+					isSelected && annotation.type !== "blur" ? "rgba(204, 120, 92, 0.1)" : "transparent",
 				boxShadow:
-					isSelected && annotation.type !== "blur" ? "0 0 0 1px rgba(52, 178, 123, 0.35)" : "none",
+					isSelected && annotation.type !== "blur" ? "0 0 0 1px rgba(204, 120, 92, 0.35)" : "none",
 			}}
 			enableResizing={isSelected && !isSelectedFreehandBlur}
 			disableDragging={!isSelected || isSelectedFreehandBlur}

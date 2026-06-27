@@ -194,13 +194,13 @@ export function ExportDialog({
 									// Real progress if we have it, otherwise an indeterminate bar.
 									renderProgress !== undefined && renderProgress > 0 ? (
 										<div
-											className="h-full bg-primary shadow-[0_0_10px_rgba(52,178,123,0.3)] transition-all duration-300 ease-out"
+											className="h-full bg-primary shadow-[0_0_10px_rgba(204, 120, 92,0.3)] transition-all duration-300 ease-out"
 											style={{ width: `${renderProgress}%` }}
 										/>
 									) : (
 										<div className="h-full w-full relative overflow-hidden">
 											<div
-												className="absolute h-full w-1/3 bg-primary shadow-[0_0_10px_rgba(52,178,123,0.3)]"
+												className="absolute h-full w-1/3 bg-primary shadow-[0_0_10px_rgba(204, 120, 92,0.3)]"
 												style={{
 													animation: "indeterminate 1.5s ease-in-out infinite",
 												}}
@@ -215,7 +215,7 @@ export function ExportDialog({
 									)
 								) : (
 									<div
-										className="h-full bg-primary shadow-[0_0_10px_rgba(52,178,123,0.3)] transition-all duration-300 ease-out"
+										className="h-full bg-primary shadow-[0_0_10px_rgba(204, 120, 92,0.3)] transition-all duration-300 ease-out"
 										style={{ width: `${Math.min(progress.percentage, 100)}%` }}
 									/>
 								)}
