@@ -54,14 +54,31 @@ cutti 引擎已抽成共享包,"导入视频 → 转写 → 真 keep/cut → 真
 - **③ trim 真剪**:`VideoPlayback` 播放跳过 cut gap(`playback.ts`;无 trim 时 no-op)
 - (`cutti 字幕` = demo 按钮,跑引擎 deleteSegment+setSpeed)
 
+**标准 NLE 时间线**(`timeline/`,在转写驱动之上长出的常规剪辑器骨架):
+- `clipModel.ts` = `TimelineClip` 模型 + 纯函数(split/duplicate/nudge/offset/paste/rippleDelete/gainAt…,均单测)。
+- `trackModel.ts` = `TimelineTrack`(mute/solo/lock/kind)+ 纯函数(`isTrackAudible` solo 优先、`effectiveClipGain`、
+  add/removeTrack 重排、lock 查询;均单测)。playback(`timelineRender.planAudioGainAt`)与导出
+  (`exporter/sequenceExporter`)都按轨道 mute/solo 计音量。
+- `ClipTimeline.tsx` = 多轨道直接操作:拖动移动/跨轨、左右把手 trim、磁吸开关、缩放;每轨左侧 124px **固定 header 槽**
+  (mute/solo/lock/删除),所有时间元素右移 `TRACK_HEADER_WIDTH` 避免遮挡(指针↔时间映射要减回去)。
+- **键盘**(`VideoEditor` 捕获 keydown):Delete/Shift+Delete(普通/ripple)、S/B split、Cmd+D 复制、Cmd+C/V、
+  方向键 nudge(Shift=1s);锁定轨道的 clip 全部跳过;不冲突已有 undo/redo/Space。
+
 **主题**:terracotta 暖橙(取自 kobe Claude 品牌色 + codefox shadcn 变量结构);`ThemeContext` + 工具栏
-`ThemeToggle`(light/dark/system,持久化 localStorage `foxscreen.theme`)。注:openscreen 部分面板硬编码深色,
-light 模式尚未完整(待把硬编码色接进主题变量)。
+`ThemeToggle`(light/dark/system,持久化 localStorage `foxscreen.theme`)。light 模式已基本补齐(media/preview/
+时间线/面板都走变量);openscreen 个别深色面板仍有零星硬编码,见到即接变量(emerald→`--primary` 已扫多处)。
+
+**自助冒烟(headless QA)**:`bun run dev:web`(:17420)+ `browserDevMock`(非 Tauri+DEV 装惰性 native-bridge mock,
+对 cursor 等按真 shape 返回空数据)→ `?seed=demo` 渲染**完整带 clip 的编辑器**(媒体库+多轨时间线+clip inspector)。
+`scripts/ui-gallery.sh` 截所有页面(空/各面板/light/dark/populated)供 `/browse` 复核;`main.tsx` DEV 全局 error
+logger 把真实抛错打到 console(React 只打组件栈)。预览 `VideoPlayback`(Pixi/WebGL)在 headless 仍崩,故预览本身验不了。
 
 **已验证**:`bun run selftest` **8/8 全绿** —— desktop/core/cli 三处 tsc=0、biome 干净、
-193 vitest、cli firstcut 冒烟、cargo build、tauri-mode vite build。
+338 vitest、cli firstcut 冒烟、cargo build、tauri-mode vite build。clip 编辑 / 轨道控制经 `?seed=demo` headless 实测
+(Cmd+D 复制、mute 高亮、+加轨)。
 
-**待打磨(非阻塞)**:trim-skip 用 timeupdate(~4x/s),进 cut 可能过冲 ~250ms。LLM key 走 localStorage(无设置 UI)。
+**待打磨(非阻塞)**:clip 编辑尚未接 `useEditorHistory`(undo/redo 不覆盖 clip 增删/移动 —— 下一项)。
+trim-skip 用 timeupdate(~4x/s),进 cut 可能过冲 ~250ms。LLM key 走 localStorage(无设置 UI)。
 「cutti *」+ ThemeToggle 文案硬编码(dev,待 i18n)。录屏在 Tauri 壳下 stubbed(`RECORDING_DEFERRED`)。
 
 ## 硬规矩
