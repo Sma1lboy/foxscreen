@@ -66,6 +66,10 @@ cutti 引擎已抽成共享包,"导入视频 → 转写 → 真 keep/cut → 真
 - **多选**:`selectedClipIds: string[]`(单选时派生 `selectedClipId` 喂单 clip inspector)。Shift/Cmd-click 切换、
   空白处 marquee 框选(`clipsInMarquee` 纯函数+单测);拖动选中之一 = 整组同移;删/复制/nudge/split 全作用于选区
   (锁定的 clip 跳过),每个 bulk 操作一条 undo;>1 时 inspector 显示「N clips selected」+ Mute all / Delete。
+- **叠化转场**(`transitionModel.ts`,MVP = 给两个同轨重叠 clip 的重叠区做 crossfade,不 ripple/不移 clip):
+  `Transition{id,fromClipId,toClipId}` 只存 id,窗口由 clip 当前位置实时算(`overlapWindow`/`activeTransitions`,拖开即自动失效);
+  `crossfadeAlpha` 线性。时间线在重叠区给 + 加 / 点 hatch 删(各一条 undo,进 `useEditorHistory`+持久化);
+  导出 `sequenceExporter` 在窗口内解码两 clip 帧按 alpha 混合。**Pixi 实时预览暂不渲染转场**(headless 验不了)。均单测(29 例)。
 
 **主题**:terracotta 暖橙(取自 kobe Claude 品牌色 + codefox shadcn 变量结构);`ThemeContext` + 工具栏
 `ThemeToggle`(light/dark/system,持久化 localStorage `foxscreen.theme`)。light 模式已基本补齐(media/preview/
