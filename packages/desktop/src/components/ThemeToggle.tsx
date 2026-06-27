@@ -16,7 +16,7 @@ export function ThemeToggle() {
 			onClick={next}
 			title={`Theme: ${LABEL[theme]} (click to switch)`}
 			aria-label={`Theme: ${LABEL[theme]}`}
-			className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white/50 hover:text-white/90 hover:bg-white/[0.08] transition-all duration-150 text-[11px] font-medium"
+			className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-150 text-[11px] font-medium"
 		>
 			<Icon size={14} />
 		</button>
