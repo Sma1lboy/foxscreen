@@ -92,5 +92,15 @@
 		"empty": "Importez une vidéo pour commencer",
 		"remove": "Retirer",
 		"drop": "Déposez des vidéos pour importer"
+	},
+	"clipTimeline": {
+		"empty": "La timeline est vide — ajoutez des clips depuis la médiathèque",
+		"split": "Diviser à la tête de lecture",
+		"rippleDelete": "Suppression en cascade",
+		"delete": "Supprimer",
+		"zoomIn": "Zoom avant",
+		"zoomOut": "Zoom arrière",
+		"videoTrack": "Piste vidéo",
+		"audioTrack": "Piste audio"
 	}
 }

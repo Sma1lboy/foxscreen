@@ -92,5 +92,15 @@
 		"empty": "Importa un vídeo para empezar",
 		"remove": "Quitar",
 		"drop": "Suelta vídeos para importar"
+	},
+	"clipTimeline": {
+		"empty": "La línea de tiempo está vacía: añade clips desde la biblioteca",
+		"split": "Dividir en el cabezal",
+		"rippleDelete": "Eliminar con desplazamiento",
+		"delete": "Eliminar",
+		"zoomIn": "Acercar",
+		"zoomOut": "Alejar",
+		"videoTrack": "Pista de vídeo",
+		"audioTrack": "Pista de audio"
 	}
 }

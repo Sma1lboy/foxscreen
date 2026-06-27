@@ -92,5 +92,15 @@
 		"empty": "导入视频开始",
 		"remove": "移除",
 		"drop": "拖放视频到此导入"
+	},
+	"clipTimeline": {
+		"empty": "时间轴为空，从素材库添加片段",
+		"split": "在播放头分割",
+		"rippleDelete": "波纹删除",
+		"delete": "删除",
+		"zoomIn": "放大",
+		"zoomOut": "缩小",
+		"videoTrack": "视频轨道",
+		"audioTrack": "音频轨道"
 	}
 }

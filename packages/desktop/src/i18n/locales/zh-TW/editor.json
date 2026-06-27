@@ -92,5 +92,15 @@
 		"empty": "匯入影片開始",
 		"remove": "移除",
 		"drop": "拖放影片到此匯入"
+	},
+	"clipTimeline": {
+		"empty": "時間軸為空，從素材庫加入片段",
+		"split": "在播放頭分割",
+		"rippleDelete": "漣漪刪除",
+		"delete": "刪除",
+		"zoomIn": "放大",
+		"zoomOut": "縮小",
+		"videoTrack": "視訊軌道",
+		"audioTrack": "音訊軌道"
 	}
 }

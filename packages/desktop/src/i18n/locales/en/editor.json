@@ -92,5 +92,15 @@
 		"empty": "Import a video to start",
 		"remove": "Remove",
 		"drop": "Drop videos to import"
+	},
+	"clipTimeline": {
+		"empty": "Timeline is empty — add clips from the media bin",
+		"split": "Split at playhead",
+		"rippleDelete": "Ripple delete",
+		"delete": "Delete",
+		"zoomIn": "Zoom in",
+		"zoomOut": "Zoom out",
+		"videoTrack": "Video track",
+		"audioTrack": "Audio track"
 	}
 }

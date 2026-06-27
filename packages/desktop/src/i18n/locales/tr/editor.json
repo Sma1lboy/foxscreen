@@ -92,5 +92,15 @@
 		"empty": "Başlamak için video içe aktarın",
 		"remove": "Kaldır",
 		"drop": "İçe aktarmak için videoları bırakın"
+	},
+	"clipTimeline": {
+		"empty": "Zaman çizelgesi boş — medya kitaplığından klip ekleyin",
+		"split": "Oynatma kafasında böl",
+		"rippleDelete": "Kaydırarak sil",
+		"delete": "Sil",
+		"zoomIn": "Yakınlaştır",
+		"zoomOut": "Uzaklaştır",
+		"videoTrack": "Video parçası",
+		"audioTrack": "Ses parçası"
 	}
 }

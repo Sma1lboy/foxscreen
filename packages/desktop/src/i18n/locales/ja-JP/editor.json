@@ -92,5 +92,15 @@
 		"empty": "動画を読み込んで開始",
 		"remove": "削除",
 		"drop": "動画をドロップして読み込む"
+	},
+	"clipTimeline": {
+		"empty": "タイムラインが空です。メディアビンからクリップを追加してください",
+		"split": "再生ヘッドで分割",
+		"rippleDelete": "リップル削除",
+		"delete": "削除",
+		"zoomIn": "拡大",
+		"zoomOut": "縮小",
+		"videoTrack": "ビデオトラック",
+		"audioTrack": "オーディオトラック"
 	}
 }

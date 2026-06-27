@@ -66,11 +66,7 @@ import {
 import { BackgroundLoadError } from "@/lib/wallpaper";
 import { nativeBridgeClient, useCursorRecordingData, useCursorTelemetry } from "@/native";
 import type { NativePlatform } from "@/native/contracts";
-import {
-	getAspectRatioValue,
-	getNativeAspectRatioValue,
-	isPortraitAspectRatio,
-} from "@/utils/aspectRatioUtils";
+import { getAspectRatioValue, getNativeAspectRatioValue } from "@/utils/aspectRatioUtils";
 import { EditorEmptyState } from "./EditorEmptyState";
 import { ExportDialog } from "./ExportDialog";
 import {
@@ -93,7 +89,8 @@ import {
 	validateProjectData,
 } from "./projectPersistence";
 import { SettingsPanel } from "./SettingsPanel";
-import TimelineEditor from "./timeline/TimelineEditor";
+import ClipTimeline from "./timeline/ClipTimeline";
+import { genClipId, type TimelineClip, trackEndSec } from "./timeline/clipModel";
 import { buildAutoZoomSuggestions } from "./timeline/zoomSuggestionUtils";
 import {
 	type AnnotationRegion,
@@ -122,6 +119,9 @@ import VideoPlayback, { VideoPlaybackRef } from "./VideoPlayback";
 
 /** Single Sonner slot so auto-caption phases update in place instead of stacking. */
 const AUTO_CAPTION_PROGRESS_TOAST_ID = "auto-caption-progress";
+
+/** Placeholder clip length used when a seeded asset's real duration isn't known yet. */
+const FALLBACK_CLIP_SECONDS = 5;
 
 function isClickInteractionType(interactionType: string | null | undefined) {
 	return (
@@ -235,6 +235,11 @@ export default function VideoEditor() {
 					],
 		);
 	}, []);
+	// Clip-based multi-track timeline (standard-NLE foundation). Clips are seeded
+	// from library assets and edited in <ClipTimeline/>; the active clip drives
+	// the single-source preview (multi-clip compositing is a later phase).
+	const [clips, setClips] = useState<TimelineClip[]>([]);
+	const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
 	const [videoSourcePath, setVideoSourcePath] = useState<string | null>(null);
 	const [webcamVideoPath, setWebcamVideoPath] = useState<string | null>(null);
 	const [webcamVideoSourcePath, setWebcamVideoSourcePath] = useState<string | null>(null);
@@ -525,10 +530,81 @@ export default function VideoEditor() {
 		setProjectOpen(true);
 	}, []);
 
-	// Remove an asset from the library; if it was the active source, clear the preview.
+	// Load a timeline clip's source into the preview (single active-clip preview;
+	// reuses the selectMediaAsset flow). Multi-clip compositing is a later phase.
+	const handleSelectClip = useCallback(
+		async (clip: TimelineClip | null) => {
+			setSelectedClipId(clip?.id ?? null);
+			if (!clip || clip.sourcePath === videoSourcePath) return;
+			const setResult = await nativeBridgeClient.project.setCurrentVideoPath(clip.sourcePath);
+			if (!setResult.success) return;
+			setError(null);
+			setVideoSourcePath(clip.sourcePath);
+			setVideoPath(toFileUrl(clip.sourcePath));
+			setWebcamVideoPath(null);
+			setWebcamVideoSourcePath(null);
+			setProjectOpen(true);
+		},
+		[videoSourcePath],
+	);
+
+	// Seed: every library asset gets at least one clip, appended to the end of
+	// video track 0. Real duration may not be known yet (loads async) — fall back
+	// to a placeholder and refine it once the active source reports its duration.
+	useEffect(() => {
+		setClips((prev) => {
+			const seen = new Set(prev.map((c) => c.assetId));
+			let working = prev;
+			let added = false;
+			for (const asset of mediaAssets) {
+				if (seen.has(asset.id)) continue;
+				const out =
+					asset.path === videoSourcePath && duration > 0 ? duration : FALLBACK_CLIP_SECONDS;
+				working = [
+					...working,
+					{
+						id: genClipId(),
+						assetId: asset.id,
+						name: asset.name,
+						sourcePath: asset.path,
+						trackIndex: 0,
+						startSec: trackEndSec(working, 0),
+						inSec: 0,
+						outSec: out,
+					},
+				];
+				added = true;
+			}
+			return added ? working : prev;
+		});
+	}, [mediaAssets, videoSourcePath, duration]);
+
+	// Refine a placeholder-length seeded clip once its source's real duration loads.
+	useEffect(() => {
+		if (duration <= 0 || !videoSourcePath) return;
+		setClips((prev) => {
+			let changed = false;
+			const next = prev.map((c) => {
+				if (
+					c.sourcePath === videoSourcePath &&
+					c.inSec === 0 &&
+					c.outSec === FALLBACK_CLIP_SECONDS
+				) {
+					changed = true;
+					return { ...c, outSec: duration };
+				}
+				return c;
+			});
+			return changed ? next : prev;
+		});
+	}, [duration, videoSourcePath]);
+
+	// Remove an asset from the library; drop its clips and, if it was the active
+	// source, clear the preview.
 	const removeMediaAsset = useCallback(
 		(asset: MediaAsset) => {
 			setMediaAssets((prev) => prev.filter((a) => a.id !== asset.id));
+			setClips((prev) => prev.filter((c) => c.assetId !== asset.id));
 			if (videoSourcePath === asset.path) {
 				setVideoSourcePath(null);
 				setVideoPath(null);
@@ -2566,6 +2642,27 @@ export default function VideoEditor() {
 		}
 	}, [exportError, editorState]);
 
+	// Region-authoring handlers from the retired single-source TimelineEditor.
+	// The new ClipTimeline doesn't expose region editing yet — zoom/trim/speed/
+	// annotation regions are still consumed by the preview (VideoPlayback) but are
+	// no longer editable from the timeline. Retained here for re-wiring into the
+	// clip timeline in a later phase; referenced so they don't read as dead code.
+	void [
+		handleSelectTrim,
+		handleZoomAdded,
+		handleToggleAutoZoom,
+		handleToggleAutoFocusAll,
+		handleTrimAdded,
+		handleZoomSpanChange,
+		handleTrimSpanChange,
+		handleSelectSpeed,
+		handleSpeedAdded,
+		handleSpeedSpanChange,
+		handleAnnotationAdded,
+		handleBlurAdded,
+		handleAnnotationSpanChange,
+	];
+
 	if (loading) {
 		return (
 			<div className="flex items-center justify-center h-screen bg-background">
@@ -3148,70 +3245,14 @@ export default function VideoEditor() {
 						{/* Full-width timeline */}
 						<Panel defaultSize={33} maxSize={54} minSize={24} className="min-h-[210px]">
 							<div className="editor-timeline-panel h-full overflow-hidden flex flex-col">
-								<TimelineEditor
-									videoDuration={duration}
+								<ClipTimeline
+									clips={clips}
+									onClipsChange={setClips}
 									currentTime={currentTime}
+									videoDuration={duration}
 									onSeek={handleSeek}
-									zoomRegions={zoomRegions}
-									onZoomAdded={handleZoomAdded}
-									autoZoomEnabled={autoZoomEnabled}
-									onToggleAutoZoom={handleToggleAutoZoom}
-									autoFocusAll={autoFocusAll}
-									onToggleAutoFocusAll={handleToggleAutoFocusAll}
-									onZoomSpanChange={handleZoomSpanChange}
-									onZoomDelete={handleZoomDelete}
-									selectedZoomId={selectedZoomId}
-									onSelectZoom={handleSelectZoom}
-									trimRegions={trimRegions}
-									onTrimAdded={handleTrimAdded}
-									onTrimSpanChange={handleTrimSpanChange}
-									onTrimDelete={handleTrimDelete}
-									selectedTrimId={selectedTrimId}
-									onSelectTrim={handleSelectTrim}
-									speedRegions={speedRegions}
-									onSpeedAdded={handleSpeedAdded}
-									onSpeedSpanChange={handleSpeedSpanChange}
-									onSpeedDelete={handleSpeedDelete}
-									selectedSpeedId={selectedSpeedId}
-									onSelectSpeed={handleSelectSpeed}
-									annotationRegions={annotationOnlyRegions}
-									onAnnotationAdded={handleAnnotationAdded}
-									onAnnotationSpanChange={handleAnnotationSpanChange}
-									onAnnotationDelete={handleAnnotationDelete}
-									selectedAnnotationId={selectedAnnotationId}
-									onSelectAnnotation={handleSelectAnnotation}
-									blurRegions={blurRegions}
-									onBlurAdded={handleBlurAdded}
-									onBlurSpanChange={handleAnnotationSpanChange}
-									onBlurDelete={handleAnnotationDelete}
-									selectedBlurId={selectedBlurId}
-									onSelectBlur={handleSelectBlur}
-									aspectRatio={aspectRatio}
-									onAspectRatioChange={(ar) =>
-										pushState({
-											aspectRatio: ar,
-											webcamLayoutPreset:
-												(isPortraitAspectRatio(ar) && webcamLayoutPreset === "dual-frame") ||
-												(!isPortraitAspectRatio(ar) && webcamLayoutPreset === "vertical-stack")
-													? "picture-in-picture"
-													: webcamLayoutPreset,
-										})
-									}
-									videoUrl={videoPath ?? undefined}
-									showTrimWaveform={showTrimWaveform}
-									captionsLabel={t("autoCaptions.button")}
-									isGeneratingCaptions={isAutoCaptioning}
-									onGenerateCaptions={() => {
-										if (!videoPath) {
-											toast.error(t("errors.noVideoLoaded"));
-											return;
-										}
-										if (isAutoCaptioningRef.current) {
-											toast.error(t("autoCaptions.busy"));
-											return;
-										}
-										setShowAutoCaptionsDialog(true);
-									}}
+									selectedClipId={selectedClipId}
+									onSelectClip={handleSelectClip}
 								/>
 							</div>
 						</Panel>

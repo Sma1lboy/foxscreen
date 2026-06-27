@@ -92,5 +92,15 @@
 		"empty": "Nhập video để bắt đầu",
 		"remove": "Xóa",
 		"drop": "Thả video để nhập"
+	},
+	"clipTimeline": {
+		"empty": "Dòng thời gian trống — thêm clip từ thư viện",
+		"split": "Cắt tại đầu phát",
+		"rippleDelete": "Xóa dồn",
+		"delete": "Xóa",
+		"zoomIn": "Phóng to",
+		"zoomOut": "Thu nhỏ",
+		"videoTrack": "Rãnh video",
+		"audioTrack": "Rãnh âm thanh"
 	}
 }
