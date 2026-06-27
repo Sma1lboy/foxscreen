@@ -12,13 +12,75 @@
 
 import { isTauri } from "./electronApiShim";
 
+const TEST_MEDIA = "/Users/jacksonc/i/cutti/examples/test-media";
+
+/** A populated demo project (4 sources, clips across V1/V2/A3) for visual QA via
+ *  `?seed=demo`. Videos won't load in a plain browser (file:// is blocked) but the
+ *  bin, clips, timeline, and clip inspector all render. */
+const DEMO_PROJECT = {
+	version: 2,
+	media: { screenVideoPath: `${TEST_MEDIA}/sample-10s.mp4` },
+	editor: {},
+	mediaLibrary: [
+		{ id: "a1", path: `${TEST_MEDIA}/w3-bbb.mp4`, name: "w3-bbb.mp4" },
+		{ id: "a2", path: `${TEST_MEDIA}/bbb-10s.mp4`, name: "bbb-10s.mp4" },
+		{ id: "a3", path: `${TEST_MEDIA}/sample-5s.mp4`, name: "sample-5s.mp4" },
+		{ id: "a4", path: `${TEST_MEDIA}/sample-10s.mp4`, name: "sample-10s.mp4" },
+	],
+	timelineClips: [
+		{
+			id: "c1",
+			assetId: "a4",
+			name: "sample-10s.mp4",
+			sourcePath: `${TEST_MEDIA}/sample-10s.mp4`,
+			trackIndex: 0,
+			startSec: 0,
+			inSec: 0,
+			outSec: 10,
+		},
+		{
+			id: "c2",
+			assetId: "a3",
+			name: "sample-5s.mp4",
+			sourcePath: `${TEST_MEDIA}/sample-5s.mp4`,
+			trackIndex: 0,
+			startSec: 10,
+			inSec: 0,
+			outSec: 5,
+		},
+		{
+			id: "c5",
+			assetId: "a2",
+			name: "bbb-10s.mp4",
+			sourcePath: `${TEST_MEDIA}/bbb-10s.mp4`,
+			trackIndex: 1,
+			startSec: 2,
+			inSec: 0,
+			outSec: 10,
+		},
+		{
+			id: "c6",
+			assetId: "a3",
+			name: "sample-5s.mp4",
+			sourcePath: `${TEST_MEDIA}/sample-5s.mp4`,
+			trackIndex: 2,
+			startSec: 0,
+			inSec: 0,
+			outSec: 5,
+		},
+	],
+};
+
 /** Safe default `data` for a (domain, action) native-bridge request. */
 function bridgeData(domain: string, action: string): unknown {
 	switch (`${domain}.${action}`) {
 		case "platform.getPlatform":
 			return "darwin";
-		case "project.getCurrentVideoPath":
 		case "project.loadCurrentProjectFile":
+			return new URLSearchParams(window.location.search).get("seed") === "demo"
+				? { success: true, project: DEMO_PROJECT, path: "demo" }
+				: { success: false };
+		case "project.getCurrentVideoPath":
 			return { success: false };
 		case "project.setCurrentVideoPath":
 		case "project.clearCurrentVideoPath":
