@@ -858,7 +858,7 @@ export function SettingsPanel({
 									mode.disabled
 										? "cursor-not-allowed border-transparent text-muted-foreground/70"
 										: isActive
-											? "border-primary/50 bg-primary/15 text-primary shadow-[0_0_0_1px_rgba(52,178,123,0.12)]"
+											? "border-primary/50 bg-primary/15 text-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.2)]"
 											: "border-transparent text-muted-foreground hover:border-border hover:bg-accent hover:text-foreground",
 								)}
 							>
