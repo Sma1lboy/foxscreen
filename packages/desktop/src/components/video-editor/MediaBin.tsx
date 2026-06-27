@@ -81,14 +81,14 @@ export function MediaBin({
 					<span className="text-xs font-semibold">{t("mediaBin.drop")}</span>
 				</div>
 			)}
-			<div className="flex items-center justify-between px-3 py-2.5 border-b border-white/[0.06]">
-				<span className="text-[13px] font-semibold text-slate-200">{t("mediaBin.title")}</span>
+			<div className="flex items-center justify-between px-3 py-2.5 border-b border-border">
+				<span className="text-[13px] font-semibold text-foreground">{t("mediaBin.title")}</span>
 				<button
 					type="button"
 					onClick={onImport}
 					title={t("mediaBin.import")}
 					aria-label={t("mediaBin.import")}
-					className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-slate-100 hover:bg-white/[0.06] transition-colors"
+					className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
 				>
 					<FolderPlus className="h-3.5 w-3.5" />
 				</button>
@@ -98,7 +98,7 @@ export function MediaBin({
 				<button
 					type="button"
 					onClick={onImport}
-					className="flex flex-1 flex-col items-center justify-center gap-2 px-4 text-center text-slate-500 hover:text-slate-300 transition-colors"
+					className="flex flex-1 flex-col items-center justify-center gap-2 px-4 text-center text-muted-foreground hover:text-foreground/80 transition-colors"
 				>
 					<Film className="h-7 w-7 opacity-60" />
 					<span className="text-xs leading-relaxed">{t("mediaBin.empty")}</span>
@@ -123,13 +123,13 @@ export function MediaBin({
 									title={asset.path}
 									className={`group/asset flex cursor-pointer items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-left transition-colors ${
 										isActive
-											? "bg-primary/15 ring-1 ring-primary/40 text-slate-100"
-											: "text-slate-300 hover:bg-white/[0.05]"
+											? "bg-primary/15 ring-1 ring-primary/40 text-foreground"
+											: "text-foreground/80 hover:bg-accent"
 									}`}
 								>
 									<span
 										className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md ${
-											isActive ? "bg-primary/25 text-primary" : "bg-white/[0.05] text-slate-400"
+											isActive ? "bg-primary/25 text-primary" : "bg-muted text-muted-foreground"
 										}`}
 									>
 										<Film className="h-4 w-4" />
@@ -142,7 +142,7 @@ export function MediaBin({
 											onRemove(asset);
 										}}
 										aria-label={t("mediaBin.remove")}
-										className="flex-shrink-0 p-1 rounded text-slate-500 opacity-0 transition hover:text-slate-100 group-hover/asset:opacity-100"
+										className="flex-shrink-0 p-1 rounded text-muted-foreground opacity-0 transition hover:text-foreground group-hover/asset:opacity-100"
 									>
 										<X className="h-3 w-3" />
 									</button>

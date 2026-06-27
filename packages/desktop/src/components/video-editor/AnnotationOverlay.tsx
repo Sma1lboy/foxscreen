@@ -347,7 +347,7 @@ export function AnnotationOverlay({
 					);
 				}
 				return (
-					<div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">
+					<div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
 						No image
 					</div>
 				);
@@ -355,7 +355,7 @@ export function AnnotationOverlay({
 			case "figure":
 				if (!annotation.figureData) {
 					return (
-						<div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">
+						<div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
 							No arrow data
 						</div>
 					);
@@ -466,7 +466,7 @@ export function AnnotationOverlay({
 							)}
 							{isSelected && shape !== "freehand" && (
 								<div
-									className="absolute inset-0 pointer-events-none border-2 border-[#CC785C]/80"
+									className="absolute inset-0 pointer-events-none border-2 border-primary/80"
 									style={{ borderRadius: shapeBorderRadius }}
 								/>
 							)}
@@ -573,7 +573,7 @@ export function AnnotationOverlay({
 				"cursor-move",
 				isSelected &&
 					annotation.type !== "blur" &&
-					"ring-2 ring-[#CC785C] ring-offset-2 ring-offset-transparent",
+					"ring-2 ring-ring ring-offset-2 ring-offset-transparent",
 			)}
 			style={{
 				zIndex: isSelectedBoost ? zIndex + 1000 : zIndex, // keep the selected annotation on top

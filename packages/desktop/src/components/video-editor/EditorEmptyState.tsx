@@ -114,22 +114,22 @@ export function EditorEmptyState({
 
 	return (
 		<div
-			className="flex h-full w-full flex-col items-center justify-center bg-[#09090b]"
+			className="flex h-full w-full flex-col items-center justify-center bg-card"
 			onDragOver={handleDragOver}
 			onDragLeave={handleDragLeave}
 			onDrop={handleDrop}
 		>
 			{/* Drop overlay */}
 			{isDraggingOver && (
-				<div className="pointer-events-none absolute inset-0 z-50 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#CC785C] bg-[#CC785C]/10">
-					<Upload className="mb-3 h-10 w-10 text-[#CC785C]" />
-					<p className="text-base font-semibold text-[#CC785C]">{te("emptyState.dropOverlay")}</p>
+				<div className="pointer-events-none absolute inset-0 z-50 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-primary bg-primary/10">
+					<Upload className="mb-3 h-10 w-10 text-primary" />
+					<p className="text-base font-semibold text-primary">{te("emptyState.dropOverlay")}</p>
 				</div>
 			)}
 
 			{/* Drop error dialog */}
 			<Dialog open={dropError !== null} onOpenChange={(open) => !open && setDropError(null)}>
-				<DialogContent className="bg-[#09090b] border-white/10 rounded-2xl max-w-sm p-6 gap-0">
+				<DialogContent className="bg-card border-border rounded-2xl max-w-sm p-6 gap-0">
 					<DialogHeader className="mb-4">
 						<div className="flex items-center gap-3">
 							<img
@@ -138,7 +138,7 @@ export function EditorEmptyState({
 								aria-hidden="true"
 								className="w-9 h-9 rounded-xl flex-shrink-0"
 							/>
-							<DialogTitle className="text-base font-semibold text-slate-200 leading-tight">
+							<DialogTitle className="text-base font-semibold text-foreground leading-tight">
 								{lastDropErrorRef.current === "unsupported-format"
 									? te("emptyState.dropErrors.unsupportedFormatTitle")
 									: te("emptyState.dropErrors.couldNotOpenTitle")}
@@ -147,10 +147,10 @@ export function EditorEmptyState({
 					</DialogHeader>
 
 					<div className="flex flex-col items-center gap-3 mb-6 text-center">
-						<div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 ring-1 ring-white/10">
-							<AlertCircle className="w-5 h-5 text-slate-400 flex-shrink-0" />
+						<div className="flex items-center justify-center w-10 h-10 rounded-full bg-muted ring-1 ring-ring">
+							<AlertCircle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
 						</div>
-						<p className="text-sm text-slate-400 leading-relaxed">
+						<p className="text-sm text-muted-foreground leading-relaxed">
 							{lastDropErrorRef.current === "unsupported-format"
 								? te("emptyState.dropErrors.unsupportedFormatMessage")
 								: te("emptyState.dropErrors.couldNotOpenMessage")}
@@ -160,7 +160,7 @@ export function EditorEmptyState({
 					<button
 						type="button"
 						onClick={() => setDropError(null)}
-						className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]"
+						className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-muted hover:bg-accent border border-border text-foreground/80 font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 					>
 						<X className="w-4 h-4" />
 						{tc("actions.close")}
@@ -178,8 +178,8 @@ export function EditorEmptyState({
 				/>
 
 				<div className="flex flex-col gap-2">
-					<h2 className="text-xl font-semibold text-slate-200">{te("emptyState.title")}</h2>
-					<p className="max-w-sm text-sm leading-relaxed text-slate-500">
+					<h2 className="text-xl font-semibold text-foreground">{te("emptyState.title")}</h2>
+					<p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
 						{te("emptyState.description")}
 					</p>
 				</div>
@@ -189,7 +189,7 @@ export function EditorEmptyState({
 					<button
 						type="button"
 						onClick={handleImportVideo}
-						className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl bg-[#CC785C] hover:bg-[#BD6A4F] active:bg-[#A85D44] text-white font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#CC785C] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]"
+						className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl bg-primary hover:bg-primary/90 active:bg-primary/80 text-primary-foreground font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 					>
 						<Film className="h-4 w-4" />
 						{te("emptyState.importVideoButton")}
@@ -197,7 +197,7 @@ export function EditorEmptyState({
 					<button
 						type="button"
 						onClick={handleLoadProject}
-						className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]"
+						className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl bg-muted hover:bg-accent border border-border text-foreground/80 font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 					>
 						<FolderOpen className="h-4 w-4" />
 						{te("emptyState.loadProjectButton")}
@@ -205,7 +205,7 @@ export function EditorEmptyState({
 					<button
 						type="button"
 						onClick={onNewProject}
-						className="flex items-center justify-center gap-2.5 w-full px-4 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]"
+						className="flex items-center justify-center gap-2.5 w-full px-4 py-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 					>
 						<FilePlus className="h-4 w-4" />
 						{te("emptyState.newProjectButton")}
@@ -213,8 +213,8 @@ export function EditorEmptyState({
 				</div>
 
 				<div className="flex flex-col items-center gap-2">
-					<p className="text-xs text-slate-600">{te("emptyState.supportedFormats")}</p>
-					<div className="flex items-center gap-1.5 text-xs text-slate-700 mt-4">
+					<p className="text-xs text-muted-foreground/70">{te("emptyState.supportedFormats")}</p>
+					<div className="flex items-center gap-1.5 text-xs text-muted-foreground/70 mt-4">
 						<Upload className="h-3 w-3" />
 						<span>{te("emptyState.dragDropHint")}</span>
 					</div>

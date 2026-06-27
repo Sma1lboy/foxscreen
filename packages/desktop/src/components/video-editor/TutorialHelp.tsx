@@ -18,112 +18,118 @@ export function TutorialHelp() {
 				<Button
 					variant="ghost"
 					size="sm"
-					className="h-7 px-2 text-xs text-slate-400 hover:text-slate-200 hover:bg-white/10 transition-all gap-1.5"
+					className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-all gap-1.5"
 				>
 					<HelpCircle className="w-3.5 h-3.5" />
 					<span className="font-medium">{t("tutorial.triggerLabel")}</span>
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="max-w-2xl bg-[#09090b] border-white/10 [&>button]:text-slate-400 [&>button:hover]:text-white">
+			<DialogContent className="max-w-2xl bg-card border-border [&>button]:text-muted-foreground [&>button:hover]:text-foreground">
 				<DialogHeader>
-					<DialogTitle className="text-xl font-semibold text-slate-200 flex items-center gap-2">
-						<Scissors className="w-5 h-5 text-[#ef4444]" /> {t("tutorial.title")}
+					<DialogTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
+						<Scissors className="w-5 h-5 text-destructive" /> {t("tutorial.title")}
 					</DialogTitle>
-					<DialogDescription className="text-slate-400">
+					<DialogDescription className="text-muted-foreground">
 						{t("tutorial.description")}
 					</DialogDescription>
 				</DialogHeader>
 				<div className="mt-4 space-y-8">
 					{/* Explanation */}
-					<div className="bg-white/5 rounded-lg p-4 border border-white/5">
-						<p className="text-slate-300 leading-relaxed">
+					<div className="bg-muted rounded-lg p-4 border border-border">
+						<p className="text-foreground/80 leading-relaxed">
 							{t("tutorial.explanationBefore")}
-							<span className="text-[#ef4444] font-bold"> {t("tutorial.remove")}</span>
+							<span className="text-destructive font-bold"> {t("tutorial.remove")}</span>
 							{t("tutorial.explanationMiddle")}
-							<span className="text-[#ef4444] font-bold"> {t("tutorial.covered")}</span>
+							<span className="text-destructive font-bold"> {t("tutorial.covered")}</span>
 							{t("tutorial.explanationAfter")}
 						</p>
 					</div>
 					{/* Visual Illustration */}
 					<div className="space-y-2">
-						<h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider">
+						<h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
 							{t("tutorial.visualExample")}
 						</h3>
-						<div className="relative h-24 bg-[#000] rounded-lg border border-white/10 flex items-center px-4 overflow-hidden select-none">
+						<div className="relative h-24 bg-background rounded-lg border border-border flex items-center px-4 overflow-hidden select-none">
 							{/* Background track (Kept parts) */}
-							<div className="absolute inset-x-4 h-2 bg-slate-600 rounded-full overflow-hidden">
+							<div className="absolute inset-x-4 h-2 bg-muted rounded-full overflow-hidden">
 								{/* Solid line representing video */}
 							</div>
 							{/* Removed Segment 1 */}
 							<div
-								className="absolute left-[20%] h-8 bg-[#ef4444]/20 border border-[#ef4444] rounded flex flex-col items-center justify-center z-10"
+								className="absolute left-[20%] h-8 bg-destructive/20 border border-destructive rounded flex flex-col items-center justify-center z-10"
 								style={{ width: "20%" }}
 							>
-								<span className="text-[10px] font-bold text-[#ef4444] bg-black/50 px-1 rounded">
+								<span className="text-[10px] font-bold text-destructive bg-black/50 px-1 rounded">
 									{t("tutorial.removed")}
 								</span>
 							</div>
 							{/* Removed Segment 2 */}
 							<div
-								className="absolute left-[65%] h-8 bg-[#ef4444]/20 border border-[#ef4444] rounded flex flex-col items-center justify-center z-10"
+								className="absolute left-[65%] h-8 bg-destructive/20 border border-destructive rounded flex flex-col items-center justify-center z-10"
 								style={{ width: "15%" }}
 							>
-								<span className="text-[10px] font-bold text-[#ef4444] bg-black/50 px-1 rounded">
+								<span className="text-[10px] font-bold text-destructive bg-black/50 px-1 rounded">
 									{t("tutorial.removed")}
 								</span>
 							</div>
 							{/* Labels for kept parts */}
-							<div className="absolute left-[5%] text-[10px] text-slate-400 font-medium">
+							<div className="absolute left-[5%] text-[10px] text-muted-foreground font-medium">
 								{t("tutorial.kept")}
 							</div>
-							<div className="absolute left-[50%] text-[10px] text-slate-400 font-medium">
+							<div className="absolute left-[50%] text-[10px] text-muted-foreground font-medium">
 								{t("tutorial.kept")}
 							</div>
-							<div className="absolute left-[90%] text-[10px] text-slate-400 font-medium">
+							<div className="absolute left-[90%] text-[10px] text-muted-foreground font-medium">
 								{t("tutorial.kept")}
 							</div>
 						</div>
 						<div className="flex justify-center mt-2">
-							<ArrowRight className="w-4 h-4 text-slate-600 rotate-90" />
+							<ArrowRight className="w-4 h-4 text-muted-foreground/70 rotate-90" />
 						</div>
 						{/* Result */}
-						<div className="relative h-12 bg-[#000] rounded-lg border border-white/10 flex items-center justify-center gap-1 px-4 select-none">
+						<div className="relative h-12 bg-background rounded-lg border border-border flex items-center justify-center gap-1 px-4 select-none">
 							<div
-								className="h-8 bg-slate-700 rounded flex items-center justify-center opacity-80"
+								className="h-8 bg-muted rounded flex items-center justify-center opacity-80"
 								style={{ width: "30%" }}
 							>
-								<span className="text-[10px] text-white font-medium">{t("tutorial.part1")}</span>
+								<span className="text-[10px] text-foreground font-medium">
+									{t("tutorial.part1")}
+								</span>
 							</div>
 							<div
-								className="h-8 bg-slate-700 rounded flex items-center justify-center opacity-80"
+								className="h-8 bg-muted rounded flex items-center justify-center opacity-80"
 								style={{ width: "30%" }}
 							>
-								<span className="text-[10px] text-white font-medium">{t("tutorial.part2")}</span>
+								<span className="text-[10px] text-foreground font-medium">
+									{t("tutorial.part2")}
+								</span>
 							</div>
 							<div
-								className="h-8 bg-slate-700 rounded flex items-center justify-center opacity-80"
+								className="h-8 bg-muted rounded flex items-center justify-center opacity-80"
 								style={{ width: "30%" }}
 							>
-								<span className="text-[10px] text-white font-medium">{t("tutorial.part3")}</span>
+								<span className="text-[10px] text-foreground font-medium">
+									{t("tutorial.part3")}
+								</span>
 							</div>
-							<span className="absolute right-4 text-xs text-slate-400">
+							<span className="absolute right-4 text-xs text-muted-foreground">
 								{t("tutorial.finalVideo")}
 							</span>
 						</div>
 					</div>
 					{/* Steps */}
 					<div className="grid grid-cols-2 gap-4">
-						<div className="p-3 rounded bg-white/5 border border-white/5">
-							<div className="text-[#ef4444] font-bold mb-1">{t("tutorial.step1Title")}</div>
-							<p className="text-xs text-slate-400">
+						<div className="p-3 rounded bg-muted border border-border">
+							<div className="text-destructive font-bold mb-1">{t("tutorial.step1Title")}</div>
+							<p className="text-xs text-muted-foreground">
 								{t("tutorial.step1DescriptionBefore")}
-								<kbd className="bg-white/10 px-1 rounded text-slate-300">T</kbd>
+								<kbd className="bg-muted px-1 rounded text-foreground/80">T</kbd>
 								{t("tutorial.step1DescriptionAfter")}
 							</p>
 						</div>
-						<div className="p-3 rounded bg-white/5 border border-white/5">
-							<div className="text-[#ef4444] font-bold mb-1">{t("tutorial.step2Title")}</div>
-							<p className="text-xs text-slate-400">{t("tutorial.step2Description")}</p>
+						<div className="p-3 rounded bg-muted border border-border">
+							<div className="text-destructive font-bold mb-1">{t("tutorial.step2Title")}</div>
+							<p className="text-xs text-muted-foreground">{t("tutorial.step2Description")}</p>
 						</div>
 					</div>
 				</div>

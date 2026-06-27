@@ -47,7 +47,7 @@ export function UnsavedChangesDialog({
 
 	return (
 		<Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
-			<DialogContent className="bg-[#09090b] border-white/10 rounded-2xl max-w-sm p-6 gap-0">
+			<DialogContent className="bg-card border-border rounded-2xl max-w-sm p-6 gap-0">
 				<DialogHeader className="mb-5">
 					<div className="flex items-center gap-3">
 						<img
@@ -56,20 +56,22 @@ export function UnsavedChangesDialog({
 							aria-hidden="true"
 							className="w-9 h-9 rounded-xl flex-shrink-0"
 						/>
-						<DialogTitle className="text-base font-semibold text-slate-200 leading-tight">
+						<DialogTitle className="text-base font-semibold text-foreground leading-tight">
 							{td("unsavedChanges.title")}
 						</DialogTitle>
 					</div>
 				</DialogHeader>
 
-				<p className="text-sm text-slate-300 mb-1">{td("unsavedChanges.message")}</p>
-				<DialogDescription className="text-sm text-slate-500 mb-6">{detail}</DialogDescription>
+				<p className="text-sm text-foreground/80 mb-1">{td("unsavedChanges.message")}</p>
+				<DialogDescription className="text-sm text-muted-foreground mb-6">
+					{detail}
+				</DialogDescription>
 
 				<div className="flex flex-col gap-2">
 					<button
 						type="button"
 						onClick={onSaveAndClose}
-						className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-[#CC785C] hover:bg-[#BD6A4F] active:bg-[#A85D44] text-white font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#CC785C] focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]"
+						className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/80 text-primary-foreground font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 					>
 						<Save className="w-4 h-4" />
 						{saveLabel}
@@ -77,7 +79,7 @@ export function UnsavedChangesDialog({
 					<button
 						type="button"
 						onClick={onDiscardAndClose}
-						className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/5 hover:bg-red-500/15 border border-white/10 hover:border-red-500/30 text-slate-300 hover:text-red-400 font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]"
+						className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-muted hover:bg-destructive/15 border border-border hover:border-destructive/30 text-foreground/80 hover:text-destructive font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 					>
 						<Trash2 className="w-4 h-4" />
 						{discardLabel}
@@ -85,7 +87,7 @@ export function UnsavedChangesDialog({
 					<button
 						type="button"
 						onClick={onCancel}
-						className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg hover:bg-white/5 text-slate-500 hover:text-slate-300 font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]"
+						className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground/80 font-medium text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 					>
 						{tc("actions.cancel")}
 					</button>

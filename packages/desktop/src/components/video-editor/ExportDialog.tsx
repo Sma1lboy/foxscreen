@@ -91,32 +91,32 @@ export function ExportDialog({
 				className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 animate-in fade-in duration-200"
 				onClick={isExporting ? undefined : onClose}
 			/>
-			<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[60] bg-[#09090b] rounded-2xl shadow-2xl border border-white/10 p-8 w-[90vw] max-w-md animate-in zoom-in-95 duration-200">
+			<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[60] bg-card rounded-2xl shadow-2xl border border-border p-8 w-[90vw] max-w-md animate-in zoom-in-95 duration-200">
 				<div className="flex items-center justify-between mb-6">
 					<div className="flex items-center gap-4">
 						{showSuccess ? (
 							<>
-								<div className="w-12 h-12 rounded-full bg-[#CC785C]/20 flex items-center justify-center ring-1 ring-[#CC785C]/50">
-									<Download className="w-6 h-6 text-[#CC785C]" />
+								<div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center ring-1 ring-ring">
+									<Download className="w-6 h-6 text-primary" />
 								</div>
 								<div className="flex flex-col gap-2">
-									<span className="text-xl font-bold text-slate-200 block">
+									<span className="text-xl font-bold text-foreground block">
 										{t("export.complete")}
 									</span>
-									<span className="text-sm text-slate-400">
+									<span className="text-sm text-muted-foreground">
 										{t("export.yourFormatReady", { format: formatLabel.toLowerCase() })}
 									</span>
 									{exportedFilePath && (
 										<Button
 											variant="secondary"
 											onClick={onShowInFolder}
-											className="mt-2 w-fit px-3 py-1 text-sm rounded-md bg-white/10 hover:bg-white/20 text-slate-200"
+											className="mt-2 w-fit px-3 py-1 text-sm rounded-md bg-muted hover:bg-accent text-foreground"
 										>
 											{t("export.showInFolder")}
 										</Button>
 									)}
 									{exportedFilePath && (
-										<span className="text-xs text-slate-500 break-all max-w-xs mt-1">
+										<span className="text-xs text-muted-foreground break-all max-w-xs mt-1">
 											{exportedFilePath.split("/").pop()}
 										</span>
 									)}
@@ -125,17 +125,17 @@ export function ExportDialog({
 						) : (
 							<>
 								{isExporting ? (
-									<div className="w-12 h-12 rounded-full bg-[#CC785C]/10 flex items-center justify-center">
-										<Loader2 className="w-6 h-6 text-[#CC785C] animate-spin" />
+									<div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+										<Loader2 className="w-6 h-6 text-primary animate-spin" />
 									</div>
 								) : (
-									<div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-										<Download className="w-6 h-6 text-slate-200" />
+									<div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center border border-border">
+										<Download className="w-6 h-6 text-foreground" />
 									</div>
 								)}
 								<div>
-									<span className="text-xl font-bold text-slate-200 block">{getTitle()}</span>
-									<span className="text-sm text-slate-400">{getStatusMessage()}</span>
+									<span className="text-xl font-bold text-foreground block">{getTitle()}</span>
+									<span className="text-sm text-muted-foreground">{getStatusMessage()}</span>
 								</div>
 							</>
 						)}
@@ -145,7 +145,7 @@ export function ExportDialog({
 							variant="ghost"
 							size="icon"
 							onClick={onClose}
-							className="hover:bg-white/10 text-slate-400 hover:text-white rounded-full"
+							className="hover:bg-accent text-muted-foreground hover:text-foreground rounded-full"
 						>
 							<X className="w-5 h-5" />
 						</Button>
@@ -154,11 +154,11 @@ export function ExportDialog({
 
 				{error && (
 					<div className="mb-6 animate-in slide-in-from-top-2">
-						<div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-start gap-3">
-							<div className="p-1 bg-red-500/20 rounded-full">
-								<X className="w-3 h-3 text-red-400" />
+						<div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 flex items-start gap-3">
+							<div className="p-1 bg-destructive/20 rounded-full">
+								<X className="w-3 h-3 text-destructive" />
 							</div>
-							<p className="whitespace-pre-wrap break-words text-sm text-red-400 leading-relaxed">
+							<p className="whitespace-pre-wrap break-words text-sm text-destructive leading-relaxed">
 								{error}
 							</p>
 						</div>
@@ -168,13 +168,13 @@ export function ExportDialog({
 				{isExporting && progress && (
 					<div className="space-y-6">
 						<div className="space-y-2">
-							<div className="flex justify-between text-xs font-medium text-slate-400 uppercase tracking-wider">
+							<div className="flex justify-between text-xs font-medium text-muted-foreground uppercase tracking-wider">
 								<span>
 									{isCompiling || isFinalizing
 										? t("export.compiling")
 										: t("export.renderingFrames")}
 								</span>
-								<span className="font-mono text-slate-200">
+								<span className="font-mono text-foreground">
 									{isCompiling || isFinalizing ? (
 										renderProgress !== undefined && renderProgress > 0 ? (
 											`${renderProgress}%`
@@ -189,18 +189,18 @@ export function ExportDialog({
 									)}
 								</span>
 							</div>
-							<div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+							<div className="h-2 bg-muted rounded-full overflow-hidden border border-border">
 								{isCompiling || isFinalizing ? (
 									// Real progress if we have it, otherwise an indeterminate bar.
 									renderProgress !== undefined && renderProgress > 0 ? (
 										<div
-											className="h-full bg-[#CC785C] shadow-[0_0_10px_rgba(52,178,123,0.3)] transition-all duration-300 ease-out"
+											className="h-full bg-primary shadow-[0_0_10px_rgba(52,178,123,0.3)] transition-all duration-300 ease-out"
 											style={{ width: `${renderProgress}%` }}
 										/>
 									) : (
 										<div className="h-full w-full relative overflow-hidden">
 											<div
-												className="absolute h-full w-1/3 bg-[#CC785C] shadow-[0_0_10px_rgba(52,178,123,0.3)]"
+												className="absolute h-full w-1/3 bg-primary shadow-[0_0_10px_rgba(52,178,123,0.3)]"
 												style={{
 													animation: "indeterminate 1.5s ease-in-out infinite",
 												}}
@@ -215,7 +215,7 @@ export function ExportDialog({
 									)
 								) : (
 									<div
-										className="h-full bg-[#CC785C] shadow-[0_0_10px_rgba(52,178,123,0.3)] transition-all duration-300 ease-out"
+										className="h-full bg-primary shadow-[0_0_10px_rgba(52,178,123,0.3)] transition-all duration-300 ease-out"
 										style={{ width: `${Math.min(progress.percentage, 100)}%` }}
 									/>
 								)}
@@ -223,11 +223,11 @@ export function ExportDialog({
 						</div>
 
 						<div className="grid grid-cols-2 gap-4">
-							<div className="bg-white/5 rounded-xl p-3 border border-white/5">
-								<div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">
+							<div className="bg-muted rounded-xl p-3 border border-border">
+								<div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
 									{isCompiling || isFinalizing ? t("export.status") : t("export.format")}
 								</div>
-								<div className="text-slate-200 font-medium text-sm">
+								<div className="text-foreground font-medium text-sm">
 									{isFinalizing && exportFormat === "mp4"
 										? t("export.finalizing")
 										: isCompiling || isFinalizing
@@ -235,11 +235,11 @@ export function ExportDialog({
 											: formatLabel}
 								</div>
 							</div>
-							<div className="bg-white/5 rounded-xl p-3 border border-white/5">
-								<div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">
+							<div className="bg-muted rounded-xl p-3 border border-border">
+								<div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
 									{t("export.frames")}
 								</div>
-								<div className="text-slate-200 font-medium text-sm">
+								<div className="text-foreground font-medium text-sm">
 									{progress.currentFrame} / {progress.totalFrames}
 								</div>
 							</div>
@@ -250,7 +250,7 @@ export function ExportDialog({
 								<Button
 									onClick={onCancel}
 									variant="destructive"
-									className="w-full py-6 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30 transition-all rounded-xl"
+									className="w-full py-6 bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20 hover:border-destructive/30 transition-all rounded-xl"
 								>
 									{t("export.cancelExport")}
 								</Button>
@@ -261,7 +261,7 @@ export function ExportDialog({
 
 				{showSuccess && (
 					<div className="text-center py-4 animate-in zoom-in-95">
-						<p className="text-lg text-slate-200 font-medium">
+						<p className="text-lg text-foreground font-medium">
 							{t("export.savedSuccessfully", { format: formatLabel })}
 						</p>
 					</div>

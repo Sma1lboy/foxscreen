@@ -10,16 +10,16 @@ export function KeyboardShortcutsHelp() {
 
 	return (
 		<div className="relative group">
-			<HelpCircle className="w-4 h-4 text-slate-500 hover:text-[#CC785C] transition-colors cursor-help" />
+			<HelpCircle className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors cursor-help" />
 
-			<div className="absolute right-0 top-full mt-2 w-64 bg-[#09090b] border border-white/10 rounded-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-xl z-50">
+			<div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-xl z-50">
 				<div className="flex items-center justify-between mb-2">
-					<span className="text-xs font-semibold text-slate-200">{t("title")}</span>
+					<span className="text-xs font-semibold text-foreground">{t("title")}</span>
 					<button
 						type="button"
 						onClick={openConfig}
 						title="Customize shortcuts"
-						className="flex items-center gap-1 text-[10px] text-slate-500 hover:text-[#CC785C] transition-colors"
+						className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors"
 					>
 						<Settings2 className="w-3 h-3" />
 						{t("customize")}
@@ -30,21 +30,21 @@ export function KeyboardShortcutsHelp() {
 					{SHORTCUT_ACTIONS.filter((action) => BLUR_REGIONS_ENABLED || action !== "addBlur").map(
 						(action) => (
 							<div key={action} className="flex items-center justify-between">
-								<span className="text-slate-400">{t(`actions.${action}`)}</span>
-								<kbd className="px-1 py-0.5 bg-white/5 border border-white/10 rounded text-[#CC785C] font-mono">
+								<span className="text-muted-foreground">{t(`actions.${action}`)}</span>
+								<kbd className="px-1 py-0.5 bg-muted border border-border rounded text-primary font-mono">
 									{formatBinding(shortcuts[action], isMac)}
 								</kbd>
 							</div>
 						),
 					)}
 
-					<div className="pt-1 border-t border-white/5 mt-1 space-y-1.5">
+					<div className="pt-1 border-t border-border mt-1 space-y-1.5">
 						{FIXED_SHORTCUTS.map((fixed) => (
 							<div key={fixed.i18nKey} className="flex items-center justify-between">
-								<span className="text-slate-400">
+								<span className="text-muted-foreground">
 									{t(`fixedActions.${fixed.i18nKey}`, { defaultValue: fixed.label })}
 								</span>
-								<kbd className="px-1 py-0.5 bg-white/5 border border-white/10 rounded text-[#CC785C] font-mono">
+								<kbd className="px-1 py-0.5 bg-muted border border-border rounded text-primary font-mono">
 									{isMac
 										? fixed.display
 												.replace(/Ctrl/g, "⌘")

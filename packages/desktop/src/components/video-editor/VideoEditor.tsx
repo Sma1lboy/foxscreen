@@ -2681,7 +2681,7 @@ export default function VideoEditor() {
 					<button
 						type="button"
 						onClick={handleLoadProject}
-						className="px-3 py-1.5 rounded-md bg-[#CC785C] text-white text-sm hover:bg-[#CC785C]/90"
+						className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:bg-primary/90"
 					>
 						{ts("project.load")}
 					</button>
@@ -2691,7 +2691,7 @@ export default function VideoEditor() {
 	}
 
 	return (
-		<div className="flex flex-col h-screen bg-[#09090b] text-slate-200 overflow-hidden selection:bg-[#CC785C]/30">
+		<div className="flex flex-col h-screen bg-card text-foreground overflow-hidden selection:bg-primary/30">
 			<Dialog open={showNewRecordingDialog} onOpenChange={setShowNewRecordingDialog}>
 				<DialogContent
 					className="sm:max-w-[425px]"
@@ -2705,14 +2705,14 @@ export default function VideoEditor() {
 						<button
 							type="button"
 							onClick={() => setShowNewRecordingDialog(false)}
-							className="px-4 py-2 rounded-md bg-white/10 text-white hover:bg-white/20 text-sm font-medium transition-colors"
+							className="px-4 py-2 rounded-md bg-muted text-foreground hover:bg-accent text-sm font-medium transition-colors"
 						>
 							{t("newRecording.cancel")}
 						</button>
 						<button
 							type="button"
 							onClick={handleNewRecordingConfirm}
-							className="px-4 py-2 rounded-md bg-[#CC785C] text-white hover:bg-[#CC785C]/90 text-sm font-medium transition-colors"
+							className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium transition-colors"
 						>
 							{t("newRecording.confirm")}
 						</button>
@@ -2780,7 +2780,7 @@ export default function VideoEditor() {
 							type="button"
 							variant="outline"
 							onClick={() => setShowAutoCaptionsDialog(false)}
-							className="border-white/20 bg-transparent text-white hover:bg-white/10"
+							className="border-border bg-transparent text-foreground hover:bg-accent"
 						>
 							{t("autoCaptions.dialogCancel")}
 						</Button>
@@ -2791,7 +2791,7 @@ export default function VideoEditor() {
 								setShowAutoCaptionsDialog(false);
 								void generateAutoCaptions(captionWordsMin, captionWordsMax);
 							}}
-							className="bg-[#CC785C] text-white hover:bg-[#CC785C]/90"
+							className="bg-primary text-primary-foreground hover:bg-primary/90"
 						>
 							{t("autoCaptions.generate")}
 						</Button>
@@ -2801,7 +2801,7 @@ export default function VideoEditor() {
 
 			<div
 				data-tauri-drag-region
-				className="h-11 flex-shrink-0 bg-[#070809]/85 backdrop-blur-xl border-b border-white/[0.07] flex items-center justify-between px-5 z-50 shadow-[0_1px_0_rgba(255,255,255,0.03)]"
+				className="h-11 flex-shrink-0 bg-background/85 backdrop-blur-xl border-b border-border flex items-center justify-between px-5 z-50 shadow-[0_1px_0_rgba(255,255,255,0.03)]"
 				style={{ WebkitAppRegion: "drag" } as CSSProperties}
 			>
 				<div
@@ -2809,7 +2809,7 @@ export default function VideoEditor() {
 					style={{ WebkitAppRegion: "no-drag" } as CSSProperties}
 				>
 					<div
-						className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white/50 hover:text-white/90 hover:bg-white/[0.08] transition-all duration-150 ${isMac ? "ml-14" : "ml-2"}`}
+						className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 ${isMac ? "ml-14" : "ml-2"}`}
 					>
 						<Languages size={14} />
 						<select
@@ -2819,7 +2819,7 @@ export default function VideoEditor() {
 							style={{ color: "inherit" }}
 						>
 							{availableLocales.map((loc) => (
-								<option key={loc} value={loc} className="bg-[#09090b] text-white">
+								<option key={loc} value={loc} className="bg-card text-foreground">
 									{getLocaleName(loc)}
 								</option>
 							))}
@@ -2829,7 +2829,7 @@ export default function VideoEditor() {
 					<button
 						type="button"
 						onClick={() => setShowNewRecordingDialog(true)}
-						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white/50 hover:text-white/90 hover:bg-white/[0.08] transition-all duration-150 text-[11px] font-medium"
+						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
 					>
 						<Video size={14} />
 						{t("newRecording.title")}
@@ -2837,7 +2837,7 @@ export default function VideoEditor() {
 					<button
 						type="button"
 						onClick={handleLoadProject}
-						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white/50 hover:text-white/90 hover:bg-white/[0.08] transition-all duration-150 text-[11px] font-medium"
+						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
 					>
 						<FolderOpen size={14} />
 						{ts("project.load")}
@@ -2845,7 +2845,7 @@ export default function VideoEditor() {
 					<button
 						type="button"
 						onClick={handleSaveProject}
-						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white/50 hover:text-white/90 hover:bg-white/[0.08] transition-all duration-150 text-[11px] font-medium"
+						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
 					>
 						<Save size={14} />
 						{ts("project.save")}
@@ -2854,7 +2854,7 @@ export default function VideoEditor() {
 					<button
 						type="button"
 						onClick={handleLoadCuttiDemo}
-						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white/50 hover:text-white/90 hover:bg-white/[0.08] transition-all duration-150 text-[11px] font-medium"
+						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
 					>
 						<Captions size={14} />
 						cutti 字幕
@@ -2862,7 +2862,7 @@ export default function VideoEditor() {
 					<button
 						type="button"
 						onClick={handleCuttiFirstCut}
-						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white/50 hover:text-white/90 hover:bg-white/[0.08] transition-all duration-150 text-[11px] font-medium"
+						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
 					>
 						<Scissors size={14} />
 						cutti 初剪
@@ -2870,7 +2870,7 @@ export default function VideoEditor() {
 					<button
 						type="button"
 						onClick={handleCuttiAiCut}
-						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white/50 hover:text-white/90 hover:bg-white/[0.08] transition-all duration-150 text-[11px] font-medium"
+						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
 					>
 						<Sparkles size={14} />
 						cutti AI 剪
@@ -2926,7 +2926,7 @@ export default function VideoEditor() {
 								</Panel>
 
 								<PanelResizeHandle className="editor-resize-handle-h group">
-									<div className="h-10 w-1 rounded-full bg-white/20 transition-colors group-hover:bg-[#CC785C]/70" />
+									<div className="h-10 w-1 rounded-full bg-muted transition-colors group-hover:bg-primary/70" />
 								</PanelResizeHandle>
 
 								<Panel defaultSize={56} minSize={34} className="min-h-0">
@@ -2934,7 +2934,7 @@ export default function VideoEditor() {
 										ref={playerContainerRef}
 										className={
 											isFullscreen
-												? "fixed inset-0 z-[99999] w-full h-full flex flex-col items-center justify-center bg-[#09090b]"
+												? "fixed inset-0 z-[99999] w-full h-full flex flex-col items-center justify-center bg-card"
 												: "editor-preview-panel w-full h-full flex flex-col items-center justify-center overflow-hidden relative"
 										}
 									>
@@ -3053,7 +3053,7 @@ export default function VideoEditor() {
 								</Panel>
 
 								<PanelResizeHandle className="editor-resize-handle-h group">
-									<div className="h-10 w-1 rounded-full bg-white/20 transition-colors group-hover:bg-[#CC785C]/70" />
+									<div className="h-10 w-1 rounded-full bg-muted transition-colors group-hover:bg-primary/70" />
 								</PanelResizeHandle>
 
 								<Panel defaultSize={28} minSize={18} className="min-h-0">
@@ -3239,7 +3239,7 @@ export default function VideoEditor() {
 						</Panel>
 
 						<PanelResizeHandle className="editor-resize-handle group">
-							<div className="w-10 h-1 bg-white/20 rounded-full transition-colors group-hover:bg-[#CC785C]/70"></div>
+							<div className="w-10 h-1 bg-muted rounded-full transition-colors group-hover:bg-primary/70"></div>
 						</PanelResizeHandle>
 
 						{/* Full-width timeline */}

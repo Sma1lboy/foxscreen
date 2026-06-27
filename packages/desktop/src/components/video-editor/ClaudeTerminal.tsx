@@ -97,5 +97,5 @@ export function ClaudeTerminal() {
 		};
 	}, []);
 
-	return <div ref={containerRef} className="w-full h-full min-h-0 bg-[#0a0a0a]" />;
+	return <div ref={containerRef} className="w-full h-full min-h-0 bg-card" />;
 }

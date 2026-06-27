@@ -43,10 +43,10 @@ export function BlurSettingsPanel({
 		<div className="min-w-0 p-4 flex flex-col h-full overflow-y-auto custom-scrollbar">
 			<div className="mb-3">
 				<div className="mb-4">
-					<span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+					<span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
 						{t("annotation.blurTypeMosaic")}
 					</span>
-					<div className="mt-1 text-xl font-semibold text-slate-100">
+					<div className="mt-1 text-xl font-semibold text-foreground">
 						{t("annotation.typeBlur")}
 					</div>
 				</div>
@@ -73,15 +73,15 @@ export function BlurSettingsPanel({
 								className={cn(
 									"h-12 rounded-lg border flex items-center justify-center transition-all p-2 gap-2",
 									isActive
-										? "bg-[#CC785C] border-[#CC785C]"
-										: "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20",
+										? "bg-primary border-primary"
+										: "bg-muted border-border hover:bg-accent hover:border-border",
 								)}
 							>
 								{shape.value === "rectangle" && (
 									<div
 										className={cn(
 											"w-8 h-5 border-2 rounded-sm",
-											isActive ? "border-white" : "border-slate-400",
+											isActive ? "border-border" : "border-border",
 										)}
 									/>
 								)}
@@ -89,7 +89,7 @@ export function BlurSettingsPanel({
 									<div
 										className={cn(
 											"w-8 h-5 border-2 rounded-full",
-											isActive ? "border-white" : "border-slate-400",
+											isActive ? "border-border" : "border-border",
 										)}
 									/>
 								)}
@@ -102,7 +102,7 @@ export function BlurSettingsPanel({
 				</div>
 
 				<div className="mt-4">
-					<label className="text-xs font-medium text-slate-300 mb-2 block">
+					<label className="text-xs font-medium text-foreground/80 mb-2 block">
 						{t("annotation.blurColor")}
 					</label>
 					<div className="grid grid-cols-2 gap-2">
@@ -127,12 +127,12 @@ export function BlurSettingsPanel({
 									className={cn(
 										"h-10 rounded-lg border flex items-center gap-2 px-3 transition-all",
 										isActive
-											? "bg-[#CC785C] border-[#CC785C]"
-											: "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20",
+											? "bg-primary border-primary"
+											: "bg-muted border-border hover:bg-accent hover:border-border",
 									)}
 								>
 									<div
-										className="w-4 h-4 rounded-full border border-white/20"
+										className="w-4 h-4 rounded-full border border-border"
 										style={{
 											backgroundColor: getBlurOverlayColor({
 												...DEFAULT_BLUR_DATA,
@@ -141,7 +141,7 @@ export function BlurSettingsPanel({
 											}),
 										}}
 									/>
-									<span className="text-xs text-slate-200">
+									<span className="text-xs text-foreground">
 										{t(`annotation.${option.labelKey}`)}
 									</span>
 								</button>
@@ -152,10 +152,10 @@ export function BlurSettingsPanel({
 
 				<div className="mt-4 p-3 rounded-lg editor-control-surface">
 					<div className="flex items-center justify-between mb-2">
-						<span className="text-xs font-medium text-slate-300">
+						<span className="text-xs font-medium text-foreground/80">
 							{t("annotation.mosaicBlockSize")}
 						</span>
-						<span className="text-[10px] text-slate-400 font-mono">
+						<span className="text-[10px] text-muted-foreground font-mono">
 							{Math.round(blurRegion.blurData?.blockSize ?? DEFAULT_BLUR_BLOCK_SIZE)}
 							px
 						</span>
@@ -174,7 +174,7 @@ export function BlurSettingsPanel({
 						min={MIN_BLUR_BLOCK_SIZE}
 						max={MAX_BLUR_BLOCK_SIZE}
 						step={1}
-						className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
+						className="w-full [&_[role=slider]]:bg-primary [&_[role=slider]]:border-primary [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
 					/>
 				</div>
 
@@ -182,7 +182,7 @@ export function BlurSettingsPanel({
 					onClick={onDelete}
 					variant="destructive"
 					size="sm"
-					className="w-full gap-2 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30 transition-all mt-4"
+					className="w-full gap-2 bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20 hover:border-destructive/30 transition-all mt-4"
 				>
 					<Trash2 className="w-4 h-4" />
 					{t("annotation.deleteAnnotation")}

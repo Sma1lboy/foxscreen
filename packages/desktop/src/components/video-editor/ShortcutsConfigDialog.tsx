@@ -131,17 +131,17 @@ export function ShortcutsConfigDialog() {
 				if (!open) handleClose();
 			}}
 		>
-			<DialogContent className="bg-[#09090b] border-white/10 text-white max-w-[420px] max-h-[85vh] flex flex-col">
+			<DialogContent className="bg-card border-border text-foreground max-w-[420px] max-h-[85vh] flex flex-col">
 				<DialogHeader className="shrink-0">
 					<DialogTitle className="flex items-center gap-2 text-sm">
-						<Keyboard className="w-4 h-4 text-[#CC785C]" />
+						<Keyboard className="w-4 h-4 text-primary" />
 						{t("title")}
 					</DialogTitle>
 				</DialogHeader>
 
 				<div className="flex-1 min-h-0 overflow-y-auto pr-1 -mr-1">
 					<div className="space-y-0.5">
-						<p className="text-[10px] text-slate-500 mb-2 uppercase tracking-wide font-semibold">
+						<p className="text-[10px] text-muted-foreground mb-2 uppercase tracking-wide font-semibold">
 							{t("configurable")}
 						</p>
 						{SHORTCUT_ACTIONS.filter((action) => BLUR_REGIONS_ENABLED || action !== "addBlur").map(
@@ -150,8 +150,8 @@ export function ShortcutsConfigDialog() {
 								const hasConflict = conflict?.forAction === action;
 								return (
 									<div key={action}>
-										<div className="flex items-center justify-between py-1.5 px-1 border-b border-white/5">
-											<span className="text-sm text-slate-300">{t(`actions.${action}`)}</span>
+										<div className="flex items-center justify-between py-1.5 px-1 border-b border-border">
+											<span className="text-sm text-foreground/80">{t(`actions.${action}`)}</span>
 											<button
 												type="button"
 												onClick={() => {
@@ -162,10 +162,10 @@ export function ShortcutsConfigDialog() {
 												className={[
 													"px-2 py-1 rounded text-xs font-mono border transition-all min-w-[90px] text-center select-none",
 													isCapturing
-														? "bg-[#CC785C]/20 border-[#CC785C] text-[#CC785C] animate-pulse"
+														? "bg-primary/20 border-primary text-primary animate-pulse"
 														: hasConflict
 															? "bg-amber-500/10 border-amber-500/50 text-amber-400"
-															: "bg-white/5 border-white/10 text-slate-200 hover:border-[#CC785C]/50 hover:text-[#CC785C] cursor-pointer",
+															: "bg-muted border-border text-foreground hover:border-primary/50 hover:text-primary cursor-pointer",
 												].join(" ")}
 											>
 												{isCapturing ? t("pressKey") : formatBinding(draft[action], isMac)}
@@ -190,7 +190,7 @@ export function ShortcutsConfigDialog() {
 													<button
 														type="button"
 														onClick={handleCancelConflict}
-														className="px-2 py-0.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-slate-400 transition-colors"
+														className="px-2 py-0.5 bg-muted hover:bg-accent border border-border rounded text-muted-foreground transition-colors"
 													>
 														{tc("actions.cancel")}
 													</button>
@@ -204,32 +204,32 @@ export function ShortcutsConfigDialog() {
 					</div>
 
 					<div className="space-y-0.5 mt-2">
-						<p className="text-[10px] text-slate-500 mb-2 uppercase tracking-wide font-semibold">
+						<p className="text-[10px] text-muted-foreground mb-2 uppercase tracking-wide font-semibold">
 							{t("fixed")}
 						</p>
 						{FIXED_SHORTCUTS.map(({ i18nKey, label, display }) => (
 							<div
 								key={i18nKey}
-								className="flex items-center justify-between py-1.5 px-1 border-b border-white/5 last:border-0"
+								className="flex items-center justify-between py-1.5 px-1 border-b border-border last:border-0"
 							>
-								<span className="text-sm text-slate-400">
+								<span className="text-sm text-muted-foreground">
 									{t(`fixedActions.${i18nKey}`, { defaultValue: label })}
 								</span>
-								<kbd className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs font-mono text-slate-400 min-w-[90px] text-center">
+								<kbd className="px-2 py-1 bg-muted border border-border rounded text-xs font-mono text-muted-foreground min-w-[90px] text-center">
 									{display}
 								</kbd>
 							</div>
 						))}
 					</div>
 
-					<p className="text-[10px] text-slate-500 mt-1">{t("helpText")}</p>
+					<p className="text-[10px] text-muted-foreground mt-1">{t("helpText")}</p>
 				</div>
 
 				<DialogFooter className="shrink-0 flex gap-2 sm:justify-between mt-2">
 					<Button
 						variant="ghost"
 						size="sm"
-						className="text-slate-400 gap-1.5"
+						className="text-muted-foreground gap-1.5"
 						onClick={handleReset}
 					>
 						<RotateCcw className="w-3 h-3" />
@@ -241,7 +241,7 @@ export function ShortcutsConfigDialog() {
 						</Button>
 						<Button
 							size="sm"
-							className="bg-[#CC785C] hover:bg-[#BD6A4F] text-white"
+							className="bg-primary hover:bg-primary/90 text-primary-foreground"
 							onClick={handleSave}
 						>
 							{tc("actions.save")}
