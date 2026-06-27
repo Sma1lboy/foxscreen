@@ -122,6 +122,10 @@
 		"volume": "مستوى الصوت",
 		"mute": "كتم الصوت",
 		"fadeIn": "تلاشٍ للداخل",
-		"fadeOut": "تلاشٍ للخارج"
+		"fadeOut": "تلاشٍ للخارج",
+		"multiTitle": "عدة مقاطع",
+		"selectedCount": "{{count}} مقاطع محددة",
+		"muteAll": "كتم الكل",
+		"deleteSelected": "حذف المحدد"
 	}
 }

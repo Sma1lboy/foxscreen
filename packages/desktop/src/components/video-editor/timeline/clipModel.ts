@@ -237,6 +237,36 @@ export function rippleDeleteClip(clips: TimelineClip[], clipId: string): Timelin
 }
 
 /**
+ * Ids of every clip whose timeline span and track fall inside a marquee
+ * rectangle. The marquee is `[t0, t1]` seconds × `[trackLo, trackHi]` track
+ * indices; both ranges are normalised here so callers may pass the bounds in
+ * any order. A clip is included when its `[startSec, clipEndSec]` span overlaps
+ * the time window (inclusive — touching edges count) AND its `trackIndex` sits
+ * within the inclusive track range. Pure — the engine behind marquee
+ * drag-select.
+ */
+export function clipsInMarquee(
+	clips: TimelineClip[],
+	t0: number,
+	t1: number,
+	trackLo: number,
+	trackHi: number,
+): string[] {
+	const lo = Math.min(t0, t1);
+	const hi = Math.max(t0, t1);
+	const trackMin = Math.min(trackLo, trackHi);
+	const trackMax = Math.max(trackLo, trackHi);
+	const out: string[] = [];
+	for (const clip of clips) {
+		if (clip.trackIndex < trackMin || clip.trackIndex > trackMax) continue;
+		// Inclusive time overlap: clip start at/before the window's right edge and
+		// clip end at/after its left edge.
+		if (clip.startSec <= hi && clipEndSec(clip) >= lo) out.push(clip.id);
+	}
+	return out;
+}
+
+/**
  * Split a clip at an absolute timeline position into a left/right pair.
  * Returns `null` if the cut lands outside the clip (or too close to an edge to
  * leave both halves at least {@link MIN_CLIP_LENGTH} long).

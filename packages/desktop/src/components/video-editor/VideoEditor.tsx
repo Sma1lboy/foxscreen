@@ -281,7 +281,12 @@ export default function VideoEditor() {
 	// above; every mutation routes through pushState/updateState/replacePresent so
 	// clip + track edits are undoable. Clips are seeded from library assets and
 	// edited in <ClipTimeline/>; the active clip drives the single-source preview.
-	const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
+	// Multi-selection: every selected timeline clip id. Bulk ops (move / delete /
+	// duplicate / nudge / split, and the inspector's bulk affordances) act on the
+	// whole set; the single-clip inspector keys off the derived `selectedClipId`
+	// below (exactly one selected).
+	const [selectedClipIds, setSelectedClipIds] = useState<string[]>([]);
+	const selectedClipId = selectedClipIds.length === 1 ? selectedClipIds[0] : null;
 	// Copy/paste buffer for the standard-NLE clip shortcuts (Cmd/Ctrl+C / +V).
 	const [clipboard, setClipboard] = useState<TimelineClip[]>([]);
 	const [videoSourcePath, setVideoSourcePath] = useState<string | null>(null);
@@ -303,8 +308,8 @@ export default function VideoEditor() {
 	clipsRef.current = clips;
 	const tracksRef = useRef(tracks);
 	tracksRef.current = tracks;
-	const selectedClipIdRef = useRef(selectedClipId);
-	selectedClipIdRef.current = selectedClipId;
+	const selectedClipIdsRef = useRef(selectedClipIds);
+	selectedClipIdsRef.current = selectedClipIds;
 	const clipboardRef = useRef(clipboard);
 	clipboardRef.current = clipboard;
 	const videoSourcePathRef = useRef(videoSourcePath);
@@ -345,6 +350,35 @@ export default function VideoEditor() {
 		},
 		[selectedClipId, pushState],
 	);
+	// Bulk inspector edit (>1 selected): apply a patch to every selected clip on
+	// an UNLOCKED lane — one undo step. Locked-lane clips stay part of the visual
+	// selection but skip the edit (mirrors the keyboard/drag lock guards).
+	const handleSelectedClipsChange = useCallback(
+		(patch: Partial<TimelineClip>) => {
+			pushState((prev) => {
+				const sel = new Set(selectedClipIdsRef.current);
+				return {
+					timelineClips: prev.timelineClips.map((c) =>
+						sel.has(c.id) && !isTrackLocked(prev.tracks, c.trackIndex) ? { ...c, ...patch } : c,
+					),
+				};
+			});
+		},
+		[pushState],
+	);
+	// Bulk delete (inspector >1 path): drop every selected unlocked clip as one
+	// undo step, then clear the selection.
+	const handleDeleteSelectedClips = useCallback(() => {
+		pushState((prev) => {
+			const sel = new Set(selectedClipIdsRef.current);
+			return {
+				timelineClips: prev.timelineClips.filter(
+					(c) => !(sel.has(c.id) && !isTrackLocked(prev.tracks, c.trackIndex)),
+				),
+			};
+		});
+		setSelectedClipIds([]);
+	}, [pushState]);
 
 	// ClipTimeline edit channels. Toolbar split/ripple/delete are discrete edits →
 	// one undo step each. A move/trim drag streams through the preview channel
@@ -397,12 +431,13 @@ export default function VideoEditor() {
 				tracks: removeTrack(prev.tracks, index),
 				timelineClips: reindexClipsForRemovedTrack(prev.timelineClips, index),
 			}));
-			// Drop the selection if it lived on the removed lane (non-undoable).
-			setSelectedClipId((prev) => {
-				if (!prev) return prev;
-				const sel = clipsRef.current.find((c) => c.id === prev);
-				return sel && sel.trackIndex === index ? null : prev;
-			});
+			// Drop any selected clip that lived on the removed lane (non-undoable).
+			setSelectedClipIds((prev) =>
+				prev.filter((id) => {
+					const sel = clipsRef.current.find((c) => c.id === id);
+					return !(sel && sel.trackIndex === index);
+				}),
+			);
 		},
 		[pushState],
 	);
@@ -713,7 +748,8 @@ export default function VideoEditor() {
 	// reuses the selectMediaAsset flow). Multi-clip compositing is a later phase.
 	const handleSelectClip = useCallback(
 		async (clip: TimelineClip | null) => {
-			setSelectedClipId(clip?.id ?? null);
+			// Plain select / clear: the selection becomes exactly this clip (or empty).
+			setSelectedClipIds(clip ? [clip.id] : []);
 			if (!clip || clip.sourcePath === videoSourcePath) return;
 			const setResult = await nativeBridgeClient.project.setCurrentVideoPath(clip.sourcePath);
 			if (!setResult.success) return;
@@ -728,6 +764,28 @@ export default function VideoEditor() {
 	);
 	const handleSelectClipRef = useRef(handleSelectClip);
 	handleSelectClipRef.current = handleSelectClip;
+
+	// Cmd/Ctrl-click or Shift-click: toggle one clip's membership in the selection.
+	const handleToggleClipSelection = useCallback((clip: TimelineClip) => {
+		setSelectedClipIds((prev) =>
+			prev.includes(clip.id) ? prev.filter((id) => id !== clip.id) : [...prev, clip.id],
+		);
+	}, []);
+	// Marquee drag-select result: replace the selection with the intersected ids.
+	const handleSelectClipIds = useCallback((ids: string[]) => {
+		setSelectedClipIds(ids);
+	}, []);
+	// Select a set of clips after a bulk op. One clip → reuse handleSelectClip so
+	// the preview source follows it (single-select parity); many → just set ids.
+	const selectClips = useCallback((sel: TimelineClip[]) => {
+		if (sel.length === 1) {
+			void handleSelectClipRef.current(sel[0]);
+		} else {
+			setSelectedClipIds(sel.map((c) => c.id));
+		}
+	}, []);
+	const selectClipsRef = useRef(selectClips);
+	selectClipsRef.current = selectClips;
 
 	// Point the single <video> at a different source. Switching `videoPath` remounts
 	// <VideoPlayback> (its `key` includes the path), so any follow-up seek/resume is
@@ -2372,19 +2430,23 @@ export default function VideoEditor() {
 				targetEl instanceof HTMLSelectElement ||
 				(targetEl instanceof HTMLElement && targetEl.isContentEditable);
 			if (!typing && clipsRef.current.length > 0) {
-				const selId = selectedClipIdRef.current;
-				const selected = selId ? (clipsRef.current.find((c) => c.id === selId) ?? null) : null;
-				// Clips on a locked lane can't be moved/trimmed/deleted/duplicated/split.
-				const selectedLocked = selected
-					? isTrackLocked(tracksRef.current, selected.trackIndex)
-					: false;
+				const selSet = new Set(selectedClipIdsRef.current);
+				const list = clipsRef.current;
+				// Every selected clip, and the editable subset (unlocked lanes only).
+				// Locked-lane clips can be selected but every bulk EDIT skips them.
+				const selectedClips = list.filter((c) => selSet.has(c.id));
+				const editable = selectedClips.filter(
+					(c) => !isTrackLocked(tracksRef.current, c.trackIndex),
+				);
+				const editableSet = new Set(editable.map((c) => c.id));
 
-				// Copy / paste act on the whole clipboard, not just a selection.
+				// Copy acts on the whole selection (locked clips included — copying is
+				// non-destructive); paste drops the clipboard at the playhead.
 				if (mod && key === "c") {
-					if (selected) {
+					if (selectedClips.length > 0) {
 						e.preventDefault();
 						e.stopPropagation();
-						setClipboard([selected]);
+						setClipboard(selectedClips);
 					}
 					return;
 				}
@@ -2395,49 +2457,63 @@ export default function VideoEditor() {
 						e.stopPropagation();
 						const pasted = pasteClipsAt(buffer, currentTimeRef.current, genClipId);
 						pushState((prev) => ({ timelineClips: [...prev.timelineClips, ...pasted] }));
-						if (pasted[0]) void handleSelectClipRef.current(pasted[0]);
+						selectClipsRef.current(pasted);
 					}
 					return;
 				}
 				if (mod && key === "d") {
-					if (selected && !selectedLocked) {
+					if (editable.length > 0) {
 						e.preventDefault();
 						e.stopPropagation();
-						const dup = duplicateClip(selected, genClipId);
-						pushState((prev) => ({ timelineClips: [...prev.timelineClips, dup] }));
-						void handleSelectClipRef.current(dup);
+						const dups = editable.map((c) => duplicateClip(c, genClipId));
+						pushState((prev) => ({ timelineClips: [...prev.timelineClips, ...dups] }));
+						selectClipsRef.current(dups);
 					}
 					return;
 				}
 
-				// The rest need a selection on an unlocked lane and ignore Cmd/Ctrl combos.
-				if (selected && !mod && !selectedLocked) {
+				// The rest act on every editable selected clip and ignore Cmd/Ctrl combos.
+				if (editable.length > 0 && !mod) {
 					if (e.key === "Delete" || e.key === "Backspace") {
 						e.preventDefault();
 						e.stopPropagation();
 						if (e.shiftKey) {
-							pushState((prev) => ({
-								timelineClips: rippleDeleteClip(prev.timelineClips, selected.id),
-							}));
+							// Ripple-delete each editable clip (per-track gap close).
+							pushState((prev) => {
+								let next = prev.timelineClips;
+								for (const id of editableSet) next = rippleDeleteClip(next, id);
+								return { timelineClips: next };
+							});
 						} else {
 							pushState((prev) => ({
-								timelineClips: prev.timelineClips.filter((c) => c.id !== selected.id),
+								timelineClips: prev.timelineClips.filter((c) => !editableSet.has(c.id)),
 							}));
 						}
-						setSelectedClipId(null);
+						setSelectedClipIds([]);
 						return;
 					}
 					if (key === "s" || key === "b") {
 						e.preventDefault();
 						e.stopPropagation();
-						const halves = splitClipAt(selected, currentTimeRef.current, genClipId);
-						if (halves) {
-							pushState((prev) => ({
-								timelineClips: prev.timelineClips.flatMap((c) =>
-									c.id === selected.id ? halves : [c],
-								),
-							}));
-							setSelectedClipId(halves[0].id);
+						// Split each editable clip the playhead sits inside; ids computed up
+						// front so the new selection stays in lockstep with the spawned halves.
+						const at = currentTimeRef.current;
+						const newSel: string[] = [];
+						let changed = false;
+						const next = list.flatMap((c) => {
+							if (!editableSet.has(c.id)) return [c];
+							const halves = splitClipAt(c, at, genClipId);
+							if (!halves) {
+								newSel.push(c.id);
+								return [c];
+							}
+							changed = true;
+							newSel.push(halves[0].id, halves[1].id);
+							return halves;
+						});
+						if (changed) {
+							pushState({ timelineClips: next });
+							setSelectedClipIds(newSel);
 						}
 						return;
 					}
@@ -2448,7 +2524,7 @@ export default function VideoEditor() {
 						const delta = e.key === "ArrowLeft" ? -step : step;
 						pushState((prev) => ({
 							timelineClips: prev.timelineClips.map((c) =>
-								c.id === selected.id ? nudgeClip(c, delta) : c,
+								editableSet.has(c.id) ? nudgeClip(c, delta) : c,
 							),
 						}));
 						return;
@@ -3633,6 +3709,9 @@ export default function VideoEditor() {
 											showCursorSettings={showCursorSettings}
 											selectedClip={selectedClip}
 											onClipChange={handleClipChange}
+											selectedClipCount={selectedClipIds.length}
+											onSelectedClipsChange={handleSelectedClipsChange}
+											onSelectedClipsDelete={handleDeleteSelectedClips}
 										/>
 									</div>
 								</Panel>
@@ -3787,8 +3866,10 @@ export default function VideoEditor() {
 									currentTime={currentTime}
 									videoDuration={duration}
 									onSeek={handleSeek}
-									selectedClipId={selectedClipId}
+									selectedClipIds={selectedClipIds}
 									onSelectClip={handleSelectClip}
+									onToggleClip={handleToggleClipSelection}
+									onMarqueeSelect={handleSelectClipIds}
 									onAddClip={handleAddClipFromBin}
 								/>
 							</div>

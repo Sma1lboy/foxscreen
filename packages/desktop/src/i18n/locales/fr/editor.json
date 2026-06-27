@@ -122,6 +122,10 @@
 		"volume": "Volume",
 		"mute": "Muet",
 		"fadeIn": "Fondu d'entrée",
-		"fadeOut": "Fondu de sortie"
+		"fadeOut": "Fondu de sortie",
+		"multiTitle": "Plusieurs clips",
+		"selectedCount": "{{count}} clips sélectionnés",
+		"muteAll": "Tout couper le son",
+		"deleteSelected": "Supprimer la sélection"
 	}
 }

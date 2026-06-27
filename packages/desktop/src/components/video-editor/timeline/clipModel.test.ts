@@ -3,6 +3,7 @@ import {
 	clipAtTime,
 	clipDuration,
 	clipEndSec,
+	clipsInMarquee,
 	clipsTotalDuration,
 	duplicateClip,
 	gainAt,
@@ -324,5 +325,52 @@ describe("gainAt", () => {
 		expect(gainAt(c, 12.5)).toBeCloseTo(0.5, 10); // halfway up the (clamped) 5s fade-in
 		expect(gainAt(c, 15)).toBeCloseTo(1, 10); // they meet at full gain at the midpoint
 		expect(gainAt(c, 17.5)).toBeCloseTo(0.5, 10); // halfway down the 5s fade-out
+	});
+});
+
+describe("clipsInMarquee", () => {
+	// Three clips: A [0,5] tk0, B [10,15] tk0, C [4,9] tk1.
+	const a = clip({ id: "a", trackIndex: 0, startSec: 0, inSec: 0, outSec: 5 });
+	const b = clip({ id: "b", trackIndex: 0, startSec: 10, inSec: 0, outSec: 5 });
+	const c = clip({ id: "c", trackIndex: 1, startSec: 4, inSec: 0, outSec: 5 }); // [4,9]
+	const all = [a, b, c];
+
+	it("selects clips whose span overlaps the time window on in-range tracks", () => {
+		// Window [2,6] × track 0 only → A overlaps, B is past it, C is off-track.
+		expect(clipsInMarquee(all, 2, 6, 0, 0)).toEqual(["a"]);
+	});
+
+	it("includes both tracks when the track range spans them", () => {
+		// [3,5] × tracks 0..1 → A ([0,5]) and C ([4,9]) both overlap.
+		expect(clipsInMarquee(all, 3, 5, 0, 1).sort()).toEqual(["a", "c"]);
+	});
+
+	it("normalises reversed time and track bounds", () => {
+		expect(clipsInMarquee(all, 6, 2, 1, 0).sort()).toEqual(["a", "c"]);
+	});
+
+	it("counts a touching edge as overlap (inclusive)", () => {
+		// Window starts exactly at A's right edge (5) → still counts.
+		expect(clipsInMarquee(all, 5, 5, 0, 0)).toEqual(["a"]);
+		// Window starts exactly at B's left edge (10).
+		expect(clipsInMarquee(all, 10, 10, 0, 0)).toEqual(["b"]);
+	});
+
+	it("excludes clips that fall fully inside a time gap", () => {
+		// Window [6,9] × track 0 → between A and B, nothing on track 0.
+		expect(clipsInMarquee(all, 6, 9, 0, 0)).toEqual([]);
+	});
+
+	it("excludes clips outside the track range even when time overlaps", () => {
+		// C sits on track 1; restrict to track 0 → excluded.
+		expect(clipsInMarquee(all, 4, 9, 0, 0)).toEqual(["a"]);
+	});
+
+	it("selects everything for an enveloping marquee", () => {
+		expect(clipsInMarquee(all, 0, 100, 0, 5).sort()).toEqual(["a", "b", "c"]);
+	});
+
+	it("returns [] for no clips", () => {
+		expect(clipsInMarquee([], 0, 10, 0, 2)).toEqual([]);
 	});
 });

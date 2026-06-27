@@ -103,6 +103,10 @@
 		"volume": "Volume",
 		"mute": "Mudo",
 		"fadeIn": "Fade de entrada",
-		"fadeOut": "Fade de saída"
+		"fadeOut": "Fade de saída",
+		"multiTitle": "Vários clipes",
+		"selectedCount": "{{count}} clipes selecionados",
+		"muteAll": "Silenciar tudo",
+		"deleteSelected": "Excluir seleção"
 	}
 }

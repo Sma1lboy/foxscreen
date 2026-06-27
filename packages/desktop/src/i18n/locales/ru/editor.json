@@ -122,6 +122,10 @@
 		"volume": "Громкость",
 		"mute": "Без звука",
 		"fadeIn": "Нарастание",
-		"fadeOut": "Затухание"
+		"fadeOut": "Затухание",
+		"multiTitle": "Несколько клипов",
+		"selectedCount": "Выбрано клипов: {{count}}",
+		"muteAll": "Заглушить все",
+		"deleteSelected": "Удалить выбранное"
 	}
 }

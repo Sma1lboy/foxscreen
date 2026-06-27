@@ -122,6 +122,10 @@
 		"volume": "Âm lượng",
 		"mute": "Tắt tiếng",
 		"fadeIn": "Mở dần",
-		"fadeOut": "Tắt dần"
+		"fadeOut": "Tắt dần",
+		"multiTitle": "Nhiều clip",
+		"selectedCount": "Đã chọn {{count}} clip",
+		"muteAll": "Tắt tiếng tất cả",
+		"deleteSelected": "Xóa mục đã chọn"
 	}
 }

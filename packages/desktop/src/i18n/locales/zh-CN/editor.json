@@ -122,6 +122,10 @@
 		"volume": "音量",
 		"mute": "静音",
 		"fadeIn": "淡入",
-		"fadeOut": "淡出"
+		"fadeOut": "淡出",
+		"multiTitle": "多个片段",
+		"selectedCount": "已选中 {{count}} 个片段",
+		"muteAll": "全部静音",
+		"deleteSelected": "删除所选"
 	}
 }

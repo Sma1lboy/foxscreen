@@ -28,6 +28,7 @@ import { ASSET_DRAG_MIME, type MediaAsset } from "../MediaBin";
 import {
 	clipDuration,
 	clipEndSec,
+	clipsInMarquee,
 	clipsTotalDuration,
 	genClipId,
 	MIN_CLIP_LENGTH,
@@ -70,8 +71,14 @@ interface ClipTimelineProps {
 	currentTime: number;
 	videoDuration: number;
 	onSeek: (sec: number) => void;
-	selectedClipId: string | null;
+	/** Every selected clip id — all are highlighted; bulk ops act on the set. */
+	selectedClipIds: string[];
+	/** Replace the selection with just this clip (plain click / null = clear). */
 	onSelectClip: (clip: TimelineClip | null) => void;
+	/** Toggle one clip's membership (Cmd/Ctrl-click or Shift-click). */
+	onToggleClip: (clip: TimelineClip) => void;
+	/** Replace the selection with the marquee result (drag-select on empty lane). */
+	onMarqueeSelect: (ids: string[]) => void;
 	/** Drop a library asset onto a track at a timeline position (drag from the bin). */
 	onAddClip?: (asset: MediaAsset, trackIndex: number, startSec: number) => void;
 }
@@ -90,9 +97,29 @@ interface DragState {
 	pointerId: number;
 	startX: number;
 	startY: number;
+	/** The primary dragged clip's original state (drives snapping). */
 	orig: TimelineClip;
+	/**
+	 * Original state of every clip the gesture transforms together, keyed by id.
+	 * A move drags all selected unlocked clips by the same delta; a trim only ever
+	 * carries the primary clip.
+	 */
+	origs: Map<string, TimelineClip>;
 	lanesTop: number;
 }
+
+/** A live marquee drag (rubber-band select) on empty lane space. */
+interface MarqueeState {
+	pointerId: number;
+	startX: number;
+	startY: number;
+	lanesLeft: number;
+	lanesTop: number;
+	moved: boolean;
+}
+
+/** Pixels a marquee must travel before it counts as a drag (vs. a click-seek). */
+const MARQUEE_THRESHOLD_PX = 4;
 
 /** Pick a "nice" ruler tick interval so labels land ~every 80px. */
 function pickTickInterval(pxPerSec: number): number {
@@ -174,8 +201,10 @@ export function ClipTimeline({
 	currentTime,
 	videoDuration,
 	onSeek,
-	selectedClipId,
+	selectedClipIds,
 	onSelectClip,
+	onToggleClip,
+	onMarqueeSelect,
 	onAddClip,
 }: ClipTimelineProps) {
 	const t = useScopedT("editor");
@@ -193,6 +222,13 @@ export function ClipTimeline({
 	clipsRef.current = clips;
 	const currentTimeRef = useRef(currentTime);
 	currentTimeRef.current = currentTime;
+	// The selection as a fast lookup set — drives the highlight and lets a move
+	// drag pick up every selected clip without rebuilding from the array.
+	const selectedSet = useMemo(() => new Set(selectedClipIds), [selectedClipIds]);
+	const onMarqueeSelectRef = useRef(onMarqueeSelect);
+	onMarqueeSelectRef.current = onMarqueeSelect;
+	const onSelectClipRef = useRef(onSelectClip);
+	onSelectClipRef.current = onSelectClip;
 	// Live drag updates route to the preview channel (a silent-checkpoint present
 	// mutation) so a whole move/trim collapses into ONE undo step on commit.
 	const onClipsDragPreviewRef = useRef(onClipsDragPreview);
@@ -272,6 +308,15 @@ export function ClipTimeline({
 	const dragRef = useRef<DragState | null>(null);
 	// Insertion indicator while dragging a bin asset over the lanes.
 	const [dropHint, setDropHint] = useState<DropHint | null>(null);
+	// Marquee (rubber-band) drag-select on empty lane space.
+	const marqueeRef = useRef<MarqueeState | null>(null);
+	// Rectangle in lanes-relative px while a marquee is being dragged (for drawing).
+	const [marqueeRect, setMarqueeRect] = useState<{
+		left: number;
+		top: number;
+		width: number;
+		height: number;
+	} | null>(null);
 
 	const laneIndexFromY = useCallback(
 		(clientY: number, lanesTop: number): number => {
@@ -297,38 +342,53 @@ export function ClipTimeline({
 				? (v: number) => snap(v, snapPoints, pps)
 				: (v: number) => v;
 
-			const next = list.map((c) => {
-				if (c.id !== drag.clipId) return c;
-				if (drag.kind === "move") {
-					let start = Math.max(0, orig.startSec + dxSec);
-					const dur = clipDuration(orig);
-					// Snap whichever edge (left/right) lands closest to a target.
-					const snappedStart = snapV(start);
-					const snappedEnd = snapV(start + dur) - dur;
-					start =
-						Math.abs(snappedStart - start) <= Math.abs(snappedEnd - start)
-							? snappedStart
-							: snappedEnd;
-					start = Math.max(0, start);
-					const trackIndex = laneIndexFromY(e.clientY, drag.lanesTop);
-					return { ...c, startSec: start, trackIndex };
-				}
-				if (drag.kind === "trim-left") {
-					let newStart = snapV(Math.max(0, orig.startSec + dxSec));
-					const maxStart = clipEndSec(orig) - MIN_CLIP_LENGTH;
-					newStart = Math.min(maxStart, Math.max(0, newStart));
-					const delta = newStart - orig.startSec;
-					const newIn = Math.max(0, orig.inSec + delta);
-					return { ...c, startSec: orig.startSec + (newIn - orig.inSec), inSec: newIn };
-				}
-				// trim-right
-				const newEnd = snapV(orig.startSec + dxSec + clipDuration(orig));
-				const newOut = Math.max(
-					orig.inSec + MIN_CLIP_LENGTH,
-					orig.outSec + (newEnd - clipEndSec(orig)),
-				);
-				return { ...c, outSec: newOut };
-			});
+			let next: TimelineClip[];
+			if (drag.kind === "move") {
+				// Snapping + clamping are computed from the PRIMARY dragged clip, then
+				// the same delta is applied to every selected clip moving together.
+				let start = Math.max(0, orig.startSec + dxSec);
+				const dur = clipDuration(orig);
+				// Snap whichever edge (left/right) lands closest to a target.
+				const snappedStart = snapV(start);
+				const snappedEnd = snapV(start + dur) - dur;
+				start =
+					Math.abs(snappedStart - start) <= Math.abs(snappedEnd - start)
+						? snappedStart
+						: snappedEnd;
+				start = Math.max(0, start);
+				let deltaStart = start - orig.startSec;
+				// Clamp the group shift so the earliest moved clip never crosses 0.
+				let minStart = Number.POSITIVE_INFINITY;
+				for (const o of drag.origs.values()) minStart = Math.min(minStart, o.startSec);
+				if (Number.isFinite(minStart)) deltaStart = Math.max(deltaStart, -minStart);
+				const targetTrack = laneIndexFromY(e.clientY, drag.lanesTop);
+				const deltaTrack = targetTrack - orig.trackIndex;
+				next = list.map((c) => {
+					const o = drag.origs.get(c.id);
+					if (!o) return c;
+					const trackIndex = Math.min(tracks.length - 1, Math.max(0, o.trackIndex + deltaTrack));
+					return { ...c, startSec: Math.max(0, o.startSec + deltaStart), trackIndex };
+				});
+			} else {
+				next = list.map((c) => {
+					if (c.id !== drag.clipId) return c;
+					if (drag.kind === "trim-left") {
+						let newStart = snapV(Math.max(0, orig.startSec + dxSec));
+						const maxStart = clipEndSec(orig) - MIN_CLIP_LENGTH;
+						newStart = Math.min(maxStart, Math.max(0, newStart));
+						const delta = newStart - orig.startSec;
+						const newIn = Math.max(0, orig.inSec + delta);
+						return { ...c, startSec: orig.startSec + (newIn - orig.inSec), inSec: newIn };
+					}
+					// trim-right
+					const newEnd = snapV(orig.startSec + dxSec + clipDuration(orig));
+					const newOut = Math.max(
+						orig.inSec + MIN_CLIP_LENGTH,
+						orig.outSec + (newEnd - clipEndSec(orig)),
+					);
+					return { ...c, outSec: newOut };
+				});
+			}
 			// Only emit a preview when the dragged clip actually moved/trimmed, so a
 			// click without movement never opens (and later commits) an undo step.
 			const moved = next.find((c) => c.id === drag.clipId);
@@ -343,7 +403,7 @@ export function ClipTimeline({
 				onClipsDragPreviewRef.current(next);
 			}
 		},
-		[laneIndexFromY],
+		[laneIndexFromY, tracks.length],
 	);
 
 	const endDrag = useCallback(() => {
@@ -369,6 +429,20 @@ export function ClipTimeline({
 				return;
 			}
 			const lanesTop = lanesRef.current?.getBoundingClientRect().top ?? 0;
+			// Dragging a clip that's already part of a multi-selection moves the whole
+			// set; dragging an unselected clip selects only it first. A trim always
+			// acts on just the primary clip.
+			const inSelection = selectedSet.has(clip.id);
+			if (!inSelection) onSelectClip(clip);
+			const origs = new Map<string, TimelineClip>();
+			if (kind === "move" && inSelection) {
+				// Carry every selected clip on an unlocked lane (locked clips stay put).
+				for (const c of clips) {
+					if (selectedSet.has(c.id) && !isTrackLocked(tracks, c.trackIndex)) origs.set(c.id, c);
+				}
+			}
+			// Always include the primary (covers a fresh single-clip drag + trims).
+			if (!origs.has(clip.id)) origs.set(clip.id, clip);
 			dragRef.current = {
 				kind,
 				clipId: clip.id,
@@ -376,43 +450,60 @@ export function ClipTimeline({
 				startX: e.clientX,
 				startY: e.clientY,
 				orig: clip,
+				origs,
 				lanesTop,
 			};
-			onSelectClip(clip);
 			window.addEventListener("pointermove", handlePointerMove);
 			window.addEventListener("pointerup", endDrag);
 			window.addEventListener("pointercancel", endDrag);
 		},
-		[handlePointerMove, endDrag, onSelectClip, tracks],
+		[handlePointerMove, endDrag, onSelectClip, tracks, clips, selectedSet],
 	);
 
-	const selectedClip = useMemo(
-		() => clips.find((c) => c.id === selectedClipId) ?? null,
-		[clips, selectedClipId],
+	// Every selected clip on an UNLOCKED lane — the set every toolbar/keyboard edit
+	// acts on. Locked-lane clips can be selected (highlighted) but ops skip them.
+	const editableSelected = useMemo(
+		() => clips.filter((c) => selectedSet.has(c.id) && !isTrackLocked(tracks, c.trackIndex)),
+		[clips, selectedSet, tracks],
 	);
-	// Toolbar edit ops act on the selected clip; disabled on a locked lane.
-	const selectedLocked = selectedClip ? isTrackLocked(tracks, selectedClip.trackIndex) : false;
+	// Toolbar edit buttons are live whenever at least one selected clip is editable.
+	const hasEditable = editableSelected.length > 0;
 
 	const handleSplit = useCallback(() => {
-		if (!selectedClip) return;
-		const halves = splitClipAt(selectedClip, currentTime, genClipId);
-		if (!halves) return;
-		const next = clips.flatMap((c) => (c.id === selectedClip.id ? halves : [c]));
+		if (editableSelected.length === 0) return;
+		const editableIds = new Set(editableSelected.map((c) => c.id));
+		const newSel: string[] = [];
+		let changed = false;
+		const next = clips.flatMap((c) => {
+			if (!editableIds.has(c.id)) return [c];
+			const halves = splitClipAt(c, currentTime, genClipId);
+			if (!halves) {
+				newSel.push(c.id);
+				return [c];
+			}
+			changed = true;
+			newSel.push(halves[0].id, halves[1].id);
+			return halves;
+		});
+		if (!changed) return;
 		onClipsChange(next);
-		onSelectClip(halves[0]);
-	}, [selectedClip, currentTime, clips, onClipsChange, onSelectClip]);
+		onMarqueeSelect(newSel);
+	}, [editableSelected, currentTime, clips, onClipsChange, onMarqueeSelect]);
 
 	const handleRippleDelete = useCallback(() => {
-		if (!selectedClip) return;
-		onClipsChange(rippleDeleteClip(clips, selectedClip.id));
+		if (editableSelected.length === 0) return;
+		let next = clips;
+		for (const c of editableSelected) next = rippleDeleteClip(next, c.id);
+		onClipsChange(next);
 		onSelectClip(null);
-	}, [selectedClip, clips, onClipsChange, onSelectClip]);
+	}, [editableSelected, clips, onClipsChange, onSelectClip]);
 
 	const handleDelete = useCallback(() => {
-		if (!selectedClip) return;
-		onClipsChange(clips.filter((c) => c.id !== selectedClip.id));
+		if (editableSelected.length === 0) return;
+		const ids = new Set(editableSelected.map((c) => c.id));
+		onClipsChange(clips.filter((c) => !ids.has(c.id)));
 		onSelectClip(null);
-	}, [selectedClip, clips, onClipsChange, onSelectClip]);
+	}, [editableSelected, clips, onClipsChange, onSelectClip]);
 
 	// Seek when clicking the ruler or empty lane space.
 	const seekFromClientX = useCallback(
@@ -426,6 +517,99 @@ export function ClipTimeline({
 			onSeek(sec);
 		},
 		[onSeek, pxPerSec],
+	);
+	const seekFromClientXRef = useRef(seekFromClientX);
+	seekFromClientXRef.current = seekFromClientX;
+
+	// --- Marquee (rubber-band) drag-select on empty lane space ---------------
+	// A pointer-down on bare lane area starts a *potential* marquee. Below the
+	// threshold it falls back to the existing click (seek + clear selection);
+	// past it, it draws a rectangle and selects every clip it intersects.
+	const handleMarqueeMove = useCallback((e: PointerEvent) => {
+		const m = marqueeRef.current;
+		if (!m || e.pointerId !== m.pointerId) return;
+		if (
+			!m.moved &&
+			Math.abs(e.clientX - m.startX) < MARQUEE_THRESHOLD_PX &&
+			Math.abs(e.clientY - m.startY) < MARQUEE_THRESHOLD_PX
+		) {
+			return; // still within the click slop — don't open a marquee yet
+		}
+		m.moved = true;
+		const x0 = m.startX - m.lanesLeft;
+		const y0 = m.startY - m.lanesTop;
+		const x1 = e.clientX - m.lanesLeft;
+		const y1 = e.clientY - m.lanesTop;
+		setMarqueeRect({
+			left: Math.min(x0, x1),
+			top: Math.min(y0, y1),
+			width: Math.abs(x1 - x0),
+			height: Math.abs(y1 - y0),
+		});
+	}, []);
+
+	const endMarquee = useCallback(
+		(e: PointerEvent) => {
+			const m = marqueeRef.current;
+			window.removeEventListener("pointermove", handleMarqueeMove);
+			window.removeEventListener("pointerup", endMarquee);
+			window.removeEventListener("pointercancel", endMarquee);
+			marqueeRef.current = null;
+			setMarqueeRect(null);
+			if (!m || e.pointerId !== m.pointerId) return;
+			if (!m.moved) {
+				// A plain click on empty lane: clear selection + seek (legacy behaviour).
+				onSelectClipRef.current(null);
+				seekFromClientXRef.current(m.startX);
+				return;
+			}
+			const pps = pxPerSecRef.current;
+			const secAt = (clientX: number) =>
+				Math.max(0, (clientX - m.lanesLeft - TRACK_HEADER_WIDTH) / pps);
+			const trackAt = (clientY: number) => {
+				const rel = clientY - m.lanesTop;
+				const idx = Math.floor(rel / (TRACK_HEIGHT + TRACK_GAP));
+				return Math.max(0, idx);
+			};
+			const ids = clipsInMarquee(
+				clipsRef.current,
+				secAt(m.startX),
+				secAt(e.clientX),
+				trackAt(m.startY),
+				trackAt(e.clientY),
+			);
+			onMarqueeSelectRef.current(ids);
+		},
+		[handleMarqueeMove],
+	);
+
+	const beginMarquee = useCallback(
+		(e: ReactPointerEvent) => {
+			const rect = lanesRef.current?.getBoundingClientRect();
+			if (!rect) return;
+			marqueeRef.current = {
+				pointerId: e.pointerId,
+				startX: e.clientX,
+				startY: e.clientY,
+				lanesLeft: rect.left,
+				lanesTop: rect.top,
+				moved: false,
+			};
+			window.addEventListener("pointermove", handleMarqueeMove);
+			window.addEventListener("pointerup", endMarquee);
+			window.addEventListener("pointercancel", endMarquee);
+		},
+		[handleMarqueeMove, endMarquee],
+	);
+
+	// Tear down marquee listeners if the component unmounts mid-drag.
+	useEffect(
+		() => () => {
+			window.removeEventListener("pointermove", handleMarqueeMove);
+			window.removeEventListener("pointerup", endMarquee);
+			window.removeEventListener("pointercancel", endMarquee);
+		},
+		[handleMarqueeMove, endMarquee],
 	);
 
 	// Map a drag pointer over the lanes to a {track, startSec} drop target, with
@@ -499,19 +683,19 @@ export function ClipTimeline({
 					icon={<Scissors className="h-4 w-4" />}
 					label={t("clipTimeline.split")}
 					onClick={handleSplit}
-					disabled={!selectedClip || selectedLocked}
+					disabled={!hasEditable}
 				/>
 				<ToolButton
 					icon={<Trash2 className="h-4 w-4" />}
 					label={t("clipTimeline.rippleDelete")}
 					onClick={handleRippleDelete}
-					disabled={!selectedClip || selectedLocked}
+					disabled={!hasEditable}
 				/>
 				<ToolButton
 					icon={<Eraser className="h-4 w-4" />}
 					label={t("clipTimeline.delete")}
 					onClick={handleDelete}
-					disabled={!selectedClip || selectedLocked}
+					disabled={!hasEditable}
 				/>
 				<div className="mx-1 h-5 w-px bg-border" />
 				{onAddTrack && (
@@ -585,6 +769,11 @@ export function ClipTimeline({
 								key={track.index}
 								className="relative border-b border-border"
 								style={{ height: TRACK_HEIGHT, marginBottom: TRACK_GAP }}
+								onPointerDown={(e) => {
+									// Empty lane area only (clips/headers stopPropagation): start a
+									// potential marquee that falls back to seek+clear on a plain click.
+									if (e.target === e.currentTarget) beginMarquee(e);
+								}}
 							>
 								<TrackHeader
 									track={track}
@@ -598,7 +787,7 @@ export function ClipTimeline({
 								{clips
 									.filter((c) => c.trackIndex === track.index)
 									.map((clip) => {
-										const isSelected = clip.id === selectedClipId;
+										const isSelected = selectedSet.has(clip.id);
 										const left = TRACK_HEADER_WIDTH + clip.startSec * pxPerSec;
 										const width = Math.max(2, clipDuration(clip) * pxPerSec);
 										const isAudio = track.kind === "audio";
@@ -623,7 +812,10 @@ export function ClipTimeline({
 												onPointerDown={(e) => beginDrag(e, clip, "move")}
 												onClick={(e) => {
 													e.stopPropagation();
-													onSelectClip(clip);
+													// Cmd/Ctrl-click or Shift-click toggles membership; a plain
+													// click selects only this clip.
+													if (e.metaKey || e.ctrlKey || e.shiftKey) onToggleClip(clip);
+													else onSelectClip(clip);
 												}}
 											>
 												{/* Video poster frame as a cover background. */}
@@ -691,6 +883,18 @@ export function ClipTimeline({
 									{t("clipTimeline.empty")}
 								</span>
 							</div>
+						)}
+						{/* Marquee (rubber-band) selection rectangle. */}
+						{marqueeRect && (
+							<div
+								className="pointer-events-none absolute z-[3] rounded-sm border border-primary bg-primary/10"
+								style={{
+									left: marqueeRect.left,
+									top: marqueeRect.top,
+									width: marqueeRect.width,
+									height: marqueeRect.height,
+								}}
+							/>
 						)}
 					</div>
 

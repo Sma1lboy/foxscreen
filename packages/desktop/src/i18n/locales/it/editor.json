@@ -104,6 +104,10 @@
 		"volume": "Volume",
 		"mute": "Muto",
 		"fadeIn": "Dissolvenza in entrata",
-		"fadeOut": "Dissolvenza in uscita"
+		"fadeOut": "Dissolvenza in uscita",
+		"multiTitle": "Più clip",
+		"selectedCount": "{{count}} clip selezionati",
+		"muteAll": "Disattiva audio per tutti",
+		"deleteSelected": "Elimina selezione"
 	}
 }

@@ -122,6 +122,10 @@
 		"volume": "볼륨",
 		"mute": "음소거",
 		"fadeIn": "페이드 인",
-		"fadeOut": "페이드 아웃"
+		"fadeOut": "페이드 아웃",
+		"multiTitle": "여러 클립",
+		"selectedCount": "{{count}}개 클립 선택됨",
+		"muteAll": "모두 음소거",
+		"deleteSelected": "선택 항목 삭제"
 	}
 }

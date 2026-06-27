@@ -122,6 +122,10 @@
 		"volume": "Ses düzeyi",
 		"mute": "Sessiz",
 		"fadeIn": "Açılma",
-		"fadeOut": "Kapanma"
+		"fadeOut": "Kapanma",
+		"multiTitle": "Birden çok klip",
+		"selectedCount": "{{count}} klip seçildi",
+		"muteAll": "Tümünü sustur",
+		"deleteSelected": "Seçimi sil"
 	}
 }

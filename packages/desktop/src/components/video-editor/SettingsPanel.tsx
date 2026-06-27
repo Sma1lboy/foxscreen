@@ -358,6 +358,12 @@ interface SettingsPanelProps {
 	onMediaImportPaths?: (paths: string[]) => void;
 	selectedClip?: TimelineClip | null;
 	onClipChange?: (patch: Partial<TimelineClip>) => void;
+	/** How many timeline clips are selected (drives the single vs. bulk inspector). */
+	selectedClipCount?: number;
+	/** Apply a patch to every selected (unlocked) clip — bulk inspector affordances. */
+	onSelectedClipsChange?: (patch: Partial<TimelineClip>) => void;
+	/** Delete every selected (unlocked) clip. */
+	onSelectedClipsDelete?: () => void;
 }
 
 export default SettingsPanel;
@@ -509,6 +515,9 @@ export function SettingsPanel({
 	onMediaImportPaths,
 	selectedClip,
 	onClipChange,
+	selectedClipCount = 0,
+	onSelectedClipsChange,
+	onSelectedClipsDelete,
 }: SettingsPanelProps) {
 	const t = useScopedT("settings");
 	const tEditor = useScopedT("editor");
@@ -822,12 +831,56 @@ export function SettingsPanel({
 		);
 	}
 
-	// Timeline clip selected: show its inspector instead (no annotation/blur active).
-	if (selectedClip) {
+	// Exactly one timeline clip selected: its single-clip inspector (unchanged).
+	if (selectedClip && selectedClipCount <= 1) {
 		return (
 			<div className="editor-inspector-shell flex min-w-0 flex-col h-full overflow-hidden">
 				<div className="min-h-0 flex-1 overflow-hidden">
 					<ClipInspector clip={selectedClip} onChange={onClipChange} t={tEditor} />
+				</div>
+				<div className="flex-shrink-0 p-3 border-t border-border bg-black/25">
+					{commonFooterLinks}
+				</div>
+			</div>
+		);
+	}
+
+	// Many clips selected: a compact bulk panel (mute-all + delete-all).
+	if (selectedClipCount > 1) {
+		return (
+			<div className="editor-inspector-shell flex min-w-0 flex-col h-full overflow-hidden">
+				<div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar bg-card p-4">
+					<div className="mb-4">
+						<span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+							{tEditor("clipInspector.multiTitle")}
+						</span>
+						<div className="mt-1 text-xl font-semibold text-foreground">
+							{tEditor("clipInspector.selectedCount", { count: String(selectedClipCount) })}
+						</div>
+					</div>
+
+					<div className="space-y-3">
+						<div className="flex items-center justify-between gap-3 rounded-lg editor-control-surface p-3">
+							<span className="text-xs font-medium text-foreground/80">
+								{tEditor("clipInspector.muteAll")}
+							</span>
+							<Switch
+								onCheckedChange={(checked) => onSelectedClipsChange?.({ muted: checked })}
+								className="data-[state=checked]:bg-primary scale-90"
+								aria-label={tEditor("clipInspector.muteAll")}
+							/>
+						</div>
+
+						<Button
+							type="button"
+							variant="destructive"
+							className="w-full"
+							onClick={() => onSelectedClipsDelete?.()}
+						>
+							<Trash2 className="mr-2 h-4 w-4" />
+							{tEditor("clipInspector.deleteSelected")}
+						</Button>
+					</div>
 				</div>
 				<div className="flex-shrink-0 p-3 border-t border-border bg-black/25">
 					{commonFooterLinks}

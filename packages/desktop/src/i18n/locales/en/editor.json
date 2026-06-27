@@ -122,6 +122,10 @@
 		"volume": "Volume",
 		"mute": "Mute",
 		"fadeIn": "Fade in",
-		"fadeOut": "Fade out"
+		"fadeOut": "Fade out",
+		"multiTitle": "Multiple clips",
+		"selectedCount": "{{count}} clips selected",
+		"muteAll": "Mute all",
+		"deleteSelected": "Delete selected"
 	}
 }

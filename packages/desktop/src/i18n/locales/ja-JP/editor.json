@@ -122,6 +122,10 @@
 		"volume": "音量",
 		"mute": "ミュート",
 		"fadeIn": "フェードイン",
-		"fadeOut": "フェードアウト"
+		"fadeOut": "フェードアウト",
+		"multiTitle": "複数のクリップ",
+		"selectedCount": "{{count}} 個のクリップを選択中",
+		"muteAll": "すべてミュート",
+		"deleteSelected": "選択を削除"
 	}
 }

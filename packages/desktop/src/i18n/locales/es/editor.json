@@ -122,6 +122,10 @@
 		"volume": "Volumen",
 		"mute": "Silenciar",
 		"fadeIn": "Aparición gradual",
-		"fadeOut": "Desvanecimiento"
+		"fadeOut": "Desvanecimiento",
+		"multiTitle": "Varios clips",
+		"selectedCount": "{{count}} clips seleccionados",
+		"muteAll": "Silenciar todo",
+		"deleteSelected": "Eliminar selección"
 	}
 }
