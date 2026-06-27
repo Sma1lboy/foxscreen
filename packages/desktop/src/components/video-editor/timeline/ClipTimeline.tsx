@@ -21,8 +21,8 @@ import {
 	type TimelineTrack,
 } from "./clipModel";
 
-const RULER_HEIGHT = 24;
-const TRACK_HEIGHT = 56;
+const RULER_HEIGHT = 22;
+const TRACK_HEIGHT = 42;
 const TRACK_GAP = 4;
 const MIN_PX_PER_SEC = 10;
 const MAX_PX_PER_SEC = 400;
@@ -291,9 +291,9 @@ export function ClipTimeline({
 	const hasClips = clips.length > 0;
 
 	return (
-		<div className="flex h-full w-full flex-col bg-card text-foreground">
+		<div className="flex h-full w-full flex-col bg-[#0a0b0d] text-slate-200">
 			{/* Toolbar */}
-			<div className="flex items-center gap-1 border-b border-border px-2 py-1.5">
+			<div className="flex items-center gap-1 border-b border-white/[0.07] px-2 py-1.5">
 				<ToolButton
 					icon={<Scissors className="h-4 w-4" />}
 					label={t("clipTimeline.split")}
@@ -330,7 +330,7 @@ export function ClipTimeline({
 				<div className="relative" style={{ width: contentWidth, minWidth: "100%" }}>
 					{/* Ruler */}
 					<div
-						className="sticky top-0 z-10 cursor-text border-b border-border bg-muted/40"
+						className="sticky top-0 z-10 cursor-text border-b border-white/[0.07] bg-white/[0.025]"
 						style={{ height: RULER_HEIGHT }}
 						onPointerDown={(e) => {
 							onSelectClip(null);
@@ -340,10 +340,10 @@ export function ClipTimeline({
 						{ticks.map((tick) => (
 							<div
 								key={tick.sec}
-								className="absolute top-0 h-full border-l border-border/70"
+								className="absolute top-0 h-full border-l border-white/[0.07]"
 								style={{ left: tick.sec * pxPerSec }}
 							>
-								<span className="ml-1 select-none text-[10px] leading-[24px] text-muted-foreground">
+								<span className="ml-1 select-none text-[10px] leading-[24px] text-slate-500">
 									{tick.label}
 								</span>
 							</div>
@@ -364,11 +364,11 @@ export function ClipTimeline({
 						{tracks.map((track) => (
 							<div
 								key={track.index}
-								className="relative border-b border-border/50"
+								className="relative border-b border-white/[0.05]"
 								style={{ height: TRACK_HEIGHT, marginBottom: TRACK_GAP }}
 							>
 								<span
-									className="pointer-events-none absolute left-1 top-1 z-[1] select-none rounded bg-background/70 px-1 text-[9px] font-semibold uppercase text-muted-foreground"
+									className="pointer-events-none absolute left-1 top-1 z-[1] select-none rounded bg-black/55 px-1 text-[9px] font-semibold uppercase text-slate-500"
 									aria-label={
 										track.kind === "audio"
 											? t("clipTimeline.audioTrack")
@@ -403,15 +403,15 @@ export function ClipTimeline({
 											>
 												{/* Left trim handle */}
 												<div
-													className="absolute left-0 top-0 h-full w-1.5 cursor-ew-resize bg-foreground/20 hover:bg-primary"
+													className="absolute left-0 top-0 h-full w-1.5 cursor-ew-resize bg-white/25 hover:bg-primary"
 													onPointerDown={(e) => beginDrag(e, clip, "trim-left")}
 												/>
-												<span className="pointer-events-none mx-2 truncate text-foreground/90">
+												<span className="pointer-events-none mx-2 truncate text-slate-100">
 													{clip.name}
 												</span>
 												{/* Right trim handle */}
 												<div
-													className="absolute right-0 top-0 h-full w-1.5 cursor-ew-resize bg-foreground/20 hover:bg-primary"
+													className="absolute right-0 top-0 h-full w-1.5 cursor-ew-resize bg-white/25 hover:bg-primary"
 													onPointerDown={(e) => beginDrag(e, clip, "trim-right")}
 												/>
 											</div>
@@ -421,7 +421,7 @@ export function ClipTimeline({
 						))}
 						{!hasClips && (
 							<div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-								<span className="select-none text-xs text-muted-foreground">
+								<span className="select-none text-xs text-slate-500">
 									{t("clipTimeline.empty")}
 								</span>
 							</div>
@@ -456,7 +456,7 @@ function ToolButton({ icon, label, onClick, disabled }: ToolButtonProps) {
 			disabled={disabled}
 			title={label}
 			aria-label={label}
-			className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+			className="flex h-7 w-7 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-white/[0.06] hover:text-slate-200 disabled:pointer-events-none disabled:opacity-40"
 		>
 			{icon}
 		</button>
