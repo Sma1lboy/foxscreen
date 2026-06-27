@@ -1,4 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;700&family=DM+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Fira+Code:wght@400;700&family=IBM+Plex+Mono:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Inter:ital,wght@0,400;0,700;1,400;1,700&family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Manrope:wght@400;700&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&family=Oswald:wght@400;700&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Space+Grotesk:wght@400;700&family=Sora:wght@400;700&display=swap");
+@import "react-grid-layout/css/styles.css";
+@import "react-resizable/css/styles.css";
 
 @tailwind base;
 @tailwind components;
@@ -95,6 +97,85 @@
 	.editor-settings-rail {
 		min-width: 0;
 		min-height: 0;
+	}
+
+	/* Freeform draggable/resizable grid workspace for the editor top deck.
+	   A faint dotted grid sits behind the blocks so the snap targets read. */
+	.editor-grid-deck {
+		position: relative;
+		height: 100%;
+		min-height: 0;
+		overflow: hidden;
+		border-radius: 18px;
+		background-color: rgba(7, 8, 10, 0.55);
+		background-image:
+			radial-gradient(rgba(204, 120, 92, 0.16) 1px, transparent 1px);
+		background-size: 28px 28px;
+		background-position: -1px -1px;
+	}
+
+	.editor-grid-deck .react-grid-layout {
+		position: relative;
+	}
+
+	.editor-grid-block {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		min-height: 0;
+		overflow: hidden;
+		border-radius: 16px;
+		border: 1px solid rgba(255, 255, 255, 0.075);
+		background:
+			linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+			#090a0c;
+		box-shadow:
+			0 24px 70px rgba(0, 0, 0, 0.42),
+			inset 0 1px 0 rgba(255, 255, 255, 0.045);
+	}
+
+	.block-drag-handle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 4px;
+		height: 18px;
+		flex-shrink: 0;
+		cursor: grab;
+		color: rgba(217, 226, 238, 0.45);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+		background: rgba(255, 255, 255, 0.02);
+		transition:
+			color 140ms ease,
+			background-color 140ms ease;
+	}
+
+	.block-drag-handle:hover {
+		color: rgba(204, 120, 92, 0.95);
+		background: rgba(204, 120, 92, 0.08);
+	}
+
+	.block-drag-handle:active {
+		cursor: grabbing;
+	}
+
+	.editor-grid-block-body {
+		flex: 1 1 auto;
+		min-height: 0;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.editor-grid-deck .react-grid-item.react-grid-placeholder {
+		background: rgba(204, 120, 92, 0.28);
+		border: 1px dashed rgba(204, 120, 92, 0.65);
+		border-radius: 16px;
+		opacity: 0.6;
+	}
+
+	.editor-grid-deck .react-grid-item > .react-resizable-handle::after {
+		border-right-color: rgba(204, 120, 92, 0.6);
+		border-bottom-color: rgba(204, 120, 92, 0.6);
 	}
 
 	.editor-preview-panel,

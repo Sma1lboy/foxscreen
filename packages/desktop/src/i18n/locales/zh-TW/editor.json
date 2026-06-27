@@ -82,5 +82,8 @@
 	},
 	"terminal": {
 		"title": "終端"
+	},
+	"grid": {
+		"dragBlock": "拖曳以重新排列區塊"
 	}
 }

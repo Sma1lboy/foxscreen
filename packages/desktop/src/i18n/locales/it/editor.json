@@ -64,5 +64,8 @@
 	},
 	"terminal": {
 		"title": "Terminale"
+	},
+	"grid": {
+		"dragBlock": "Trascina per riordinare il blocco"
 	}
 }

@@ -82,5 +82,8 @@
 	},
 	"terminal": {
 		"title": "Terminal"
+	},
+	"grid": {
+		"dragBlock": "Bloğu yeniden düzenlemek için sürükleyin"
 	}
 }

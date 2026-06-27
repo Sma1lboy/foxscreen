@@ -63,5 +63,8 @@
 	},
 	"terminal": {
 		"title": "Terminal"
+	},
+	"grid": {
+		"dragBlock": "Arraste para reorganizar o bloco"
 	}
 }

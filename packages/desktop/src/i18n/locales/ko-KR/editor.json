@@ -82,5 +82,8 @@
 	},
 	"terminal": {
 		"title": "터미널"
+	},
+	"grid": {
+		"dragBlock": "드래그하여 블록 재배치"
 	}
 }

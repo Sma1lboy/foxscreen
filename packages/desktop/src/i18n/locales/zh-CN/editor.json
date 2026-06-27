@@ -82,5 +82,8 @@
 	},
 	"terminal": {
 		"title": "终端"
+	},
+	"grid": {
+		"dragBlock": "拖动以重新排列区块"
 	}
 }
