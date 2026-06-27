@@ -73,12 +73,17 @@ cutti 引擎已抽成共享包,"导入视频 → 转写 → 真 keep/cut → 真
 `scripts/ui-gallery.sh` 截所有页面(空/各面板/light/dark/populated)供 `/browse` 复核;`main.tsx` DEV 全局 error
 logger 把真实抛错打到 console(React 只打组件栈)。预览 `VideoPlayback`(Pixi/WebGL)在 headless 仍崩,故预览本身验不了。
 
-**已验证**:`bun run selftest` **8/8 全绿** —— desktop/core/cli 三处 tsc=0、biome 干净、
-338 vitest、cli firstcut 冒烟、cargo build、tauri-mode vite build。clip 编辑 / 轨道控制经 `?seed=demo` headless 实测
-(Cmd+D 复制、mute 高亮、+加轨)。
+**统一 undo/redo**:`useEditorHistory` 已扩到含 `timelineClips`+`tracks`(单一栈,Cmd+Z/Y 同覆盖 region 与
+clip/轨道)。拖动/trim 一次手势 = 一条 undo(手势末提交);split/dup/paste/delete/ripple/nudge、轨道 mute/solo/lock、
+加/删轨各一条(删轨 = 轨+其 clip 原子一条)。派生 seed effect 走 `replacePresent`(不进历史)。`applyLoadedProject`
+把 clips/tracks 折进同一 `pushState`(载入后不能 Cmd+Z 回上一个项目)。纯 reducer 已导出+单测。
 
-**待打磨(非阻塞)**:clip 编辑尚未接 `useEditorHistory`(undo/redo 不覆盖 clip 增删/移动 —— 下一项)。
-trim-skip 用 timeupdate(~4x/s),进 cut 可能过冲 ~250ms。LLM key 走 localStorage(无设置 UI)。
+**已验证**:`bun run selftest` **8/8 全绿** —— desktop/core/cli 三处 tsc=0、biome 干净、
+vitest 全绿(含 clipModel/trackModel/useEditorHistory 纯函数)、cli firstcut 冒烟、cargo build、tauri-mode vite build。
+clip 编辑 / 轨道控制 / 载入经 `?seed=demo` headless 实测无回归(Cmd+D 复制、mute 高亮、+加轨)。
+
+**待打磨(非阻塞)**:`mediaAssets` 仍非 undoable(撤销某 asset 最后一条 clip 会被 seed effect 重新补一条占位 —
+沿用既有 seed 语义)。trim-skip 用 timeupdate(~4x/s),进 cut 可能过冲 ~250ms。LLM key 走 localStorage(无设置 UI)。
 「cutti *」+ ThemeToggle 文案硬编码(dev,待 i18n)。录屏在 Tauri 壳下 stubbed(`RECORDING_DEFERRED`)。
 
 ## 硬规矩
