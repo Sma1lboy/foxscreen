@@ -15,6 +15,8 @@ import {
 	DEFAULT_GIF_SETTINGS,
 	DEFAULT_WEBCAM_SETTINGS,
 } from "./editorDefaults";
+import type { MediaAsset } from "./MediaBin";
+import type { TimelineClip } from "./timeline/clipModel";
 import {
 	type AnnotationRegion,
 	type CropRegion,
@@ -101,6 +103,10 @@ export interface EditorProjectData {
 	media?: ProjectMedia;
 	editor: ProjectEditorState;
 	videoPath?: string;
+	/** Optional: the project's media library (restored on load if present). */
+	mediaLibrary?: MediaAsset[];
+	/** Optional: the clip-based timeline (restored on load if present). */
+	timelineClips?: TimelineClip[];
 }
 
 function isFiniteNumber(value: unknown): value is number {

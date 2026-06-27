@@ -503,6 +503,16 @@ export default function VideoEditor() {
 						)
 					: null,
 			);
+
+			// Restore an explicit media library + clip timeline if the project carries
+			// them (newer projects / hand-authored debug projects). Falls back to the
+			// auto-seed (one clip per source) when absent.
+			if (Array.isArray(project.mediaLibrary) && project.mediaLibrary.length > 0) {
+				setMediaAssets(project.mediaLibrary);
+			}
+			if (Array.isArray(project.timelineClips)) {
+				setClips(project.timelineClips);
+			}
 			return true;
 		},
 		[addMediaAsset, pushState],
