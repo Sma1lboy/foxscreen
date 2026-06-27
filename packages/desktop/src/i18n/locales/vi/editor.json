@@ -110,7 +110,9 @@
 		"lockTrack": "Khóa rãnh",
 		"unlockTrack": "Mở khóa rãnh",
 		"addTrack": "Thêm rãnh",
-		"removeTrack": "Xóa rãnh"
+		"removeTrack": "Xóa rãnh",
+		"addCrossfade": "Thêm chuyển cảnh mờ chồng",
+		"removeCrossfade": "Xóa chuyển cảnh mờ chồng"
 	},
 	"clipInspector": {
 		"title": "Đoạn",

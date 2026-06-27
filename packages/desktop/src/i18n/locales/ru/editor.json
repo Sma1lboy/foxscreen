@@ -110,7 +110,9 @@
 		"lockTrack": "Заблокировать дорожку",
 		"unlockTrack": "Разблокировать дорожку",
 		"addTrack": "Добавить дорожку",
-		"removeTrack": "Удалить дорожку"
+		"removeTrack": "Удалить дорожку",
+		"addCrossfade": "Добавить перекрёстное затухание",
+		"removeCrossfade": "Удалить перекрёстное затухание"
 	},
 	"clipInspector": {
 		"title": "Клип",

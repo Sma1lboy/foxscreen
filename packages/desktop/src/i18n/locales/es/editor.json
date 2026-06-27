@@ -110,7 +110,9 @@
 		"lockTrack": "Bloquear pista",
 		"unlockTrack": "Desbloquear pista",
 		"addTrack": "Añadir pista",
-		"removeTrack": "Eliminar pista"
+		"removeTrack": "Eliminar pista",
+		"addCrossfade": "Añadir fundido cruzado",
+		"removeCrossfade": "Quitar fundido cruzado"
 	},
 	"clipInspector": {
 		"title": "Clip",

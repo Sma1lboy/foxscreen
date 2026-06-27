@@ -110,7 +110,9 @@
 		"lockTrack": "Verrouiller la piste",
 		"unlockTrack": "Déverrouiller la piste",
 		"addTrack": "Ajouter une piste",
-		"removeTrack": "Supprimer la piste"
+		"removeTrack": "Supprimer la piste",
+		"addCrossfade": "Ajouter un fondu enchaîné",
+		"removeCrossfade": "Supprimer le fondu enchaîné"
 	},
 	"clipInspector": {
 		"title": "Clip",

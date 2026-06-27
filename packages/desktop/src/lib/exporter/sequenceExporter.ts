@@ -16,12 +16,21 @@
  *    timeline position, scaled per-sample by the active clip's gain envelope
  *    ({@link planAudioGainAt} → volume/mute/fade), then re-encodes via WebCodecs.
  *
- * v1 limits (follow-ups): no cross-track compositing (top track wins outright,
- * no V2-over-V1), no transitions, and no per-clip openscreen effects
+ * Crossfade transitions over same-track clip overlaps ARE supported: within an
+ * active transition window the compositor decodes both clips and alpha-blends them
+ * (outgoing fades out, incoming fades in). Audio stays a single-source mixdown for
+ * the MVP. v1 limits (follow-ups): no cross-track compositing (top track wins
+ * outright, no V2-over-V1) and no per-clip openscreen effects
  * (zoom/padding/wallpaper/cursor) — those remain on the legacy single-source path.
  */
 import type { TimelineClip } from "@/components/video-editor/timeline/clipModel";
 import type { TimelineTrack } from "@/components/video-editor/timeline/trackModel";
+import {
+	type ActiveTransition,
+	activeTransitions,
+	crossfadeAlpha,
+	type Transition,
+} from "@/components/video-editor/timeline/transitionModel";
 import type { TrimRegion } from "@/components/video-editor/types";
 import { getPlatform } from "@/utils/platformUtils";
 import {
@@ -53,6 +62,13 @@ export interface SequenceVideoExporterConfig extends ExportConfig {
 	 * lane audible (legacy behaviour).
 	 */
 	tracks?: TimelineTrack[];
+	/**
+	 * Crossfade transitions over same-track clip overlaps. Within an active
+	 * transition's window the exporter draws BOTH clips alpha-blended (outgoing
+	 * fades out, incoming fades in); outside, behaviour is unchanged. Inert
+	 * transitions (clips gone / no longer overlapping) are ignored.
+	 */
+	transitions?: Transition[];
 	/** Maps a clip to a readable source URL (e.g. `toFileUrl(clip.sourcePath)`). */
 	resolveSourceUrl: SourceUrlResolver;
 	onProgress?: (progress: ExportProgress) => void;
@@ -89,6 +105,32 @@ function drawContain(
 	ctx.drawImage(frame, dx, dy, drawW, drawH);
 }
 
+/**
+ * "contain"-fit a pre-decoded bitmap into the output canvas at a given alpha,
+ * WITHOUT clearing first (so two crossfade layers composite). Restores the
+ * context's previous `globalAlpha`.
+ */
+function drawContainBitmap(
+	ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+	bitmap: ImageBitmap,
+	outWidth: number,
+	outHeight: number,
+	alpha: number,
+) {
+	const srcW = bitmap.width;
+	const srcH = bitmap.height;
+	if (srcW <= 0 || srcH <= 0) return;
+	const scale = Math.min(outWidth / srcW, outHeight / srcH);
+	const drawW = srcW * scale;
+	const drawH = srcH * scale;
+	const dx = (outWidth - drawW) / 2;
+	const dy = (outHeight - drawH) / 2;
+	const prevAlpha = ctx.globalAlpha;
+	ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+	ctx.drawImage(bitmap, dx, dy, drawW, drawH);
+	ctx.globalAlpha = prevAlpha;
+}
+
 export class SequenceVideoExporter {
 	private config: SequenceVideoExporterConfig;
 	private plan: TimelineRenderPlan;
@@ -103,10 +145,34 @@ export class SequenceVideoExporter {
 	private fatalEncoderError: Error | null = null;
 	/** Decoded source audio, cached by source URL (one decode per unique file). */
 	private audioCache = new Map<string, DecodedAudio | null>();
+	/** Live crossfade transitions resolved against the clips (inert ones dropped). */
+	private activeTransitions: ActiveTransition[];
 
 	constructor(config: SequenceVideoExporterConfig) {
 		this.config = config;
 		this.plan = buildTimelineRenderPlan(config.clips, config.frameRate);
+		this.activeTransitions = activeTransitions(config.transitions ?? [], config.clips);
+	}
+
+	/**
+	 * The active transition that fully contains a render segment's span on the same
+	 * track, or `null`. Render-plan boundaries fall on every clip edge, so the
+	 * overlap window `[max(start), min(end)]` always tiles into whole segments —
+	 * each lies entirely inside (or entirely outside) a transition window.
+	 */
+	private transitionForSegment(segment: RenderSegment): ActiveTransition | null {
+		if (this.activeTransitions.length === 0 || !segment.clip) return null;
+		const EPS = 1e-6;
+		const mid = (segment.startSec + segment.endSec) / 2;
+		for (const active of this.activeTransitions) {
+			if (active.window.startSec - EPS <= mid && mid <= active.window.endSec + EPS) {
+				// Confirm this segment belongs to the transition's overlapping pair.
+				if (segment.clip.id === active.from.id || segment.clip.id === active.to.id) {
+					return active;
+				}
+			}
+		}
+		return null;
 	}
 
 	cancel(): void {
@@ -188,7 +254,17 @@ export class SequenceVideoExporter {
 				if (expected <= 0) continue;
 				let emitted = 0;
 
-				if (segment.clip) {
+				const transition = this.transitionForSegment(segment);
+				if (transition) {
+					emitted = await this.renderTransitionSegment(
+						segment,
+						transition,
+						expected,
+						ctx,
+						encodeCanvasFrame,
+						onWarning,
+					);
+				} else if (segment.clip) {
 					await this.decodeSegment(
 						segment,
 						async (frame) => {
@@ -297,6 +373,126 @@ export class SequenceVideoExporter {
 			}
 			if (this.activeDecoder === decoder) this.activeDecoder = null;
 		}
+	}
+
+	/**
+	 * Render a crossfade segment: decode BOTH the outgoing and incoming clips'
+	 * source windows for this span into frame bitmaps, then for each output frame
+	 * draw them alpha-blended per {@link crossfadeAlpha} (outgoing 1→0, incoming
+	 * 0→1 across the window). Returns the number of frames emitted (the loop always
+	 * emits exactly `expected` so the segment tiles without drift; a short/failed
+	 * decode repeats its last frame, or black when neither clip decoded).
+	 */
+	private async renderTransitionSegment(
+		segment: RenderSegment,
+		transition: ActiveTransition,
+		expected: number,
+		ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+		encodeCanvasFrame: () => Promise<void>,
+		onWarning: (message: string) => void,
+	): Promise<number> {
+		const { from, to, window } = transition;
+		const fromStart = from.inSec + (segment.startSec - from.startSec);
+		const fromEnd = from.inSec + (segment.endSec - from.startSec);
+		const toStart = to.inSec + (segment.startSec - to.startSec);
+		const toEnd = to.inSec + (segment.endSec - to.startSec);
+
+		const outBitmaps = await this.decodeWindowToBitmaps(
+			from,
+			fromStart,
+			fromEnd,
+			expected,
+			onWarning,
+		);
+		const inBitmaps = await this.decodeWindowToBitmaps(to, toStart, toEnd, expected, onWarning);
+
+		let emitted = 0;
+		try {
+			for (let i = 0; i < expected && !this.cancelled; i++) {
+				if (this.fatalEncoderError) throw this.fatalEncoderError;
+				clearToBlack(ctx);
+				const timelineSec = (segment.startFrame + i) / this.config.frameRate;
+				const { outgoing, incoming } = crossfadeAlpha(window, timelineSec);
+				const ob = outBitmaps.length > 0 ? outBitmaps[Math.min(i, outBitmaps.length - 1)] : null;
+				const ib = inBitmaps.length > 0 ? inBitmaps[Math.min(i, inBitmaps.length - 1)] : null;
+				if (ob && outgoing > 0) {
+					drawContainBitmap(ctx, ob, this.config.width, this.config.height, outgoing);
+				}
+				if (ib && incoming > 0) {
+					drawContainBitmap(ctx, ib, this.config.width, this.config.height, incoming);
+				}
+				await encodeCanvasFrame();
+				emitted++;
+			}
+		} finally {
+			for (const b of outBitmaps) b.close();
+			for (const b of inBitmaps) b.close();
+		}
+		return emitted;
+	}
+
+	/**
+	 * Decode a clip's `[sourceStartSec, sourceEndSec]` window into up to `expected`
+	 * frame bitmaps (in order), trimming everything outside the window away. Used by
+	 * the crossfade compositor, which needs random access to two clips' frames at
+	 * once. Failures degrade to an empty array (rendered black by the caller).
+	 */
+	private async decodeWindowToBitmaps(
+		clip: TimelineClip,
+		sourceStartSec: number,
+		sourceEndSec: number,
+		expected: number,
+		onWarning: (message: string) => void,
+	): Promise<ImageBitmap[]> {
+		const bitmaps: ImageBitmap[] = [];
+		if (expected <= 0) return bitmaps;
+		const url = this.config.resolveSourceUrl(clip);
+
+		const decoder = new StreamingVideoDecoder();
+		this.activeDecoder = decoder;
+		try {
+			const info = await decoder.loadMetadata(url);
+			const sourceStart = Math.max(0, sourceStartSec);
+			const sourceEnd = Math.min(info.duration, sourceEndSec);
+			const trimRegions: TrimRegion[] = [];
+			if (sourceStart > 0.0001) {
+				trimRegions.push({ id: "head", startMs: 0, endMs: sourceStart * 1000 });
+			}
+			if (sourceEnd < info.duration - 0.0001) {
+				trimRegions.push({ id: "tail", startMs: sourceEnd * 1000, endMs: info.duration * 1000 });
+			}
+
+			await decoder.decodeAll(
+				this.config.frameRate,
+				trimRegions.length > 0 ? trimRegions : undefined,
+				undefined,
+				async (frame) => {
+					if (bitmaps.length >= expected || this.cancelled) {
+						frame.close();
+						return;
+					}
+					try {
+						bitmaps.push(await createImageBitmap(frame));
+					} catch {
+						/* skip an undecodable frame */
+					} finally {
+						frame.close();
+					}
+				},
+				onWarning,
+			);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			onWarning(`Clip "${clip.name}" failed to decode (${message}); crossfade rendered black.`);
+		} finally {
+			try {
+				decoder.destroy();
+			} catch {
+				/* already disposed */
+			}
+			if (this.activeDecoder === decoder) this.activeDecoder = null;
+		}
+		return bitmaps;
 	}
 
 	/**

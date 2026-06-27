@@ -1,4 +1,5 @@
 import {
+	Blend,
 	Eraser,
 	Headphones,
 	Lock,
@@ -38,6 +39,12 @@ import {
 } from "./clipModel";
 import { getThumbnail, getWaveformPeaks } from "./mediaPreview";
 import { defaultTracksForClips, isTrackLocked, type TimelineTrack } from "./trackModel";
+import {
+	activeTransitions,
+	findOverlappingPairs,
+	overlapWindow,
+	type Transition,
+} from "./transitionModel";
 
 const RULER_HEIGHT = 22;
 const TRACK_HEIGHT = 42;
@@ -81,6 +88,12 @@ interface ClipTimelineProps {
 	onMarqueeSelect: (ids: string[]) => void;
 	/** Drop a library asset onto a track at a timeline position (drag from the bin). */
 	onAddClip?: (asset: MediaAsset, trackIndex: number, startSec: number) => void;
+	/** Crossfade transitions marking same-track clip overlaps. */
+	transitions?: Transition[];
+	/** Mark a same-track overlap (from = earlier clip, to = later) as a crossfade. */
+	onAddTransition?: (fromClipId: string, toClipId: string) => void;
+	/** Drop a crossfade transition by id. */
+	onRemoveTransition?: (id: string) => void;
 }
 
 /** Where a bin-asset drop would land — drives the insertion indicator. */
@@ -206,6 +219,9 @@ export function ClipTimeline({
 	onToggleClip,
 	onMarqueeSelect,
 	onAddClip,
+	transitions,
+	onAddTransition,
+	onRemoveTransition,
 }: ClipTimelineProps) {
 	const t = useScopedT("editor");
 	const [pxPerSec, setPxPerSecState] = useState(DEFAULT_PX_PER_SEC);
@@ -675,6 +691,41 @@ export function ClipTimeline({
 
 	const hasClips = clips.length > 0;
 
+	// Same-track overlap regions, each tagged with the crossfade transition that
+	// marks it (if any). The window is derived live from the clips' positions, so it
+	// stays correct as they move and disappears once they no longer overlap.
+	const overlapRegions = useMemo(() => {
+		const pairKey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`);
+		const txByPair = new Map<string, Transition>();
+		for (const active of activeTransitions(transitions ?? [], clips)) {
+			txByPair.set(pairKey(active.from.id, active.to.id), active.transition);
+		}
+		const regions: Array<{
+			key: string;
+			trackIndex: number;
+			startSec: number;
+			endSec: number;
+			fromId: string;
+			toId: string;
+			transition: Transition | null;
+		}> = [];
+		for (const pair of findOverlappingPairs(clips)) {
+			const window = overlapWindow(pair.from, pair.to);
+			if (!window) continue;
+			const key = pairKey(pair.from.id, pair.to.id);
+			regions.push({
+				key,
+				trackIndex: pair.from.trackIndex,
+				startSec: window.startSec,
+				endSec: window.endSec,
+				fromId: pair.from.id,
+				toId: pair.to.id,
+				transition: txByPair.get(key) ?? null,
+			});
+		}
+		return regions;
+	}, [clips, transitions]);
+
 	return (
 		<div className="flex h-full w-full flex-col bg-card text-foreground">
 			{/* Toolbar */}
@@ -863,6 +914,60 @@ export function ClipTimeline({
 														onPointerDown={(e) => beginDrag(e, clip, "trim-right")}
 													/>
 												)}
+											</div>
+										);
+									})}
+								{/* Crossfade overlays over same-track clip overlaps: an active
+								    transition (click to remove) or a "click to add" affordance. */}
+								{overlapRegions
+									.filter((r) => r.trackIndex === track.index)
+									.map((r) => {
+										const left = TRACK_HEADER_WIDTH + r.startSec * pxPerSec;
+										const width = Math.max(8, (r.endSec - r.startSec) * pxPerSec);
+										const isActive = r.transition !== null;
+										return (
+											<div
+												key={r.key}
+												className={`pointer-events-none absolute top-1 bottom-1 z-[4] flex items-center justify-center overflow-hidden rounded-sm border ${
+													isActive
+														? "border-primary bg-primary/20"
+														: "border-dashed border-foreground/30 bg-foreground/5"
+												}`}
+												style={{
+													left,
+													width,
+													// Diagonal hatch fill so a crossfade reads as a blend region.
+													backgroundImage: isActive
+														? "repeating-linear-gradient(45deg, hsl(var(--primary) / 0.18) 0 4px, transparent 4px 8px)"
+														: undefined,
+												}}
+											>
+												<button
+													type="button"
+													className={`pointer-events-auto flex h-5 w-5 items-center justify-center rounded transition-colors ${
+														isActive
+															? "bg-primary/30 text-primary hover:bg-primary/50"
+															: "bg-background/70 text-muted-foreground opacity-60 hover:opacity-100 hover:text-foreground"
+													}`}
+													title={
+														isActive
+															? t("clipTimeline.removeCrossfade")
+															: t("clipTimeline.addCrossfade")
+													}
+													aria-label={
+														isActive
+															? t("clipTimeline.removeCrossfade")
+															: t("clipTimeline.addCrossfade")
+													}
+													onPointerDown={(e) => e.stopPropagation()}
+													onClick={(e) => {
+														e.stopPropagation();
+														if (isActive) onRemoveTransition?.(r.transition!.id);
+														else onAddTransition?.(r.fromId, r.toId);
+													}}
+												>
+													{isActive ? <Blend className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+												</button>
 											</div>
 										);
 									})}

@@ -110,7 +110,9 @@
 		"lockTrack": "鎖定軌道",
 		"unlockTrack": "解鎖軌道",
 		"addTrack": "新增軌道",
-		"removeTrack": "刪除軌道"
+		"removeTrack": "刪除軌道",
+		"addCrossfade": "新增交叉淡化",
+		"removeCrossfade": "移除交叉淡化"
 	},
 	"clipInspector": {
 		"title": "片段",

@@ -18,6 +18,7 @@ import {
 import type { MediaAsset } from "./MediaBin";
 import type { TimelineClip } from "./timeline/clipModel";
 import type { TimelineTrack } from "./timeline/trackModel";
+import type { Transition } from "./timeline/transitionModel";
 import {
 	type AnnotationRegion,
 	type CropRegion,
@@ -110,6 +111,8 @@ export interface EditorProjectData {
 	timelineClips?: TimelineClip[];
 	/** Optional: per-track lane state (mute/solo/lock). Derived from clips if absent. */
 	tracks?: TimelineTrack[];
+	/** Optional: crossfade transitions over same-track clip overlaps. */
+	transitions?: Transition[];
 }
 
 function isFiniteNumber(value: unknown): value is number {
