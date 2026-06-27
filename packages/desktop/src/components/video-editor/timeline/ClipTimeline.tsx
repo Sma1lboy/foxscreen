@@ -1,5 +1,6 @@
 import { Eraser, Scissors, Trash2, ZoomIn, ZoomOut } from "lucide-react";
 import {
+	type DragEvent as ReactDragEvent,
 	type ReactNode,
 	type PointerEvent as ReactPointerEvent,
 	useCallback,
@@ -9,6 +10,7 @@ import {
 	useState,
 } from "react";
 import { useScopedT } from "@/contexts/I18nContext";
+import { ASSET_DRAG_MIME, type MediaAsset } from "../MediaBin";
 import {
 	clipDuration,
 	clipEndSec,
@@ -20,6 +22,7 @@ import {
 	type TimelineClip,
 	type TimelineTrack,
 } from "./clipModel";
+import { getThumbnail, getWaveformPeaks } from "./mediaPreview";
 
 const RULER_HEIGHT = 22;
 const TRACK_HEIGHT = 42;
@@ -38,6 +41,14 @@ interface ClipTimelineProps {
 	onSeek: (sec: number) => void;
 	selectedClipId: string | null;
 	onSelectClip: (clip: TimelineClip | null) => void;
+	/** Drop a library asset onto a track at a timeline position (drag from the bin). */
+	onAddClip?: (asset: MediaAsset, trackIndex: number, startSec: number) => void;
+}
+
+/** Where a bin-asset drop would land — drives the insertion indicator. */
+interface DropHint {
+	trackIndex: number;
+	startSec: number;
 }
 
 type DragKind = "move" | "trim-left" | "trim-right";
@@ -93,6 +104,24 @@ function snap(value: number, points: number[], pxPerSec: number): number {
 }
 
 /**
+ * Build a mirrored waveform polygon (`points` for an SVG `<polygon>`) from peaks
+ * in [0,1], in a `0 0 N 100` viewBox: a top contour across the buckets, then the
+ * bottom contour back, both flared from the 50 midline.
+ */
+function waveformPoints(peaks: number[]): string {
+	const mid = 50;
+	const amp = 46;
+	const top: string[] = [];
+	const bottom: string[] = [];
+	for (let i = 0; i < peaks.length; i++) {
+		const h = Math.max(0.02, peaks[i]) * amp;
+		top.push(`${i},${mid - h}`);
+		bottom.push(`${i},${mid + h}`);
+	}
+	return [...top, ...bottom.reverse()].join(" ");
+}
+
+/**
  * Clip-based multi-track timeline — the standard-NLE foundation. Renders a time
  * ruler, a playhead at `currentTime`, stacked track lanes, and clips as
  * draggable blocks. Direct manipulation: click a clip to select, drag its body
@@ -108,6 +137,7 @@ export function ClipTimeline({
 	onSeek,
 	selectedClipId,
 	onSelectClip,
+	onAddClip,
 }: ClipTimelineProps) {
 	const t = useScopedT("editor");
 	const [pxPerSec, setPxPerSecState] = useState(DEFAULT_PX_PER_SEC);
@@ -141,8 +171,41 @@ export function ClipTimeline({
 	}, [clips, videoDuration, currentTime]);
 	const contentWidth = contentSeconds * pxPerSec;
 
+	// Lazy, cached media previews keyed by source path: a poster frame for video
+	// clips, downsampled peaks for audio clips. Decoding is best-effort and may
+	// resolve null (headless/Tauri); render falls back to the solid block.
+	const [thumbs, setThumbs] = useState<Record<string, string | null>>({});
+	const [waveforms, setWaveforms] = useState<Record<string, number[] | null>>({});
+	const thumbReqRef = useRef<Set<string>>(new Set());
+	const waveReqRef = useRef<Set<string>>(new Set());
+
+	const trackKind = useCallback(
+		(trackIndex: number) => tracks.find((tk) => tk.index === trackIndex)?.kind ?? "video",
+		[tracks],
+	);
+
+	useEffect(() => {
+		for (const clip of clips) {
+			if (trackKind(clip.trackIndex) === "audio") {
+				if (waveReqRef.current.has(clip.sourcePath)) continue;
+				waveReqRef.current.add(clip.sourcePath);
+				getWaveformPeaks(clip.sourcePath).then((peaks) => {
+					setWaveforms((prev) => ({ ...prev, [clip.sourcePath]: peaks }));
+				});
+			} else {
+				if (thumbReqRef.current.has(clip.sourcePath)) continue;
+				thumbReqRef.current.add(clip.sourcePath);
+				getThumbnail(clip.sourcePath).then((data) => {
+					setThumbs((prev) => ({ ...prev, [clip.sourcePath]: data }));
+				});
+			}
+		}
+	}, [clips, trackKind]);
+
 	const lanesRef = useRef<HTMLDivElement | null>(null);
 	const dragRef = useRef<DragState | null>(null);
+	// Insertion indicator while dragging a bin asset over the lanes.
+	const [dropHint, setDropHint] = useState<DropHint | null>(null);
 
 	const laneIndexFromY = useCallback(
 		(clientY: number, lanesTop: number): number => {
@@ -279,6 +342,56 @@ export function ClipTimeline({
 		[onSeek, pxPerSec],
 	);
 
+	// Map a drag pointer over the lanes to a {track, startSec} drop target, with
+	// the same edge/playhead/0 snapping a move-drag uses.
+	const dropTargetFromEvent = useCallback(
+		(clientX: number, clientY: number): DropHint | null => {
+			const rect = lanesRef.current?.getBoundingClientRect();
+			if (!rect) return null;
+			const trackIndex = laneIndexFromY(clientY, rect.top);
+			const raw = Math.max(0, (clientX - rect.left) / pxPerSec);
+			const snapPoints = buildSnapPoints(clips, "", currentTime);
+			const startSec = Math.max(0, snap(raw, snapPoints, pxPerSec));
+			return { trackIndex, startSec };
+		},
+		[clips, currentTime, laneIndexFromY, pxPerSec],
+	);
+
+	const handleLanesDragOver = useCallback(
+		(e: ReactDragEvent) => {
+			if (!onAddClip || !e.dataTransfer.types.includes(ASSET_DRAG_MIME)) return;
+			e.preventDefault();
+			e.dataTransfer.dropEffect = "copy";
+			setDropHint(dropTargetFromEvent(e.clientX, e.clientY));
+		},
+		[onAddClip, dropTargetFromEvent],
+	);
+
+	const handleLanesDragLeave = useCallback((e: ReactDragEvent) => {
+		if (!e.currentTarget.contains(e.relatedTarget as Node)) setDropHint(null);
+	}, []);
+
+	const handleLanesDrop = useCallback(
+		(e: ReactDragEvent) => {
+			setDropHint(null);
+			if (!onAddClip) return;
+			const raw = e.dataTransfer.getData(ASSET_DRAG_MIME);
+			if (!raw) return;
+			e.preventDefault();
+			let asset: MediaAsset;
+			try {
+				asset = JSON.parse(raw) as MediaAsset;
+			} catch {
+				return;
+			}
+			if (!asset?.id || !asset.path) return;
+			const target = dropTargetFromEvent(e.clientX, e.clientY);
+			if (!target) return;
+			onAddClip(asset, target.trackIndex, target.startSec);
+		},
+		[onAddClip, dropTargetFromEvent],
+	);
+
 	const ticks = useMemo(() => {
 		const interval = pickTickInterval(pxPerSec);
 		const out: { sec: number; label: string }[] = [];
@@ -360,6 +473,9 @@ export function ClipTimeline({
 								seekFromClientX(e.clientX);
 							}
 						}}
+						onDragOver={handleLanesDragOver}
+						onDragLeave={handleLanesDragLeave}
+						onDrop={handleLanesDrop}
 					>
 						{tracks.map((track) => (
 							<div
@@ -384,13 +500,16 @@ export function ClipTimeline({
 										const isSelected = clip.id === selectedClipId;
 										const left = clip.startSec * pxPerSec;
 										const width = Math.max(2, clipDuration(clip) * pxPerSec);
+										const isAudio = track.kind === "audio";
+										const thumb = isAudio ? null : thumbs[clip.sourcePath];
+										const peaks = isAudio ? waveforms[clip.sourcePath] : null;
 										return (
 											<div
 												key={clip.id}
 												className={`absolute top-1 bottom-1 flex cursor-grab items-center overflow-hidden rounded-md border text-[11px] active:cursor-grabbing ${
 													isSelected
 														? "border-primary bg-primary/30 ring-1 ring-primary"
-														: track.kind === "audio"
+														: isAudio
 															? "border-emerald-500/40 bg-emerald-500/20 hover:bg-emerald-500/30"
 															: "border-primary/40 bg-primary/15 hover:bg-primary/25"
 												}`}
@@ -401,22 +520,59 @@ export function ClipTimeline({
 													onSelectClip(clip);
 												}}
 											>
+												{/* Video poster frame as a cover background. */}
+												{thumb && (
+													<img
+														src={thumb}
+														alt=""
+														draggable={false}
+														className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-80"
+													/>
+												)}
+												{/* Audio waveform from downsampled peaks. */}
+												{peaks && peaks.length > 0 && (
+													<svg
+														className="pointer-events-none absolute inset-0 h-full w-full text-emerald-400"
+														viewBox={`0 0 ${peaks.length} 100`}
+														preserveAspectRatio="none"
+														aria-hidden="true"
+													>
+														<polygon
+															fill="currentColor"
+															fillOpacity={0.55}
+															points={waveformPoints(peaks)}
+														/>
+													</svg>
+												)}
 												{/* Left trim handle */}
 												<div
-													className="absolute left-0 top-0 h-full w-1.5 cursor-ew-resize bg-foreground/25 hover:bg-primary"
+													className="absolute left-0 top-0 z-[1] h-full w-1.5 cursor-ew-resize bg-foreground/25 hover:bg-primary"
 													onPointerDown={(e) => beginDrag(e, clip, "trim-left")}
 												/>
-												<span className="pointer-events-none mx-2 truncate text-foreground">
+												<span
+													className={`pointer-events-none z-[1] mx-2 truncate text-foreground ${
+														thumb ? "rounded bg-background/55 px-1 py-0.5 backdrop-blur-[1px]" : ""
+													}`}
+												>
 													{clip.name}
 												</span>
 												{/* Right trim handle */}
 												<div
-													className="absolute right-0 top-0 h-full w-1.5 cursor-ew-resize bg-foreground/25 hover:bg-primary"
+													className="absolute right-0 top-0 z-[1] h-full w-1.5 cursor-ew-resize bg-foreground/25 hover:bg-primary"
 													onPointerDown={(e) => beginDrag(e, clip, "trim-right")}
 												/>
 											</div>
 										);
 									})}
+								{/* Insertion indicator for a bin-asset drop on this lane. */}
+								{dropHint?.trackIndex === track.index && (
+									<div
+										className="pointer-events-none absolute top-0 bottom-0 z-[2] w-0.5 bg-primary"
+										style={{ left: dropHint.startSec * pxPerSec }}
+									>
+										<div className="absolute -left-[3px] top-0 h-1.5 w-1.5 rounded-full bg-primary" />
+									</div>
+								)}
 							</div>
 						))}
 						{!hasClips && (

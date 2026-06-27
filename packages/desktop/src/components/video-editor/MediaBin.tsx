@@ -4,6 +4,13 @@ import { useScopedT } from "@/contexts/I18nContext";
 
 const VIDEO_EXT = /\.(mp4|mov|webm|mkv|avi|m4v|wmv)$/i;
 
+/**
+ * `dataTransfer` MIME used when dragging a bin asset onto the timeline. Shared
+ * with {@link ClipTimeline} so the drop target can recognize our own payload
+ * (and ignore unrelated drags like OS file drops).
+ */
+export const ASSET_DRAG_MIME = "application/x-foxscreen-asset";
+
 /** One imported source in the project's media library. */
 export interface MediaAsset {
 	id: string;
@@ -113,6 +120,11 @@ export function MediaBin({
 									key={asset.id}
 									role="button"
 									tabIndex={0}
+									draggable
+									onDragStart={(e) => {
+										e.dataTransfer.setData(ASSET_DRAG_MIME, JSON.stringify(asset));
+										e.dataTransfer.effectAllowed = "copy";
+									}}
 									onClick={() => onSelect(asset)}
 									onKeyDown={(e) => {
 										if (e.key === "Enter" || e.key === " ") {

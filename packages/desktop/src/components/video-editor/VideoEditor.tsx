@@ -563,6 +563,27 @@ export default function VideoEditor() {
 		[videoSourcePath],
 	);
 
+	// Drop a bin asset onto the timeline: build a new clip at the dropped lane +
+	// position. Length is the asset's real duration when it's the active source
+	// (already loaded), else the placeholder — refined later by the duration effect.
+	const handleAddClipFromBin = useCallback(
+		(asset: MediaAsset, trackIndex: number, startSec: number) => {
+			const out = asset.path === videoSourcePath && duration > 0 ? duration : FALLBACK_CLIP_SECONDS;
+			const clip: TimelineClip = {
+				id: genClipId(),
+				assetId: asset.id,
+				name: asset.name,
+				sourcePath: asset.path,
+				trackIndex,
+				startSec: Math.max(0, startSec),
+				inSec: 0,
+				outSec: out,
+			};
+			setClips((prev) => [...prev, clip]);
+		},
+		[videoSourcePath, duration],
+	);
+
 	// Seed: every library asset gets at least one clip, appended to the end of
 	// video track 0. Real duration may not be known yet (loads async) — fall back
 	// to a placeholder and refine it once the active source reports its duration.
@@ -3263,6 +3284,7 @@ export default function VideoEditor() {
 									onSeek={handleSeek}
 									selectedClipId={selectedClipId}
 									onSelectClip={handleSelectClip}
+									onAddClip={handleAddClipFromBin}
 								/>
 							</div>
 						</Panel>
