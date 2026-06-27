@@ -102,7 +102,15 @@
 		"zoomOut": "縮小",
 		"videoTrack": "ビデオトラック",
 		"audioTrack": "オーディオトラック",
-		"snapping": "スナップ"
+		"snapping": "スナップ",
+		"muteTrack": "トラックをミュート",
+		"unmuteTrack": "ミュート解除",
+		"soloTrack": "トラックをソロ",
+		"unsoloTrack": "ソロ解除",
+		"lockTrack": "トラックをロック",
+		"unlockTrack": "ロック解除",
+		"addTrack": "トラックを追加",
+		"removeTrack": "トラックを削除"
 	},
 	"clipInspector": {
 		"title": "クリップ",

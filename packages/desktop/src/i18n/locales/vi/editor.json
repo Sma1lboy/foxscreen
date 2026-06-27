@@ -102,7 +102,15 @@
 		"zoomOut": "Thu nhỏ",
 		"videoTrack": "Rãnh video",
 		"audioTrack": "Rãnh âm thanh",
-		"snapping": "Hút dính"
+		"snapping": "Hút dính",
+		"muteTrack": "Tắt tiếng rãnh",
+		"unmuteTrack": "Bật tiếng rãnh",
+		"soloTrack": "Solo rãnh",
+		"unsoloTrack": "Bỏ solo",
+		"lockTrack": "Khóa rãnh",
+		"unlockTrack": "Mở khóa rãnh",
+		"addTrack": "Thêm rãnh",
+		"removeTrack": "Xóa rãnh"
 	},
 	"clipInspector": {
 		"title": "Đoạn",

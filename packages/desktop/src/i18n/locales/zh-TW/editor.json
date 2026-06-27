@@ -102,7 +102,15 @@
 		"zoomOut": "縮小",
 		"videoTrack": "視訊軌道",
 		"audioTrack": "音訊軌道",
-		"snapping": "吸附"
+		"snapping": "吸附",
+		"muteTrack": "靜音軌道",
+		"unmuteTrack": "取消靜音",
+		"soloTrack": "獨奏軌道",
+		"unsoloTrack": "取消獨奏",
+		"lockTrack": "鎖定軌道",
+		"unlockTrack": "解鎖軌道",
+		"addTrack": "新增軌道",
+		"removeTrack": "刪除軌道"
 	},
 	"clipInspector": {
 		"title": "片段",

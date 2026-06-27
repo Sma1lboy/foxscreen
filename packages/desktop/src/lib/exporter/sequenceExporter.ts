@@ -21,6 +21,7 @@
  * (zoom/padding/wallpaper/cursor) — those remain on the legacy single-source path.
  */
 import type { TimelineClip } from "@/components/video-editor/timeline/clipModel";
+import type { TimelineTrack } from "@/components/video-editor/timeline/trackModel";
 import type { TrimRegion } from "@/components/video-editor/types";
 import { getPlatform } from "@/utils/platformUtils";
 import {
@@ -46,6 +47,12 @@ export type SourceUrlResolver = (clip: TimelineClip) => string;
 export interface SequenceVideoExporterConfig extends ExportConfig {
 	/** The timeline to render (top video track is sequenced). */
 	clips: TimelineClip[];
+	/**
+	 * Per-track lane state (mute/solo/lock). Optional: when supplied the audio
+	 * mixdown gates each clip by its lane's audibility; omitting it keeps every
+	 * lane audible (legacy behaviour).
+	 */
+	tracks?: TimelineTrack[];
 	/** Maps a clip to a readable source URL (e.g. `toFileUrl(clip.sourcePath)`). */
 	resolveSourceUrl: SourceUrlResolver;
 	onProgress?: (progress: ExportProgress) => void;
@@ -326,7 +333,7 @@ export class SequenceVideoExporter {
 			const segEndSample = Math.min(totalSamples, Math.floor(segment.endSec * sampleRate));
 			for (let i = segStartSample; i < segEndSample; i++) {
 				const timelineSec = i / sampleRate;
-				const gain = planAudioGainAt(this.config.clips, timelineSec);
+				const gain = planAudioGainAt(this.config.clips, timelineSec, this.config.tracks);
 				if (gain <= 0) continue;
 				const sourceSec = segment.sourceStartSec + (timelineSec - segment.startSec);
 				const srcIndex = Math.round(sourceSec * decoded.sampleRate);

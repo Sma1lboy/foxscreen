@@ -102,7 +102,15 @@
 		"zoomOut": "تصغير",
 		"videoTrack": "مسار الفيديو",
 		"audioTrack": "مسار الصوت",
-		"snapping": "الالتصاق"
+		"snapping": "الالتصاق",
+		"muteTrack": "كتم المسار",
+		"unmuteTrack": "إلغاء كتم المسار",
+		"soloTrack": "عزل المسار",
+		"unsoloTrack": "إلغاء عزل المسار",
+		"lockTrack": "قفل المسار",
+		"unlockTrack": "فتح قفل المسار",
+		"addTrack": "إضافة مسار",
+		"removeTrack": "إزالة المسار"
 	},
 	"clipInspector": {
 		"title": "مقطع",

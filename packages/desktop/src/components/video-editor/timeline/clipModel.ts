@@ -38,20 +38,13 @@ export interface TimelineClip {
 
 export type TrackKind = "video" | "audio";
 
-export interface TimelineTrack {
-	index: number;
-	kind: TrackKind;
-}
+/**
+ * Per-track lane state ({@link TimelineTrack}, mute/solo/lock) lives in the
+ * sibling `./trackModel` module so this file stays purely about clips.
+ */
 
 /** Smallest allowed clip length (source window and timeline span), in seconds. */
 export const MIN_CLIP_LENGTH = 0.1;
-
-/** Default lane layout: two video tracks stacked over one audio track. */
-export const DEFAULT_TRACKS: TimelineTrack[] = [
-	{ index: 0, kind: "video" },
-	{ index: 1, kind: "video" },
-	{ index: 2, kind: "audio" },
-];
 
 /** Source/timeline duration of a clip. */
 export function clipDuration(clip: TimelineClip): number {

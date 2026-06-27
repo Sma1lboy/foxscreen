@@ -27,6 +27,11 @@ import {
 	gainAt,
 	type TimelineClip,
 } from "@/components/video-editor/timeline/clipModel";
+import {
+	effectiveClipGain,
+	type TimelineTrack,
+	trackAtIndex,
+} from "@/components/video-editor/timeline/trackModel";
 
 /** Track indices that carry picture (mirror of clipModel's video-track set). */
 const VIDEO_TRACK_INDICES = new Set([0, 1]);
@@ -155,10 +160,20 @@ export function buildTimelineRenderPlan(clips: TimelineClip[], fps: number): Tim
 /**
  * Audio gain (0–1) for the output timeline at an absolute time. v1 audio mirrors
  * the active video clip: the gain of the clip under the playhead (top track wins),
- * shaped by its volume/mute/fade envelope ({@link gainAt}); `0` in gaps. Pure — the
- * single source of truth the exporter samples per audio frame.
+ * shaped by its volume/mute/fade envelope ({@link gainAt}); `0` in gaps. When a
+ * `tracks` list is supplied the gain is additionally gated by the active clip's
+ * lane audibility ({@link effectiveClipGain}) — a muted lane (or a non-soloed lane
+ * while something is soloed) contributes silence. Omitting `tracks` keeps the
+ * legacy all-audible behaviour. Pure — the source of truth the exporter samples
+ * per audio frame.
  */
-export function planAudioGainAt(clips: TimelineClip[], timelineSec: number): number {
+export function planAudioGainAt(
+	clips: TimelineClip[],
+	timelineSec: number,
+	tracks?: TimelineTrack[],
+): number {
 	const clip = clipAtTime(clips, timelineSec);
-	return clip ? gainAt(clip, timelineSec) : 0;
+	if (!clip) return 0;
+	if (!tracks) return gainAt(clip, timelineSec);
+	return effectiveClipGain(clip, trackAtIndex(tracks, clip.trackIndex), tracks, timelineSec);
 }

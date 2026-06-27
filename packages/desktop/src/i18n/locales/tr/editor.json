@@ -102,7 +102,15 @@
 		"zoomOut": "Uzaklaştır",
 		"videoTrack": "Video parçası",
 		"audioTrack": "Ses parçası",
-		"snapping": "Yapışma"
+		"snapping": "Yapışma",
+		"muteTrack": "Parçayı sustur",
+		"unmuteTrack": "Susturmayı kaldır",
+		"soloTrack": "Parçayı solo yap",
+		"unsoloTrack": "Soloyu kaldır",
+		"lockTrack": "Parçayı kilitle",
+		"unlockTrack": "Kilidi aç",
+		"addTrack": "Parça ekle",
+		"removeTrack": "Parçayı kaldır"
 	},
 	"clipInspector": {
 		"title": "Klip",

@@ -102,7 +102,15 @@
 		"zoomOut": "Отдалить",
 		"videoTrack": "Видеодорожка",
 		"audioTrack": "Аудиодорожка",
-		"snapping": "Привязка"
+		"snapping": "Привязка",
+		"muteTrack": "Заглушить дорожку",
+		"unmuteTrack": "Включить дорожку",
+		"soloTrack": "Соло дорожки",
+		"unsoloTrack": "Отключить соло",
+		"lockTrack": "Заблокировать дорожку",
+		"unlockTrack": "Разблокировать дорожку",
+		"addTrack": "Добавить дорожку",
+		"removeTrack": "Удалить дорожку"
 	},
 	"clipInspector": {
 		"title": "Клип",

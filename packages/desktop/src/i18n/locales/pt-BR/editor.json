@@ -83,7 +83,15 @@
 		"zoomOut": "Reduzir",
 		"videoTrack": "Faixa de vídeo",
 		"audioTrack": "Faixa de áudio",
-		"snapping": "Ajuste magnético"
+		"snapping": "Ajuste magnético",
+		"muteTrack": "Silenciar faixa",
+		"unmuteTrack": "Reativar faixa",
+		"soloTrack": "Solo da faixa",
+		"unsoloTrack": "Remover solo",
+		"lockTrack": "Bloquear faixa",
+		"unlockTrack": "Desbloquear faixa",
+		"addTrack": "Adicionar faixa",
+		"removeTrack": "Remover faixa"
 	},
 	"clipInspector": {
 		"title": "Clipe",

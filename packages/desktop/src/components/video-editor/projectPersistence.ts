@@ -17,6 +17,7 @@ import {
 } from "./editorDefaults";
 import type { MediaAsset } from "./MediaBin";
 import type { TimelineClip } from "./timeline/clipModel";
+import type { TimelineTrack } from "./timeline/trackModel";
 import {
 	type AnnotationRegion,
 	type CropRegion,
@@ -107,6 +108,8 @@ export interface EditorProjectData {
 	mediaLibrary?: MediaAsset[];
 	/** Optional: the clip-based timeline (restored on load if present). */
 	timelineClips?: TimelineClip[];
+	/** Optional: per-track lane state (mute/solo/lock). Derived from clips if absent. */
+	tracks?: TimelineTrack[];
 }
 
 function isFiniteNumber(value: unknown): value is number {

@@ -1,4 +1,18 @@
-import { Eraser, Magnet, Scissors, Trash2, ZoomIn, ZoomOut } from "lucide-react";
+import {
+	Eraser,
+	Headphones,
+	Lock,
+	LockOpen,
+	Magnet,
+	Plus,
+	Scissors,
+	Trash2,
+	Volume2,
+	VolumeX,
+	X,
+	ZoomIn,
+	ZoomOut,
+} from "lucide-react";
 import {
 	type DragEvent as ReactDragEvent,
 	type ReactNode,
@@ -15,15 +29,14 @@ import {
 	clipDuration,
 	clipEndSec,
 	clipsTotalDuration,
-	DEFAULT_TRACKS,
 	genClipId,
 	MIN_CLIP_LENGTH,
 	rippleDeleteClip,
 	splitClipAt,
 	type TimelineClip,
-	type TimelineTrack,
 } from "./clipModel";
 import { getThumbnail, getWaveformPeaks } from "./mediaPreview";
+import { defaultTracksForClips, isTrackLocked, type TimelineTrack } from "./trackModel";
 
 const RULER_HEIGHT = 22;
 const TRACK_HEIGHT = 42;
@@ -33,10 +46,18 @@ const MAX_PX_PER_SEC = 400;
 const DEFAULT_PX_PER_SEC = 60;
 const SNAP_PX = 8;
 const TRAIL_SECONDS = 6; // empty runway after the last clip
+const TRACK_HEADER_WIDTH = 124; // sticky left lane-header column (label + controls)
 
 interface ClipTimelineProps {
 	clips: TimelineClip[];
 	onClipsChange: (clips: TimelineClip[]) => void;
+	/** Explicit per-track lane state (mute/solo/lock). Falls back to deriving from clips. */
+	tracks?: TimelineTrack[];
+	onToggleTrackMuted?: (index: number) => void;
+	onToggleTrackSolo?: (index: number) => void;
+	onToggleTrackLocked?: (index: number) => void;
+	onAddTrack?: () => void;
+	onRemoveTrack?: (index: number) => void;
 	currentTime: number;
 	videoDuration: number;
 	onSeek: (sec: number) => void;
@@ -133,6 +154,12 @@ function waveformPoints(peaks: number[]): string {
 export function ClipTimeline({
 	clips,
 	onClipsChange,
+	tracks: tracksProp,
+	onToggleTrackMuted,
+	onToggleTrackSolo,
+	onToggleTrackLocked,
+	onAddTrack,
+	onRemoveTrack,
 	currentTime,
 	videoDuration,
 	onSeek,
@@ -162,14 +189,27 @@ export function ClipTimeline({
 		setPxPerSecState(Math.min(MAX_PX_PER_SEC, Math.max(MIN_PX_PER_SEC, next)));
 	}, []);
 
+	// Lanes come from the owner (VideoEditor) so mute/solo/lock are shared state;
+	// fall back to deriving from the clips when no tracks prop is supplied, and
+	// always extend to cover any clip whose index sits beyond the given lanes.
 	const tracks = useMemo<TimelineTrack[]>(() => {
-		const maxIndex = clips.reduce((m, c) => Math.max(m, c.trackIndex), DEFAULT_TRACKS.length - 1);
-		const list = [...DEFAULT_TRACKS];
-		for (let i = DEFAULT_TRACKS.length; i <= maxIndex; i++) {
-			list.push({ index: i, kind: "video" });
+		const base = tracksProp && tracksProp.length > 0 ? tracksProp : defaultTracksForClips(clips);
+		const maxClipIndex = clips.reduce((m, c) => Math.max(m, c.trackIndex), -1);
+		const maxKnown = base.reduce((m, t) => Math.max(m, t.index), -1);
+		if (maxClipIndex <= maxKnown) return base;
+		const extended = [...base];
+		for (let i = maxKnown + 1; i <= maxClipIndex; i++) {
+			extended.push({
+				index: i,
+				name: `Track ${i + 1}`,
+				kind: i === 2 ? "audio" : "video",
+				muted: false,
+				locked: false,
+				solo: false,
+			});
 		}
-		return list;
-	}, [clips]);
+		return extended;
+	}, [tracksProp, clips]);
 
 	const contentSeconds = useMemo(() => {
 		const end = Math.max(clipsTotalDuration(clips), videoDuration, currentTime);
@@ -286,6 +326,11 @@ export function ClipTimeline({
 	const beginDrag = useCallback(
 		(e: ReactPointerEvent, clip: TimelineClip, kind: DragKind) => {
 			e.stopPropagation();
+			// Clips on a locked lane can be selected but not moved or trimmed.
+			if (isTrackLocked(tracks, clip.trackIndex)) {
+				onSelectClip(clip);
+				return;
+			}
 			const lanesTop = lanesRef.current?.getBoundingClientRect().top ?? 0;
 			dragRef.current = {
 				kind,
@@ -301,13 +346,15 @@ export function ClipTimeline({
 			window.addEventListener("pointerup", endDrag);
 			window.addEventListener("pointercancel", endDrag);
 		},
-		[handlePointerMove, endDrag, onSelectClip],
+		[handlePointerMove, endDrag, onSelectClip, tracks],
 	);
 
 	const selectedClip = useMemo(
 		() => clips.find((c) => c.id === selectedClipId) ?? null,
 		[clips, selectedClipId],
 	);
+	// Toolbar edit ops act on the selected clip; disabled on a locked lane.
+	const selectedLocked = selectedClip ? isTrackLocked(tracks, selectedClip.trackIndex) : false;
 
 	const handleSplit = useCallback(() => {
 		if (!selectedClip) return;
@@ -415,20 +462,28 @@ export function ClipTimeline({
 					icon={<Scissors className="h-4 w-4" />}
 					label={t("clipTimeline.split")}
 					onClick={handleSplit}
-					disabled={!selectedClip}
+					disabled={!selectedClip || selectedLocked}
 				/>
 				<ToolButton
 					icon={<Trash2 className="h-4 w-4" />}
 					label={t("clipTimeline.rippleDelete")}
 					onClick={handleRippleDelete}
-					disabled={!selectedClip}
+					disabled={!selectedClip || selectedLocked}
 				/>
 				<ToolButton
 					icon={<Eraser className="h-4 w-4" />}
 					label={t("clipTimeline.delete")}
 					onClick={handleDelete}
-					disabled={!selectedClip}
+					disabled={!selectedClip || selectedLocked}
 				/>
+				<div className="mx-1 h-5 w-px bg-border" />
+				{onAddTrack && (
+					<ToolButton
+						icon={<Plus className="h-4 w-4" />}
+						label={t("clipTimeline.addTrack")}
+						onClick={onAddTrack}
+					/>
+				)}
 				<div className="mx-1 h-5 w-px bg-border" />
 				<ToolButton
 					icon={<ZoomOut className="h-4 w-4" />}
@@ -494,17 +549,15 @@ export function ClipTimeline({
 								className="relative border-b border-border"
 								style={{ height: TRACK_HEIGHT, marginBottom: TRACK_GAP }}
 							>
-								<span
-									className="pointer-events-none absolute left-1 top-1 z-[1] select-none rounded bg-background/70 px-1 text-[9px] font-semibold uppercase text-muted-foreground"
-									aria-label={
-										track.kind === "audio"
-											? t("clipTimeline.audioTrack")
-											: t("clipTimeline.videoTrack")
-									}
-								>
-									{track.kind === "audio" ? "A" : "V"}
-									{track.index + 1}
-								</span>
+								<TrackHeader
+									track={track}
+									canRemove={tracks.length > 1}
+									onToggleMuted={onToggleTrackMuted}
+									onToggleSolo={onToggleTrackSolo}
+									onToggleLocked={onToggleTrackLocked}
+									onRemove={onRemoveTrack}
+									t={t}
+								/>
 								{clips
 									.filter((c) => c.trackIndex === track.index)
 									.map((clip) => {
@@ -512,12 +565,17 @@ export function ClipTimeline({
 										const left = clip.startSec * pxPerSec;
 										const width = Math.max(2, clipDuration(clip) * pxPerSec);
 										const isAudio = track.kind === "audio";
+										const locked = track.locked;
 										const thumb = isAudio ? null : thumbs[clip.sourcePath];
 										const peaks = isAudio ? waveforms[clip.sourcePath] : null;
 										return (
 											<div
 												key={clip.id}
-												className={`absolute top-1 bottom-1 flex cursor-grab items-center overflow-hidden rounded-md border text-[11px] active:cursor-grabbing ${
+												className={`absolute top-1 bottom-1 flex items-center overflow-hidden rounded-md border text-[11px] ${
+													locked
+														? "cursor-not-allowed opacity-55"
+														: "cursor-grab active:cursor-grabbing"
+												} ${
 													isSelected
 														? "border-primary bg-primary/30 ring-1 ring-primary"
 														: isAudio
@@ -555,11 +613,13 @@ export function ClipTimeline({
 														/>
 													</svg>
 												)}
-												{/* Left trim handle */}
-												<div
-													className="absolute left-0 top-0 z-[1] h-full w-1.5 cursor-ew-resize bg-foreground/25 hover:bg-primary"
-													onPointerDown={(e) => beginDrag(e, clip, "trim-left")}
-												/>
+												{/* Left trim handle (hidden on locked lanes) */}
+												{!locked && (
+													<div
+														className="absolute left-0 top-0 z-[1] h-full w-1.5 cursor-ew-resize bg-foreground/25 hover:bg-primary"
+														onPointerDown={(e) => beginDrag(e, clip, "trim-left")}
+													/>
+												)}
 												<span
 													className={`pointer-events-none z-[1] mx-2 truncate text-foreground ${
 														thumb ? "rounded bg-background/55 px-1 py-0.5 backdrop-blur-[1px]" : ""
@@ -567,11 +627,13 @@ export function ClipTimeline({
 												>
 													{clip.name}
 												</span>
-												{/* Right trim handle */}
-												<div
-													className="absolute right-0 top-0 z-[1] h-full w-1.5 cursor-ew-resize bg-foreground/25 hover:bg-primary"
-													onPointerDown={(e) => beginDrag(e, clip, "trim-right")}
-												/>
+												{/* Right trim handle (hidden on locked lanes) */}
+												{!locked && (
+													<div
+														className="absolute right-0 top-0 z-[1] h-full w-1.5 cursor-ew-resize bg-foreground/25 hover:bg-primary"
+														onPointerDown={(e) => beginDrag(e, clip, "trim-right")}
+													/>
+												)}
 											</div>
 										);
 									})}
@@ -627,6 +689,106 @@ function ToolButton({ icon, label, onClick, disabled, active }: ToolButtonProps)
 			aria-label={label}
 			aria-pressed={active}
 			className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40 ${
+				active ? "bg-primary/15 text-primary hover:text-primary" : "text-muted-foreground"
+			}`}
+		>
+			{icon}
+		</button>
+	);
+}
+
+interface TrackHeaderProps {
+	track: TimelineTrack;
+	canRemove: boolean;
+	onToggleMuted?: (index: number) => void;
+	onToggleSolo?: (index: number) => void;
+	onToggleLocked?: (index: number) => void;
+	onRemove?: (index: number) => void;
+	t: (key: string) => string;
+}
+
+/**
+ * Sticky left-pinned lane header: the V/A label plus mute / solo / lock toggles
+ * and a remove control. Stays put while the timeline scrolls horizontally so the
+ * lane controls are always reachable. Icon-only, `title`/`aria-pressed` for a11y.
+ */
+function TrackHeader({
+	track,
+	canRemove,
+	onToggleMuted,
+	onToggleSolo,
+	onToggleLocked,
+	onRemove,
+	t,
+}: TrackHeaderProps) {
+	return (
+		<div
+			className="sticky left-0 z-[5] flex h-full flex-col justify-center gap-1 border-r border-border bg-card/95 px-1.5 backdrop-blur-sm"
+			style={{ width: TRACK_HEADER_WIDTH }}
+			onPointerDown={(e) => e.stopPropagation()}
+		>
+			<div className="flex items-center justify-between">
+				<span
+					className="select-none text-[10px] font-semibold uppercase text-muted-foreground"
+					aria-label={
+						track.kind === "audio" ? t("clipTimeline.audioTrack") : t("clipTimeline.videoTrack")
+					}
+				>
+					{track.kind === "audio" ? "A" : "V"}
+					{track.index + 1}
+				</span>
+				{onRemove && canRemove && (
+					<HeaderButton
+						icon={<X className="h-3 w-3" />}
+						label={t("clipTimeline.removeTrack")}
+						onClick={() => onRemove(track.index)}
+					/>
+				)}
+			</div>
+			<div className="flex items-center gap-0.5">
+				<HeaderButton
+					icon={track.muted ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
+					label={track.muted ? t("clipTimeline.unmuteTrack") : t("clipTimeline.muteTrack")}
+					active={track.muted}
+					onClick={() => onToggleMuted?.(track.index)}
+				/>
+				<HeaderButton
+					icon={<Headphones className="h-3 w-3" />}
+					label={track.solo ? t("clipTimeline.unsoloTrack") : t("clipTimeline.soloTrack")}
+					active={track.solo}
+					onClick={() => onToggleSolo?.(track.index)}
+				/>
+				<HeaderButton
+					icon={track.locked ? <Lock className="h-3 w-3" /> : <LockOpen className="h-3 w-3" />}
+					label={track.locked ? t("clipTimeline.unlockTrack") : t("clipTimeline.lockTrack")}
+					active={track.locked}
+					onClick={() => onToggleLocked?.(track.index)}
+				/>
+			</div>
+		</div>
+	);
+}
+
+interface HeaderButtonProps {
+	icon: ReactNode;
+	label: string;
+	onClick: () => void;
+	active?: boolean;
+}
+
+/** Compact icon toggle used inside a {@link TrackHeader}. */
+function HeaderButton({ icon, label, onClick, active }: HeaderButtonProps) {
+	return (
+		<button
+			type="button"
+			onClick={(e) => {
+				e.stopPropagation();
+				onClick();
+			}}
+			title={label}
+			aria-label={label}
+			aria-pressed={active}
+			className={`flex h-5 w-5 items-center justify-center rounded transition-colors hover:bg-accent hover:text-foreground ${
 				active ? "bg-primary/15 text-primary hover:text-primary" : "text-muted-foreground"
 			}`}
 		>

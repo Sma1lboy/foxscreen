@@ -102,7 +102,15 @@
 		"zoomOut": "Zoom out",
 		"videoTrack": "Video track",
 		"audioTrack": "Audio track",
-		"snapping": "Snapping"
+		"snapping": "Snapping",
+		"muteTrack": "Mute track",
+		"unmuteTrack": "Unmute track",
+		"soloTrack": "Solo track",
+		"unsoloTrack": "Unsolo track",
+		"lockTrack": "Lock track",
+		"unlockTrack": "Unlock track",
+		"addTrack": "Add track",
+		"removeTrack": "Remove track"
 	},
 	"clipInspector": {
 		"title": "Clip",

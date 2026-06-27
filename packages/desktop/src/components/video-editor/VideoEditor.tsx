@@ -96,7 +96,6 @@ import {
 	clipEndSec,
 	clipsTotalDuration,
 	duplicateClip,
-	gainAt,
 	genClipId,
 	nextClipStart,
 	nudgeClip,
@@ -106,6 +105,20 @@ import {
 	type TimelineClip,
 	trackEndSec,
 } from "./timeline/clipModel";
+import {
+	addTrack,
+	DEFAULT_TRACKS,
+	defaultTracksForClips,
+	effectiveClipGain,
+	isTrackLocked,
+	reindexClipsForRemovedTrack,
+	removeTrack,
+	type TimelineTrack,
+	toggleLocked,
+	toggleMuted,
+	toggleSolo,
+	trackAtIndex,
+} from "./timeline/trackModel";
 import { buildAutoZoomSuggestions } from "./timeline/zoomSuggestionUtils";
 import {
 	type AnnotationRegion,
@@ -263,6 +276,9 @@ export default function VideoEditor() {
 	// from library assets and edited in <ClipTimeline/>; the active clip drives
 	// the single-source preview (multi-clip compositing is a later phase).
 	const [clips, setClips] = useState<TimelineClip[]>([]);
+	// Explicit per-track lane state (mute/solo/lock) — see ./timeline/trackModel.
+	// Seeds the standard V1/V2/A3 layout; restored from / derived for a project.
+	const [tracks, setTracks] = useState<TimelineTrack[]>(DEFAULT_TRACKS);
 	const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
 	// Copy/paste buffer for the standard-NLE clip shortcuts (Cmd/Ctrl+C / +V).
 	const [clipboard, setClipboard] = useState<TimelineClip[]>([]);
@@ -283,6 +299,8 @@ export default function VideoEditor() {
 	isPlayingRef.current = isPlaying;
 	const clipsRef = useRef(clips);
 	clipsRef.current = clips;
+	const tracksRef = useRef(tracks);
+	tracksRef.current = tracks;
 	const selectedClipIdRef = useRef(selectedClipId);
 	selectedClipIdRef.current = selectedClipId;
 	const clipboardRef = useRef(clipboard);
@@ -321,6 +339,32 @@ export default function VideoEditor() {
 		},
 		[selectedClipId],
 	);
+
+	// Per-track lane controls (mute / solo / lock + add / remove). Pure helpers in
+	// ./timeline/trackModel; removing a lane also drops its clips and re-indexes
+	// the lanes/clips above it so the two arrays stay in lockstep.
+	const handleToggleTrackMuted = useCallback((index: number) => {
+		setTracks((prev) => toggleMuted(prev, index));
+	}, []);
+	const handleToggleTrackSolo = useCallback((index: number) => {
+		setTracks((prev) => toggleSolo(prev, index));
+	}, []);
+	const handleToggleTrackLocked = useCallback((index: number) => {
+		setTracks((prev) => toggleLocked(prev, index));
+	}, []);
+	const handleAddTrack = useCallback(() => {
+		setTracks((prev) => addTrack(prev));
+	}, []);
+	const handleRemoveTrack = useCallback((index: number) => {
+		setTracks((prev) => removeTrack(prev, index));
+		setClips((prev) => reindexClipsForRemovedTrack(prev, index));
+		// Drop the selection if it lived on (or above) the removed lane.
+		setSelectedClipId((prev) => {
+			if (!prev) return prev;
+			const sel = clipsRef.current.find((c) => c.id === prev);
+			return sel && sel.trackIndex === index ? null : prev;
+		});
+	}, []);
 	const [selectedZoomId, setSelectedZoomId] = useState<string | null>(null);
 	const [isPreviewingZoom, setIsPreviewingZoom] = useState(false);
 	const [selectedTrimId, setSelectedTrimId] = useState<string | null>(null);
@@ -577,6 +621,13 @@ export default function VideoEditor() {
 			}
 			if (Array.isArray(project.timelineClips)) {
 				setClips(project.timelineClips);
+				// Restore explicit lane state when present; otherwise derive lanes from
+				// the clips (one per used index) so mute/solo/lock have a home.
+				setTracks(
+					Array.isArray(project.tracks) && project.tracks.length > 0
+						? project.tracks
+						: defaultTracksForClips(project.timelineClips),
+				);
 			}
 			return true;
 		},
@@ -761,7 +812,10 @@ export default function VideoEditor() {
 		// Per-clip audio: apply the clip's gain envelope + mute to the <video> element.
 		const video = videoPlaybackRef.current?.video;
 		if (video) {
-			video.volume = Math.max(0, Math.min(1, gainAt(active, clamped)));
+			// Per-clip envelope gated by the clip's lane (mute / solo / fade).
+			const list = tracksRef.current;
+			const track = trackAtIndex(list, active.trackIndex);
+			video.volume = Math.max(0, Math.min(1, effectiveClipGain(active, track, list, clamped)));
 			video.muted = Boolean(active.muted);
 		}
 		setCurrentTime(clamped);
@@ -2274,6 +2328,10 @@ export default function VideoEditor() {
 			if (!typing && clipsRef.current.length > 0) {
 				const selId = selectedClipIdRef.current;
 				const selected = selId ? (clipsRef.current.find((c) => c.id === selId) ?? null) : null;
+				// Clips on a locked lane can't be moved/trimmed/deleted/duplicated/split.
+				const selectedLocked = selected
+					? isTrackLocked(tracksRef.current, selected.trackIndex)
+					: false;
 
 				// Copy / paste act on the whole clipboard, not just a selection.
 				if (mod && key === "c") {
@@ -2296,7 +2354,7 @@ export default function VideoEditor() {
 					return;
 				}
 				if (mod && key === "d") {
-					if (selected) {
+					if (selected && !selectedLocked) {
 						e.preventDefault();
 						e.stopPropagation();
 						const dup = duplicateClip(selected, genClipId);
@@ -2306,8 +2364,8 @@ export default function VideoEditor() {
 					return;
 				}
 
-				// The rest need a selection and ignore Cmd/Ctrl combos.
-				if (selected && !mod) {
+				// The rest need a selection on an unlocked lane and ignore Cmd/Ctrl combos.
+				if (selected && !mod && !selectedLocked) {
 					if (e.key === "Delete" || e.key === "Backspace") {
 						e.preventDefault();
 						e.stopPropagation();
@@ -2671,6 +2729,7 @@ export default function VideoEditor() {
 						clips.length > 0
 							? (new SequenceVideoExporter({
 									clips,
+									tracks,
 									resolveSourceUrl: (clip) => toFileUrl(clip.sourcePath),
 									width: exportWidth,
 									height: exportHeight,
@@ -2830,6 +2889,7 @@ export default function VideoEditor() {
 			cursorTheme,
 			t,
 			clips,
+			tracks,
 		],
 	);
 
@@ -3658,6 +3718,12 @@ export default function VideoEditor() {
 								<ClipTimeline
 									clips={clips}
 									onClipsChange={setClips}
+									tracks={tracks}
+									onToggleTrackMuted={handleToggleTrackMuted}
+									onToggleTrackSolo={handleToggleTrackSolo}
+									onToggleTrackLocked={handleToggleTrackLocked}
+									onAddTrack={handleAddTrack}
+									onRemoveTrack={handleRemoveTrack}
 									currentTime={currentTime}
 									videoDuration={duration}
 									onSeek={handleSeek}

@@ -84,7 +84,15 @@
 		"zoomOut": "Riduci",
 		"videoTrack": "Traccia video",
 		"audioTrack": "Traccia audio",
-		"snapping": "Aggancio"
+		"snapping": "Aggancio",
+		"muteTrack": "Disattiva traccia",
+		"unmuteTrack": "Riattiva traccia",
+		"soloTrack": "Assolo traccia",
+		"unsoloTrack": "Annulla assolo",
+		"lockTrack": "Blocca traccia",
+		"unlockTrack": "Sblocca traccia",
+		"addTrack": "Aggiungi traccia",
+		"removeTrack": "Rimuovi traccia"
 	},
 	"clipInspector": {
 		"title": "Clip",

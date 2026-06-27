@@ -102,7 +102,15 @@
 		"zoomOut": "Alejar",
 		"videoTrack": "Pista de vídeo",
 		"audioTrack": "Pista de audio",
-		"snapping": "Ajuste magnético"
+		"snapping": "Ajuste magnético",
+		"muteTrack": "Silenciar pista",
+		"unmuteTrack": "Activar pista",
+		"soloTrack": "Solo de pista",
+		"unsoloTrack": "Quitar solo",
+		"lockTrack": "Bloquear pista",
+		"unlockTrack": "Desbloquear pista",
+		"addTrack": "Añadir pista",
+		"removeTrack": "Eliminar pista"
 	},
 	"clipInspector": {
 		"title": "Clip",
