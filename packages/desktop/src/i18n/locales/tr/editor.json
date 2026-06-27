@@ -89,6 +89,7 @@
 	"mediaBin": {
 		"title": "Medya",
 		"import": "Medya içe aktar",
-		"empty": "Başlamak için video içe aktarın"
+		"empty": "Başlamak için video içe aktarın",
+		"remove": "Kaldır"
 	}
 }

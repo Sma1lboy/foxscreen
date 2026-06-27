@@ -89,6 +89,7 @@
 	"mediaBin": {
 		"title": "Media",
 		"import": "Import media",
-		"empty": "Import a video to start"
+		"empty": "Import a video to start",
+		"remove": "Remove"
 	}
 }

@@ -89,6 +89,7 @@
 	"mediaBin": {
 		"title": "Phương tiện",
 		"import": "Nhập phương tiện",
-		"empty": "Nhập video để bắt đầu"
+		"empty": "Nhập video để bắt đầu",
+		"remove": "Xóa"
 	}
 }

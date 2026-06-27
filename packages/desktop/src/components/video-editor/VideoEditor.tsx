@@ -525,6 +525,19 @@ export default function VideoEditor() {
 		setProjectOpen(true);
 	}, []);
 
+	// Remove an asset from the library; if it was the active source, clear the preview.
+	const removeMediaAsset = useCallback(
+		(asset: MediaAsset) => {
+			setMediaAssets((prev) => prev.filter((a) => a.id !== asset.id));
+			if (videoSourcePath === asset.path) {
+				setVideoSourcePath(null);
+				setVideoPath(null);
+				setError(null);
+			}
+		},
+		[videoSourcePath],
+	);
+
 	const currentProjectSnapshot = useMemo(() => {
 		if (!currentProjectMedia) {
 			return null;
@@ -2792,6 +2805,7 @@ export default function VideoEditor() {
 										activePath={videoSourcePath}
 										onImport={handleImportVideoSource}
 										onSelect={selectMediaAsset}
+										onRemove={removeMediaAsset}
 									/>
 								</Panel>
 

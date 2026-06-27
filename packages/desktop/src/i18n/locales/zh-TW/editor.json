@@ -89,6 +89,7 @@
 	"mediaBin": {
 		"title": "素材",
 		"import": "匯入素材",
-		"empty": "匯入影片開始"
+		"empty": "匯入影片開始",
+		"remove": "移除"
 	}
 }

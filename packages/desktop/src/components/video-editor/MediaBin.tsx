@@ -1,4 +1,4 @@
-import { Film, FolderPlus } from "lucide-react";
+import { Film, FolderPlus, X } from "lucide-react";
 import { useScopedT } from "@/contexts/I18nContext";
 
 /** One imported source in the project's media library. */
@@ -18,6 +18,8 @@ interface MediaBinProps {
 	onImport: () => void;
 	/** Load an existing asset into the preview. */
 	onSelect: (asset: MediaAsset) => void;
+	/** Remove an asset from the library. */
+	onRemove: (asset: MediaAsset) => void;
 }
 
 /**
@@ -26,7 +28,7 @@ interface MediaBinProps {
  * this is the foundation for multi-source editing (sources you pick here become
  * the preview source today, and clips you drag onto the timeline next).
  */
-export function MediaBin({ assets, activePath, onImport, onSelect }: MediaBinProps) {
+export function MediaBin({ assets, activePath, onImport, onSelect, onRemove }: MediaBinProps) {
 	const t = useScopedT("editor");
 
 	return (
@@ -59,12 +61,19 @@ export function MediaBin({ assets, activePath, onImport, onSelect }: MediaBinPro
 						{assets.map((asset) => {
 							const isActive = activePath === asset.path;
 							return (
-								<button
+								<div
 									key={asset.id}
-									type="button"
+									role="button"
+									tabIndex={0}
 									onClick={() => onSelect(asset)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											onSelect(asset);
+										}
+									}}
 									title={asset.path}
-									className={`flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-left transition-colors ${
+									className={`group/asset flex cursor-pointer items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-left transition-colors ${
 										isActive
 											? "bg-primary/15 ring-1 ring-primary/40 text-slate-100"
 											: "text-slate-300 hover:bg-white/[0.05]"
@@ -78,7 +87,18 @@ export function MediaBin({ assets, activePath, onImport, onSelect }: MediaBinPro
 										<Film className="h-4 w-4" />
 									</span>
 									<span className="min-w-0 flex-1 truncate text-xs font-medium">{asset.name}</span>
-								</button>
+									<button
+										type="button"
+										onClick={(e) => {
+											e.stopPropagation();
+											onRemove(asset);
+										}}
+										aria-label={t("mediaBin.remove")}
+										className="flex-shrink-0 p-1 rounded text-slate-500 opacity-0 transition hover:text-slate-100 group-hover/asset:opacity-100"
+									>
+										<X className="h-3 w-3" />
+									</button>
+								</div>
 							);
 						})}
 					</div>
