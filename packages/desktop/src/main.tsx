@@ -14,6 +14,16 @@ installElectronApiShim();
 // mock so the editor shell can mount for screenshots. No-op under Tauri/prod.
 installBrowserDevMock();
 
+// Dev-only: surface the real message+stack of any uncaught render error to the
+// console so headless QA (/browse) can read it. React's own log only prints the
+// component stack, not the thrown error. No-op in prod.
+if (import.meta.env.DEV) {
+	window.addEventListener("error", (e) => {
+		// eslint-disable-next-line no-console
+		console.log(`__DEVERR__::${e.message}::${(e.error as Error | undefined)?.stack ?? ""}`);
+	});
+}
+
 const windowType = new URLSearchParams(window.location.search).get("windowType") || "";
 if (
 	windowType === "hud-overlay" ||

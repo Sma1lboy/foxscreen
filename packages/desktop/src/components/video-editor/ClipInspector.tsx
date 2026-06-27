@@ -74,7 +74,7 @@ export function ClipInspector({ clip, onChange, t }: ClipInspectorProps) {
 					<Switch
 						checked={muted}
 						onCheckedChange={(checked) => onChange?.({ muted: checked })}
-						className="data-[state=checked]:bg-emerald-500 scale-90"
+						className="data-[state=checked]:bg-primary scale-90"
 						aria-label={t("clipInspector.mute")}
 					/>
 				</div>
@@ -98,7 +98,7 @@ export function ClipInspector({ clip, onChange, t }: ClipInspectorProps) {
 						max={100}
 						step={1}
 						disabled={muted}
-						className="w-full [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border-emerald-500 [&_[role=slider]]:bg-emerald-500 [&_.bg-primary]:bg-emerald-500"
+						className="w-full [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border-primary [&_[role=slider]]:bg-primary "
 					/>
 				</div>
 
@@ -117,7 +117,7 @@ export function ClipInspector({ clip, onChange, t }: ClipInspectorProps) {
 						min={0}
 						max={Math.max(halfDuration, 0.01)}
 						step={0.05}
-						className="w-full [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border-emerald-500 [&_[role=slider]]:bg-emerald-500 [&_.bg-primary]:bg-emerald-500"
+						className="w-full [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border-primary [&_[role=slider]]:bg-primary "
 					/>
 				</div>
 
@@ -136,7 +136,7 @@ export function ClipInspector({ clip, onChange, t }: ClipInspectorProps) {
 						min={0}
 						max={Math.max(halfDuration, 0.01)}
 						step={0.05}
-						className="w-full [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border-emerald-500 [&_[role=slider]]:bg-emerald-500 [&_.bg-primary]:bg-emerald-500"
+						className="w-full [&_[role=slider]]:h-3 [&_[role=slider]]:w-3 [&_[role=slider]]:border-primary [&_[role=slider]]:bg-primary "
 					/>
 				</div>
 			</div>

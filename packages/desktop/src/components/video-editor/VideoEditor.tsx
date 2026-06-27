@@ -362,15 +362,17 @@ export default function VideoEditor() {
 	const { data: cursorRecordingData, error: cursorRecordingDataError } =
 		useCursorRecordingData(cursorTelemetrySourcePath);
 	const cursorClickTimestamps = useMemo<number[]>(() => {
-		const recordingClicks =
-			cursorRecordingData?.samples
-				.filter((sample) => isClickInteractionType(sample.interactionType))
-				.map((sample) => sample.timeMs) ?? [];
+		const recordingSamples = Array.isArray(cursorRecordingData?.samples)
+			? cursorRecordingData.samples
+			: [];
+		const recordingClicks = recordingSamples
+			.filter((sample) => isClickInteractionType(sample.interactionType))
+			.map((sample) => sample.timeMs);
 		if (recordingClicks.length > 0) {
 			return recordingClicks;
 		}
 
-		return cursorTelemetry
+		return (Array.isArray(cursorTelemetry) ? cursorTelemetry : [])
 			.filter((sample) => isClickInteractionType(sample.interactionType))
 			.map((sample) => sample.timeMs);
 	}, [cursorRecordingData, cursorTelemetry]);

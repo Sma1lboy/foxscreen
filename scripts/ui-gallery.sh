@@ -50,6 +50,20 @@ enter_editor
 shot 09-editor-light
 click '[title="Background"]'; sleep 0.3; shot 10-background-light
 
+# Populated project (?seed=demo): media bin + multi-track clip timeline + clip
+# inspector all render headless (the video preview itself needs WebGL, so it shows
+# the empty "no video" state — the editor chrome around it is the point here).
+echo "== populated project (seed=demo) =="
+theme dark
+"$B" goto "$URL/?windowType=editor&seed=demo" >/dev/null 2>&1
+"$B" wait --networkidle >/dev/null 2>&1
+sleep 1.2
+shot 11-demo-timeline
+# select the first V1 clip to open the clip inspector (audio: mute/volume/fades)
+"$B" js "(()=>{const els=[...document.querySelectorAll('*')].filter(e=>e.children.length===0&&/sample-10s\.mp4/.test(e.textContent));const c=els.find(e=>e.getBoundingClientRect().top>540);c&&c.click();return 'ok';})()" >/dev/null 2>&1
+sleep 0.4
+shot 12-demo-clip-inspector
+
 theme dark
 echo "gallery: $OUT"
 ls -1 "$OUT"

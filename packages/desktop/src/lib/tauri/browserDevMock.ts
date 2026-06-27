@@ -88,6 +88,15 @@ function bridgeData(domain: string, action: string): unknown {
 			return { success: true };
 		case "project.loadProjectFile":
 			return { canceled: true, success: false };
+		// Cursor hooks run on every project with a source. They expect typed shapes
+		// (an array / a CursorRecordingData), not a bare {} — returning {} crashes the
+		// editor on `.filter`/`.length`. Empty-but-well-formed = inert, no crash.
+		case "cursor.getTelemetry":
+			return [];
+		case "cursor.getRecordingData":
+			return { version: 1, provider: "none", samples: [], assets: [] };
+		case "cursor.getCapabilities":
+			return { telemetry: false, systemAssets: false, provider: "none" };
 		default:
 			return {};
 	}
