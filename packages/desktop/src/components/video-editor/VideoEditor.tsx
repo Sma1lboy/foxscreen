@@ -2747,7 +2747,7 @@ export default function VideoEditor() {
 			    source is attached; the timeline/tracks render from the (possibly empty) project. */}
 			{(videoPath || projectOpen) && (
 				<div className="editor-workspace flex-1 min-h-0 relative">
-					<PanelGroup direction="vertical" className="gap-3 min-h-0">
+					<PanelGroup direction="vertical" className="gap-1 min-h-0">
 						{/* Top section: preview and contextual settings */}
 						<Panel defaultSize={67} maxSize={76} minSize={46} className="min-h-[300px]">
 							<PanelGroup
