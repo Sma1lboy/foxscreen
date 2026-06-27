@@ -84,5 +84,17 @@
 		"zoomOut": "Riduci",
 		"videoTrack": "Traccia video",
 		"audioTrack": "Traccia audio"
+	},
+	"clipInspector": {
+		"title": "Clip",
+		"name": "Nome",
+		"timelinePosition": "Posizione nella timeline",
+		"sourceRange": "Intervallo sorgente",
+		"duration": "Durata",
+		"audio": "Audio",
+		"volume": "Volume",
+		"mute": "Muto",
+		"fadeIn": "Dissolvenza in entrata",
+		"fadeOut": "Dissolvenza in uscita"
 	}
 }

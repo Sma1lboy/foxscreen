@@ -102,5 +102,17 @@
 		"zoomOut": "Uzaklaştır",
 		"videoTrack": "Video parçası",
 		"audioTrack": "Ses parçası"
+	},
+	"clipInspector": {
+		"title": "Klip",
+		"name": "Ad",
+		"timelinePosition": "Zaman çizelgesi konumu",
+		"sourceRange": "Kaynak aralığı",
+		"duration": "Süre",
+		"audio": "Ses",
+		"volume": "Ses düzeyi",
+		"mute": "Sessiz",
+		"fadeIn": "Açılma",
+		"fadeOut": "Kapanma"
 	}
 }

@@ -102,5 +102,17 @@
 		"zoomOut": "Zoom out",
 		"videoTrack": "Video track",
 		"audioTrack": "Audio track"
+	},
+	"clipInspector": {
+		"title": "Clip",
+		"name": "Name",
+		"timelinePosition": "Timeline position",
+		"sourceRange": "Source range",
+		"duration": "Duration",
+		"audio": "Audio",
+		"volume": "Volume",
+		"mute": "Mute",
+		"fadeIn": "Fade in",
+		"fadeOut": "Fade out"
 	}
 }

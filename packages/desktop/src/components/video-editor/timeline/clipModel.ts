@@ -26,6 +26,14 @@ export interface TimelineClip {
 	inSec: number;
 	/** Source out-point (trim from the tail of the source), in seconds. */
 	outSec: number;
+	/** Linear playback gain, 0–1 (default 1). */
+	volume?: number;
+	/** Silence the clip regardless of {@link volume}/fades (default false). */
+	muted?: boolean;
+	/** Fade-in ramp length at the clip head, in timeline seconds (default 0). */
+	fadeInSec?: number;
+	/** Fade-out ramp length at the clip tail, in timeline seconds (default 0). */
+	fadeOutSec?: number;
 }
 
 export type TrackKind = "video" | "audio";
@@ -53,6 +61,42 @@ export function clipDuration(clip: TimelineClip): number {
 /** Timeline position of a clip's right edge. */
 export function clipEndSec(clip: TimelineClip): number {
 	return clip.startSec + clipDuration(clip);
+}
+
+/**
+ * Playback gain (0–1) for a clip at an absolute timeline time. Returns `0`
+ * outside the clip span or when muted; otherwise the clip's `volume`
+ * (default 1) shaped by a linear fade envelope — ramping 0→1 across the
+ * `fadeInSec` head and 1→0 across the `fadeOutSec` tail, flat `1` in between.
+ * Each fade is clamped to at most half the clip duration so the two ramps
+ * never overlap. Pure — the single source of truth for "how loud is this clip
+ * right now" (preview today, export later).
+ */
+export function gainAt(clip: TimelineClip, timelineSec: number): number {
+	const start = clip.startSec;
+	const end = clipEndSec(clip);
+	if (timelineSec < start || timelineSec >= end) return 0;
+	if (clip.muted) return 0;
+
+	const volume = clip.volume ?? 1;
+	const duration = clipDuration(clip);
+	if (duration <= 0) return Math.max(0, Math.min(1, volume));
+
+	const half = duration / 2;
+	const fadeIn = Math.max(0, Math.min(clip.fadeInSec ?? 0, half));
+	const fadeOut = Math.max(0, Math.min(clip.fadeOutSec ?? 0, half));
+
+	let envelope = 1;
+	const sinceStart = timelineSec - start;
+	const untilEnd = end - timelineSec;
+	if (fadeIn > 0 && sinceStart < fadeIn) {
+		envelope = Math.min(envelope, sinceStart / fadeIn);
+	}
+	if (fadeOut > 0 && untilEnd < fadeOut) {
+		envelope = Math.min(envelope, untilEnd / fadeOut);
+	}
+
+	return Math.max(0, Math.min(1, volume * envelope));
 }
 
 let clipCounter = 0;

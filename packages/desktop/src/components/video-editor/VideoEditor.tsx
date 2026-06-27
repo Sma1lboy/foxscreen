@@ -94,6 +94,7 @@ import {
 	clipAtTime,
 	clipEndSec,
 	clipsTotalDuration,
+	gainAt,
 	genClipId,
 	nextClipStart,
 	type TimelineClip,
@@ -293,6 +294,17 @@ export default function VideoEditor() {
 		[clips, currentTime],
 	);
 	const activeClipId = activeClip?.id ?? null;
+	// The clip whose properties the left inspector edits (timeline selection).
+	const selectedClip = useMemo(
+		() => clips.find((c) => c.id === selectedClipId) ?? null,
+		[clips, selectedClipId],
+	);
+	const handleClipChange = useCallback(
+		(patch: Partial<TimelineClip>) => {
+			setClips((prev) => prev.map((c) => (c.id === selectedClipId ? { ...c, ...patch } : c)));
+		},
+		[selectedClipId],
+	);
 	const [selectedZoomId, setSelectedZoomId] = useState<string | null>(null);
 	const [isPreviewingZoom, setIsPreviewingZoom] = useState(false);
 	const [selectedTrimId, setSelectedTrimId] = useState<string | null>(null);
@@ -726,6 +738,12 @@ export default function VideoEditor() {
 		}
 		const timelineSec = active.startSec + (videoTime - active.inSec);
 		const clamped = Math.min(Math.max(timelineSec, active.startSec), clipEndSec(active));
+		// Per-clip audio: apply the clip's gain envelope + mute to the <video> element.
+		const video = videoPlaybackRef.current?.video;
+		if (video) {
+			video.volume = Math.max(0, Math.min(1, gainAt(active, clamped)));
+			video.muted = Boolean(active.muted);
+		}
 		setCurrentTime(clamped);
 	}, []);
 
@@ -3378,6 +3396,8 @@ export default function VideoEditor() {
 												hasNativeCursorRecordingData(cursorRecordingData)
 											}
 											showCursorSettings={showCursorSettings}
+											selectedClip={selectedClip}
+											onClipChange={handleClipChange}
 										/>
 									</div>
 								</Panel>

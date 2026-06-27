@@ -102,5 +102,17 @@
 		"zoomOut": "Thu nhỏ",
 		"videoTrack": "Rãnh video",
 		"audioTrack": "Rãnh âm thanh"
+	},
+	"clipInspector": {
+		"title": "Đoạn",
+		"name": "Tên",
+		"timelinePosition": "Vị trí dòng thời gian",
+		"sourceRange": "Phạm vi nguồn",
+		"duration": "Thời lượng",
+		"audio": "Âm thanh",
+		"volume": "Âm lượng",
+		"mute": "Tắt tiếng",
+		"fadeIn": "Mở dần",
+		"fadeOut": "Tắt dần"
 	}
 }

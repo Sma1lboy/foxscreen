@@ -102,5 +102,17 @@
 		"zoomOut": "Отдалить",
 		"videoTrack": "Видеодорожка",
 		"audioTrack": "Аудиодорожка"
+	},
+	"clipInspector": {
+		"title": "Клип",
+		"name": "Имя",
+		"timelinePosition": "Позиция на таймлайне",
+		"sourceRange": "Диапазон источника",
+		"duration": "Длительность",
+		"audio": "Аудио",
+		"volume": "Громкость",
+		"mute": "Без звука",
+		"fadeIn": "Нарастание",
+		"fadeOut": "Затухание"
 	}
 }

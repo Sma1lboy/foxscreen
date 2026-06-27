@@ -58,6 +58,7 @@ import { AnnotationSettingsPanel } from "./AnnotationSettingsPanel";
 import { BlurSettingsPanel } from "./BlurSettingsPanel";
 import { BACKGROUND_IMAGE_ACCEPT, isSupportedBackgroundImageType } from "./backgroundImageUpload";
 import { ClaudeTerminal } from "./ClaudeTerminal";
+import { ClipInspector } from "./ClipInspector";
 import { CropControl } from "./CropControl";
 import { parseCustomPlaybackSpeedInput } from "./customPlaybackSpeed";
 import {
@@ -71,6 +72,7 @@ import {
 import { BLUR_REGIONS_ENABLED } from "./featureFlags";
 import { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";
 import { type MediaAsset, MediaBin } from "./MediaBin";
+import type { TimelineClip } from "./timeline/clipModel";
 import type {
 	AnnotationRegion,
 	AnnotationType,
@@ -354,6 +356,8 @@ interface SettingsPanelProps {
 	onMediaSelect?: (a: MediaAsset) => void;
 	onMediaRemove?: (a: MediaAsset) => void;
 	onMediaImportPaths?: (paths: string[]) => void;
+	selectedClip?: TimelineClip | null;
+	onClipChange?: (patch: Partial<TimelineClip>) => void;
 }
 
 export default SettingsPanel;
@@ -503,6 +507,8 @@ export function SettingsPanel({
 	onMediaSelect,
 	onMediaRemove,
 	onMediaImportPaths,
+	selectedClip,
+	onClipChange,
 }: SettingsPanelProps) {
 	const t = useScopedT("settings");
 	const tEditor = useScopedT("editor");
@@ -808,6 +814,20 @@ export function SettingsPanel({
 						onBlurDataCommit={onBlurDataCommit}
 						onDelete={() => onBlurDelete(selectedBlur.id)}
 					/>
+				</div>
+				<div className="flex-shrink-0 p-3 border-t border-border bg-black/25">
+					{commonFooterLinks}
+				</div>
+			</div>
+		);
+	}
+
+	// Timeline clip selected: show its inspector instead (no annotation/blur active).
+	if (selectedClip) {
+		return (
+			<div className="editor-inspector-shell flex min-w-0 flex-col h-full overflow-hidden">
+				<div className="min-h-0 flex-1 overflow-hidden">
+					<ClipInspector clip={selectedClip} onChange={onClipChange} t={tEditor} />
 				</div>
 				<div className="flex-shrink-0 p-3 border-t border-border bg-black/25">
 					{commonFooterLinks}

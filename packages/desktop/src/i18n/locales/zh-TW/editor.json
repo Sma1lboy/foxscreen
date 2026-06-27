@@ -102,5 +102,17 @@
 		"zoomOut": "縮小",
 		"videoTrack": "視訊軌道",
 		"audioTrack": "音訊軌道"
+	},
+	"clipInspector": {
+		"title": "片段",
+		"name": "名稱",
+		"timelinePosition": "時間軸位置",
+		"sourceRange": "來源範圍",
+		"duration": "時長",
+		"audio": "音訊",
+		"volume": "音量",
+		"mute": "靜音",
+		"fadeIn": "淡入",
+		"fadeOut": "淡出"
 	}
 }

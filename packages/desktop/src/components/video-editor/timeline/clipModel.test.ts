@@ -4,6 +4,7 @@ import {
 	clipDuration,
 	clipEndSec,
 	clipsTotalDuration,
+	gainAt,
 	MIN_CLIP_LENGTH,
 	nextClipStart,
 	splitClipAt,
@@ -140,5 +141,50 @@ describe("splitClipAt", () => {
 	it("rejects a cut outside the clip span", () => {
 		expect(splitClipAt(base, 5)).toBeNull();
 		expect(splitClipAt(base, 20)).toBeNull();
+	});
+});
+
+describe("gainAt", () => {
+	// timeline span [10,20] (dur 10)
+	const base = clip({ startSec: 10, inSec: 0, outSec: 10 });
+
+	it("returns 0 outside the clip span (both edges exclusive at the tail)", () => {
+		expect(gainAt(base, 9.999)).toBe(0);
+		expect(gainAt(base, 20)).toBe(0); // right edge is exclusive
+		expect(gainAt(base, 25)).toBe(0);
+	});
+
+	it("muted is always 0, even mid-clip with volume + fades", () => {
+		expect(gainAt({ ...base, muted: true, volume: 1, fadeInSec: 2, fadeOutSec: 2 }, 15)).toBe(0);
+	});
+
+	it("plays the clip volume flat in the middle (default 1)", () => {
+		expect(gainAt(base, 15)).toBe(1);
+		expect(gainAt({ ...base, volume: 0.5 }, 15)).toBe(0.5);
+	});
+
+	it("ramps 0→volume across the fade-in head", () => {
+		const c = { ...base, volume: 1, fadeInSec: 4 };
+		expect(gainAt(c, 10)).toBe(0); // exact start
+		expect(gainAt(c, 11)).toBeCloseTo(0.25, 10);
+		expect(gainAt(c, 12)).toBeCloseTo(0.5, 10);
+		expect(gainAt(c, 14)).toBeCloseTo(1, 10); // fade-in done
+		// fade-in scales the clip volume too
+		expect(gainAt({ ...c, volume: 0.5 }, 12)).toBeCloseTo(0.25, 10);
+	});
+
+	it("ramps volume→0 across the fade-out tail", () => {
+		const c = { ...base, volume: 1, fadeOutSec: 4 };
+		expect(gainAt(c, 16)).toBeCloseTo(1, 10); // just before fade-out
+		expect(gainAt(c, 18)).toBeCloseTo(0.5, 10);
+		expect(gainAt(c, 19)).toBeCloseTo(0.25, 10);
+	});
+
+	it("clamps each fade to half the clip duration so they never overlap", () => {
+		// dur 10 → half is 5; ask for 8s fades, both clamp to 5s and meet at the middle.
+		const c = { ...base, volume: 1, fadeInSec: 8, fadeOutSec: 8 };
+		expect(gainAt(c, 12.5)).toBeCloseTo(0.5, 10); // halfway up the (clamped) 5s fade-in
+		expect(gainAt(c, 15)).toBeCloseTo(1, 10); // they meet at full gain at the midpoint
+		expect(gainAt(c, 17.5)).toBeCloseTo(0.5, 10); // halfway down the 5s fade-out
 	});
 });

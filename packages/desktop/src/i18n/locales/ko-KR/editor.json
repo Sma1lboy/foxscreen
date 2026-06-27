@@ -102,5 +102,17 @@
 		"zoomOut": "축소",
 		"videoTrack": "비디오 트랙",
 		"audioTrack": "오디오 트랙"
+	},
+	"clipInspector": {
+		"title": "클립",
+		"name": "이름",
+		"timelinePosition": "타임라인 위치",
+		"sourceRange": "소스 범위",
+		"duration": "길이",
+		"audio": "오디오",
+		"volume": "볼륨",
+		"mute": "음소거",
+		"fadeIn": "페이드 인",
+		"fadeOut": "페이드 아웃"
 	}
 }

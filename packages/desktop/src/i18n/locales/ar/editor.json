@@ -102,5 +102,17 @@
 		"zoomOut": "تصغير",
 		"videoTrack": "مسار الفيديو",
 		"audioTrack": "مسار الصوت"
+	},
+	"clipInspector": {
+		"title": "مقطع",
+		"name": "الاسم",
+		"timelinePosition": "موضع المخطط الزمني",
+		"sourceRange": "نطاق المصدر",
+		"duration": "المدة",
+		"audio": "الصوت",
+		"volume": "مستوى الصوت",
+		"mute": "كتم الصوت",
+		"fadeIn": "تلاشٍ للداخل",
+		"fadeOut": "تلاشٍ للخارج"
 	}
 }

@@ -102,5 +102,17 @@
 		"zoomOut": "縮小",
 		"videoTrack": "ビデオトラック",
 		"audioTrack": "オーディオトラック"
+	},
+	"clipInspector": {
+		"title": "クリップ",
+		"name": "名前",
+		"timelinePosition": "タイムライン位置",
+		"sourceRange": "ソース範囲",
+		"duration": "長さ",
+		"audio": "オーディオ",
+		"volume": "音量",
+		"mute": "ミュート",
+		"fadeIn": "フェードイン",
+		"fadeOut": "フェードアウト"
 	}
 }
