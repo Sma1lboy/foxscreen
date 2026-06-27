@@ -1,9 +1,11 @@
+import { convertFileSrc } from "@tauri-apps/api/core";
 import { normalizeTextAnimation } from "@/lib/annotationTextAnimation";
 import { normalizeBlurColor, normalizeBlurType } from "@/lib/blurEffects";
 import { normalizeCursorThemeId } from "@/lib/cursor/cursorThemes";
 import type { ExportFormat, ExportQuality, GifFrameRate, GifSizePreset } from "@/lib/exporter";
 import type { ProjectMedia } from "@/lib/recordingSession";
 import { normalizeProjectMedia } from "@/lib/recordingSession";
+import { isTauri } from "@/lib/tauri/electronApiShim";
 import { DEFAULT_WALLPAPER, WALLPAPER_PATHS } from "@/lib/wallpaper";
 import { ASPECT_RATIOS, type AspectRatio, isPortraitAspectRatio } from "@/utils/aspectRatioUtils";
 import {
@@ -181,6 +183,16 @@ export function fromFileUrl(fileUrl: string): string {
 		const fallbackPath = decodeURIComponent(fileUrl.replace(/^file:\/\//, ""));
 		return fallbackPath.replace(/^\/([a-zA-Z]:)/, "$1");
 	}
+}
+
+/**
+ * Resolve a raw filesystem path to a URL a media element (`<video>` / `<audio>`)
+ * can actually load. Under Tauri the WebView blocks raw `file://`, so go through
+ * the asset protocol (`convertFileSrc` → `http://asset.localhost/...`). Under
+ * Electron (or any non-Tauri runtime) fall back to a `file://` URL.
+ */
+export function toMediaSrc(filePath: string): string {
+	return isTauri() ? convertFileSrc(filePath) : toFileUrl(filePath);
 }
 
 export function deriveNextId(prefix: string, ids: string[]): number {

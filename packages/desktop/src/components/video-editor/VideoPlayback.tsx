@@ -54,6 +54,7 @@ import {
 	DEFAULT_EDITOR_LAYOUT_SETTINGS,
 	DEFAULT_SOURCE_DIMENSIONS,
 } from "./editorDefaults";
+import { fromFileUrl, toMediaSrc } from "./projectPersistence";
 import {
 	type AnnotationRegion,
 	type BlurData,
@@ -1976,7 +1977,7 @@ const VideoPlayback = forwardRef<VideoPlaybackRef, VideoPlaybackProps>(
 								>
 									<video
 										ref={webcamVideoRef}
-										src={webcamVideoPath}
+										src={toMediaSrc(fromFileUrl(webcamVideoPath))}
 										className={`w-full h-full object-cover ${webcamLayoutPreset === "picture-in-picture" ? "cursor-grab active:cursor-grabbing" : "pointer-events-none"}`}
 										style={{
 											borderRadius: useClipPath ? 0 : (webcamLayout?.borderRadius ?? 0),
@@ -2155,7 +2156,7 @@ const VideoPlayback = forwardRef<VideoPlaybackRef, VideoPlaybackProps>(
 				</div>
 				<video
 					ref={videoRef}
-					src={videoPath}
+					src={toMediaSrc(fromFileUrl(videoPath))}
 					className="hidden"
 					preload="auto"
 					playsInline
@@ -2181,7 +2182,11 @@ const VideoPlayback = forwardRef<VideoPlaybackRef, VideoPlaybackProps>(
 					onError={() => onError("Failed to load video")}
 				/>
 				{supplementalAudioPath && (
-					<audio ref={supplementalAudioRef} src={supplementalAudioPath} preload="auto" />
+					<audio
+						ref={supplementalAudioRef}
+						src={toMediaSrc(fromFileUrl(supplementalAudioPath))}
+						preload="auto"
+					/>
 				)}
 			</div>
 		);
