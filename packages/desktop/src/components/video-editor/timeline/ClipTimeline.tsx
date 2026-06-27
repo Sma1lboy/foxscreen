@@ -215,7 +215,9 @@ export function ClipTimeline({
 		const end = Math.max(clipsTotalDuration(clips), videoDuration, currentTime);
 		return end + TRAIL_SECONDS;
 	}, [clips, videoDuration, currentTime]);
-	const contentWidth = contentSeconds * pxPerSec;
+	// The lane-header gutter is pinned at the left; everything time-positioned is
+	// shifted right by its width so clips/ticks/playhead never sit under the header.
+	const contentWidth = TRACK_HEADER_WIDTH + contentSeconds * pxPerSec;
 
 	// Lazy, cached media previews keyed by source path: a poster frame for video
 	// clips, downsampled peaks for audio clips. Decoding is best-effort and may
@@ -384,7 +386,7 @@ export function ClipTimeline({
 			if (!rect) return;
 			const sec = Math.max(
 				0,
-				(clientX - rect.left + (lanesRef.current?.scrollLeft ?? 0)) / pxPerSec,
+				(clientX - rect.left + (lanesRef.current?.scrollLeft ?? 0) - TRACK_HEADER_WIDTH) / pxPerSec,
 			);
 			onSeek(sec);
 		},
@@ -398,7 +400,7 @@ export function ClipTimeline({
 			const rect = lanesRef.current?.getBoundingClientRect();
 			if (!rect) return null;
 			const trackIndex = laneIndexFromY(clientY, rect.top);
-			const raw = Math.max(0, (clientX - rect.left) / pxPerSec);
+			const raw = Math.max(0, (clientX - rect.left - TRACK_HEADER_WIDTH) / pxPerSec);
 			const snapPoints = buildSnapPoints(clips, "", currentTime);
 			const startSec = snapEnabled
 				? Math.max(0, snap(raw, snapPoints, pxPerSec))
@@ -520,7 +522,7 @@ export function ClipTimeline({
 							<div
 								key={tick.sec}
 								className="absolute top-0 h-full border-l border-border"
-								style={{ left: tick.sec * pxPerSec }}
+								style={{ left: TRACK_HEADER_WIDTH + tick.sec * pxPerSec }}
 							>
 								<span className="ml-1 select-none text-[10px] leading-[24px] text-muted-foreground">
 									{tick.label}
@@ -562,7 +564,7 @@ export function ClipTimeline({
 									.filter((c) => c.trackIndex === track.index)
 									.map((clip) => {
 										const isSelected = clip.id === selectedClipId;
-										const left = clip.startSec * pxPerSec;
+										const left = TRACK_HEADER_WIDTH + clip.startSec * pxPerSec;
 										const width = Math.max(2, clipDuration(clip) * pxPerSec);
 										const isAudio = track.kind === "audio";
 										const locked = track.locked;
@@ -641,7 +643,7 @@ export function ClipTimeline({
 								{dropHint?.trackIndex === track.index && (
 									<div
 										className="pointer-events-none absolute top-0 bottom-0 z-[2] w-0.5 bg-primary"
-										style={{ left: dropHint.startSec * pxPerSec }}
+										style={{ left: TRACK_HEADER_WIDTH + dropHint.startSec * pxPerSec }}
 									>
 										<div className="absolute -left-[3px] top-0 h-1.5 w-1.5 rounded-full bg-primary" />
 									</div>
@@ -660,7 +662,7 @@ export function ClipTimeline({
 					{/* Playhead spanning ruler + lanes */}
 					<div
 						className="pointer-events-none absolute top-0 bottom-0 z-20 w-px bg-primary"
-						style={{ left: currentTime * pxPerSec }}
+						style={{ left: TRACK_HEADER_WIDTH + currentTime * pxPerSec }}
 					>
 						<div className="absolute -left-1 top-0 h-2 w-2 rounded-sm bg-primary" />
 					</div>
