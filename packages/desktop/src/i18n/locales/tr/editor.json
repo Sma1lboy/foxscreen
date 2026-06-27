@@ -79,5 +79,8 @@
 			"couldNotOpenTitle": "Dosya Açılamadı",
 			"couldNotOpenMessage": "Proje dosyası açılamadı. Başvurulan video taşınmış veya silinmiş olabilir."
 		}
+	},
+	"terminal": {
+		"title": "Terminal"
 	}
 }
