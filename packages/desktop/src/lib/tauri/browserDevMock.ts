@@ -44,7 +44,9 @@ const DEMO_PROJECT = {
 			name: "sample-5s.mp4",
 			sourcePath: `${TEST_MEDIA}/sample-5s.mp4`,
 			trackIndex: 0,
-			startSec: 10,
+			// Overlaps c1 (0–10) on [8,10] so the crossfade-transition affordance has
+			// somewhere to attach in headless QA (?seed=demo).
+			startSec: 8,
 			inSec: 0,
 			outSec: 5,
 		},
