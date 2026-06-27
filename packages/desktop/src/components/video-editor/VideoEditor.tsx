@@ -75,7 +75,7 @@ import {
 	DEFAULT_GIF_SETTINGS,
 	DEFAULT_SOURCE_DIMENSIONS,
 } from "./editorDefaults";
-import { type MediaAsset, MediaBin } from "./MediaBin";
+import type { MediaAsset } from "./MediaBin";
 import PlaybackControls from "./PlaybackControls";
 import {
 	createProjectData,
@@ -2912,155 +2912,19 @@ export default function VideoEditor() {
 							<PanelGroup
 								direction="horizontal"
 								className="h-full min-h-0"
-								autoSaveId="foxscreen.topDeck.v2"
+								autoSaveId="foxscreen.topDeck.v3"
 							>
-								<Panel defaultSize={16} minSize={10} maxSize={32} className="min-h-0">
-									<MediaBin
-										assets={mediaAssets}
-										activePath={videoSourcePath}
-										onImport={handleImportVideoSource}
-										onSelect={selectMediaAsset}
-										onRemove={removeMediaAsset}
-										onImportPaths={importMediaPaths}
-									/>
-								</Panel>
-
-								<PanelResizeHandle className="editor-resize-handle-h group">
-									<div className="h-10 w-1 rounded-full bg-muted transition-colors group-hover:bg-primary/70" />
-								</PanelResizeHandle>
-
-								<Panel defaultSize={56} minSize={34} className="min-h-0">
-									<div
-										ref={playerContainerRef}
-										className={
-											isFullscreen
-												? "fixed inset-0 z-[99999] w-full h-full flex flex-col items-center justify-center bg-card"
-												: "editor-preview-panel w-full h-full flex flex-col items-center justify-center overflow-hidden relative"
-										}
-									>
-										{/* Video preview */}
-										<div className="w-full min-h-0 flex justify-center items-center flex-auto px-4 pt-4">
-											<div
-												className="relative flex justify-center items-center w-auto h-full max-w-full box-border"
-												style={{
-													aspectRatio:
-														aspectRatio === "native"
-															? getNativeAspectRatioValue(
-																	videoPlaybackRef.current?.video?.videoWidth ||
-																		DEFAULT_SOURCE_DIMENSIONS.width,
-																	videoPlaybackRef.current?.video?.videoHeight ||
-																		DEFAULT_SOURCE_DIMENSIONS.height,
-																	cropRegion,
-																)
-															: getAspectRatioValue(aspectRatio),
-												}}
-											>
-												{videoPath && !error ? (
-													<VideoPlayback
-														key={`${videoPath || "no-video"}:${webcamVideoPath || "no-webcam"}`}
-														aspectRatio={aspectRatio}
-														ref={videoPlaybackRef}
-														videoPath={videoPath || ""}
-														webcamVideoPath={webcamVideoPath || undefined}
-														webcamLayoutPreset={webcamLayoutPreset}
-														webcamMaskShape={webcamMaskShape}
-														webcamMirrored={webcamMirrored}
-														webcamReactiveZoom={webcamReactiveZoom}
-														webcamSizePreset={webcamSizePreset}
-														webcamPosition={webcamPosition}
-														onWebcamPositionChange={(pos) => updateState({ webcamPosition: pos })}
-														onWebcamPositionDragEnd={commitState}
-														onDurationChange={setDuration}
-														onTimeUpdate={setCurrentTime}
-														currentTime={currentTime}
-														onPlayStateChange={setIsPlaying}
-														onError={setError}
-														wallpaper={wallpaper}
-														zoomRegions={zoomRegions}
-														selectedZoomId={selectedZoomId}
-														onSelectZoom={handleSelectZoom}
-														onZoomFocusChange={handleZoomFocusChange}
-														onZoomFocusDragEnd={commitState}
-														isPlaying={isPlaying}
-														showShadow={shadowIntensity > 0}
-														shadowIntensity={shadowIntensity}
-														showBlur={showBlur}
-														motionBlurAmount={motionBlurAmount}
-														borderRadius={borderRadius}
-														padding={padding}
-														cropRegion={cropRegion}
-														cursorRecordingData={cursorRecordingData}
-														trimRegions={trimRegions}
-														speedRegions={speedRegions}
-														annotationRegions={annotationOnlyRegions}
-														selectedAnnotationId={selectedAnnotationId}
-														onSelectAnnotation={handleSelectAnnotation}
-														onAnnotationPositionChange={handleAnnotationPositionChange}
-														onAnnotationSizeChange={handleAnnotationSizeChange}
-														blurRegions={blurRegions}
-														selectedBlurId={selectedBlurId}
-														onSelectBlur={handleSelectBlur}
-														onBlurPositionChange={handleAnnotationPositionChange}
-														onBlurSizeChange={handleAnnotationSizeChange}
-														onBlurDataChange={handleBlurDataPreviewChange}
-														onBlurDataCommit={commitState}
-														cursorTelemetry={cursorTelemetry}
-														cursorClickTimestamps={cursorClickTimestamps}
-														showCursor={effectiveShowCursor}
-														cursorSize={cursorSize}
-														cursorSmoothing={cursorSmoothing}
-														cursorMotionBlur={cursorMotionBlur}
-														cursorClickBounce={cursorClickBounce}
-														cursorClipToBounds={cursorClipToBounds}
-														cursorTheme={cursorTheme}
-														isPreviewingZoom={isPreviewingZoom}
-													/>
-												) : (
-													<div className="flex flex-col items-center justify-center gap-4 text-center px-6 w-full h-full">
-														{/* A missing/failed video source is treated as an empty state, not a
-														   scary load error — show the neutral "no video yet" message + the
-														   import CTA. The underlying error is still kept in state for guards. */}
-														<p className="text-sm max-w-xs text-muted-foreground">
-															{t("emptyState.noSourceTitle")}
-														</p>
-														<button
-															type="button"
-															onClick={handleImportVideoSource}
-															className="flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm transition-colors"
-														>
-															<Video className="h-4 w-4" />
-															{t("emptyState.importVideoButton")}
-														</button>
-													</div>
-												)}
-											</div>
-										</div>
-										{/* Playback controls */}
-										<div className="w-full flex justify-center items-center h-14 flex-shrink-0 px-4 py-2">
-											<div className="w-full max-w-[760px]">
-												<PlaybackControls
-													isPlaying={isPlaying}
-													currentTime={currentTime}
-													duration={duration}
-													isFullscreen={isFullscreen}
-													onToggleFullscreen={toggleFullscreen}
-													onTogglePlayPause={togglePlayPause}
-													onSeek={handleSeek}
-												/>
-											</div>
-										</div>
-									</div>
-								</Panel>
-
-								<PanelResizeHandle className="editor-resize-handle-h group">
-									<div className="h-10 w-1 rounded-full bg-muted transition-colors group-hover:bg-primary/70" />
-								</PanelResizeHandle>
-
-								<Panel defaultSize={28} minSize={18} className="min-h-0">
+								<Panel defaultSize={26} minSize={18} maxSize={40} className="min-h-0">
 									<div className="editor-inspector-shell h-full w-full overflow-y-auto custom-scrollbar">
 										<SettingsPanel
 											selected={wallpaper}
 											onWallpaperChange={(w) => pushState({ wallpaper: w })}
+											mediaAssets={mediaAssets}
+											mediaActivePath={videoSourcePath}
+											onMediaImport={handleImportVideoSource}
+											onMediaSelect={selectMediaAsset}
+											onMediaRemove={removeMediaAsset}
+											onMediaImportPaths={importMediaPaths}
 											selectedZoomDepth={
 												selectedZoomId
 													? zoomRegions.find((z) => z.id === selectedZoomId)?.depth
@@ -3233,6 +3097,133 @@ export default function VideoEditor() {
 											}
 											showCursorSettings={showCursorSettings}
 										/>
+									</div>
+								</Panel>
+
+								<PanelResizeHandle className="editor-resize-handle-h group">
+									<div className="h-10 w-1 rounded-full bg-foreground/20 transition-colors group-hover:bg-primary/70" />
+								</PanelResizeHandle>
+
+								<Panel defaultSize={74} minSize={40} className="min-h-0">
+									<div
+										ref={playerContainerRef}
+										className={
+											isFullscreen
+												? "fixed inset-0 z-[99999] w-full h-full flex flex-col items-center justify-center bg-card"
+												: "editor-preview-panel w-full h-full flex flex-col items-center justify-center overflow-hidden relative"
+										}
+									>
+										{/* Video preview */}
+										<div className="w-full min-h-0 flex justify-center items-center flex-auto px-4 pt-4">
+											<div
+												className="relative flex justify-center items-center w-auto h-full max-w-full box-border"
+												style={{
+													aspectRatio:
+														aspectRatio === "native"
+															? getNativeAspectRatioValue(
+																	videoPlaybackRef.current?.video?.videoWidth ||
+																		DEFAULT_SOURCE_DIMENSIONS.width,
+																	videoPlaybackRef.current?.video?.videoHeight ||
+																		DEFAULT_SOURCE_DIMENSIONS.height,
+																	cropRegion,
+																)
+															: getAspectRatioValue(aspectRatio),
+												}}
+											>
+												{videoPath && !error ? (
+													<VideoPlayback
+														key={`${videoPath || "no-video"}:${webcamVideoPath || "no-webcam"}`}
+														aspectRatio={aspectRatio}
+														ref={videoPlaybackRef}
+														videoPath={videoPath || ""}
+														webcamVideoPath={webcamVideoPath || undefined}
+														webcamLayoutPreset={webcamLayoutPreset}
+														webcamMaskShape={webcamMaskShape}
+														webcamMirrored={webcamMirrored}
+														webcamReactiveZoom={webcamReactiveZoom}
+														webcamSizePreset={webcamSizePreset}
+														webcamPosition={webcamPosition}
+														onWebcamPositionChange={(pos) => updateState({ webcamPosition: pos })}
+														onWebcamPositionDragEnd={commitState}
+														onDurationChange={setDuration}
+														onTimeUpdate={setCurrentTime}
+														currentTime={currentTime}
+														onPlayStateChange={setIsPlaying}
+														onError={setError}
+														wallpaper={wallpaper}
+														zoomRegions={zoomRegions}
+														selectedZoomId={selectedZoomId}
+														onSelectZoom={handleSelectZoom}
+														onZoomFocusChange={handleZoomFocusChange}
+														onZoomFocusDragEnd={commitState}
+														isPlaying={isPlaying}
+														showShadow={shadowIntensity > 0}
+														shadowIntensity={shadowIntensity}
+														showBlur={showBlur}
+														motionBlurAmount={motionBlurAmount}
+														borderRadius={borderRadius}
+														padding={padding}
+														cropRegion={cropRegion}
+														cursorRecordingData={cursorRecordingData}
+														trimRegions={trimRegions}
+														speedRegions={speedRegions}
+														annotationRegions={annotationOnlyRegions}
+														selectedAnnotationId={selectedAnnotationId}
+														onSelectAnnotation={handleSelectAnnotation}
+														onAnnotationPositionChange={handleAnnotationPositionChange}
+														onAnnotationSizeChange={handleAnnotationSizeChange}
+														blurRegions={blurRegions}
+														selectedBlurId={selectedBlurId}
+														onSelectBlur={handleSelectBlur}
+														onBlurPositionChange={handleAnnotationPositionChange}
+														onBlurSizeChange={handleAnnotationSizeChange}
+														onBlurDataChange={handleBlurDataPreviewChange}
+														onBlurDataCommit={commitState}
+														cursorTelemetry={cursorTelemetry}
+														cursorClickTimestamps={cursorClickTimestamps}
+														showCursor={effectiveShowCursor}
+														cursorSize={cursorSize}
+														cursorSmoothing={cursorSmoothing}
+														cursorMotionBlur={cursorMotionBlur}
+														cursorClickBounce={cursorClickBounce}
+														cursorClipToBounds={cursorClipToBounds}
+														cursorTheme={cursorTheme}
+														isPreviewingZoom={isPreviewingZoom}
+													/>
+												) : (
+													<div className="flex flex-col items-center justify-center gap-4 text-center px-6 w-full h-full">
+														{/* A missing/failed video source is treated as an empty state, not a
+														   scary load error — show the neutral "no video yet" message + the
+														   import CTA. The underlying error is still kept in state for guards. */}
+														<p className="text-sm max-w-xs text-muted-foreground">
+															{t("emptyState.noSourceTitle")}
+														</p>
+														<button
+															type="button"
+															onClick={handleImportVideoSource}
+															className="flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm transition-colors"
+														>
+															<Video className="h-4 w-4" />
+															{t("emptyState.importVideoButton")}
+														</button>
+													</div>
+												)}
+											</div>
+										</div>
+										{/* Playback controls */}
+										<div className="w-full flex justify-center items-center h-14 flex-shrink-0 px-4 py-2">
+											<div className="w-full max-w-[760px]">
+												<PlaybackControls
+													isPlaying={isPlaying}
+													currentTime={currentTime}
+													duration={duration}
+													isFullscreen={isFullscreen}
+													onToggleFullscreen={toggleFullscreen}
+													onTogglePlayPause={togglePlayPause}
+													onSeek={handleSeek}
+												/>
+											</div>
+										</div>
 									</div>
 								</Panel>
 							</PanelGroup>

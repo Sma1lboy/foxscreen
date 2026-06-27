@@ -65,7 +65,7 @@ export function MediaBin({
 
 	return (
 		<div
-			className="editor-inspector-shell relative flex h-full w-full flex-col overflow-hidden"
+			className="relative flex h-full w-full flex-col overflow-hidden"
 			onDragOver={(e) => {
 				e.preventDefault();
 				if (e.dataTransfer.types.includes("Files")) setIsDraggingOver(true);

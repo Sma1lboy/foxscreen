@@ -1,10 +1,8 @@
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import {
 	Brackets,
-	Bug,
 	Crop,
 	Download,
-	FileDown,
 	Film,
 	Image,
 	Info,
@@ -14,7 +12,6 @@ import {
 	Palette,
 	SlidersHorizontal,
 	Sparkles,
-	Star,
 	Terminal,
 	Trash2,
 	Unlock,
@@ -73,6 +70,7 @@ import {
 } from "./editorDefaults";
 import { BLUR_REGIONS_ENABLED } from "./featureFlags";
 import { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";
+import { type MediaAsset, MediaBin } from "./MediaBin";
 import type {
 	AnnotationRegion,
 	AnnotationType,
@@ -350,6 +348,12 @@ interface SettingsPanelProps {
 	onCursorThemeChange?: (theme: string) => void;
 	hasCursorData?: boolean;
 	showCursorSettings?: boolean;
+	mediaAssets?: MediaAsset[];
+	mediaActivePath?: string | null;
+	onMediaImport?: () => void;
+	onMediaSelect?: (a: MediaAsset) => void;
+	onMediaRemove?: (a: MediaAsset) => void;
+	onMediaImportPaths?: (paths: string[]) => void;
 }
 
 export default SettingsPanel;
@@ -364,6 +368,7 @@ const ZOOM_DEPTH_OPTIONS: Array<{ depth: ZoomDepth; label: string }> = [
 ];
 
 type SettingsPanelMode =
+	| "media"
 	| "background"
 	| "effects"
 	| "layout"
@@ -476,7 +481,6 @@ export function SettingsPanel({
 	webcamSizePreset = DEFAULT_WEBCAM_SETTINGS.sizePreset,
 	onWebcamSizePresetChange,
 	onWebcamSizePresetCommit,
-	onSaveDiagnostic,
 	showCursor = DEFAULT_CURSOR_SETTINGS.show,
 	onShowCursorChange,
 	cursorSize = DEFAULT_CURSOR_SETTINGS.size,
@@ -493,9 +497,16 @@ export function SettingsPanel({
 	onCursorThemeChange,
 	hasCursorData = false,
 	showCursorSettings = true,
+	mediaAssets,
+	mediaActivePath,
+	onMediaImport,
+	onMediaSelect,
+	onMediaRemove,
+	onMediaImportPaths,
 }: SettingsPanelProps) {
 	const t = useScopedT("settings");
-	const [activePanelMode, setActivePanelMode] = useState<SettingsPanelMode>("background");
+	const tEditor = useScopedT("editor");
+	const [activePanelMode, setActivePanelMode] = useState<SettingsPanelMode>("media");
 	const sourceDimensions = formatSourceDimensions(videoElement, cropRegion);
 	// Resolved URLs are for DOM rendering only. We persist the canonical
 	// `/wallpapers/wallpaperN.jpg` form from WALLPAPER_PATHS, never the file:// URL.
@@ -656,6 +667,7 @@ export function SettingsPanel({
 		icon: ComponentType<{ className?: string }>;
 		disabled?: boolean;
 	}> = [
+		{ id: "media", label: tEditor("mediaBin.title"), icon: Film },
 		{ id: "background", label: t("background.title"), icon: Palette },
 		{ id: "effects", label: t("effects.title"), icon: SlidersHorizontal },
 		{ id: "layout", label: t("layout.title"), icon: LayoutPanelTop, disabled: !hasWebcam },
@@ -750,42 +762,7 @@ export function SettingsPanel({
 	const selectedBlur = selectedBlurId
 		? blurRegions.find((region) => region.id === selectedBlurId)
 		: null;
-	const commonFooterLinks = (
-		<div className="flex gap-2 mt-3">
-			<button
-				type="button"
-				onClick={() => {
-					window.electronAPI?.openExternalUrl(
-						"https://github.com/siddharthvaddem/openscreen/issues/new/choose",
-					);
-				}}
-				className="flex-1 flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground hover:text-foreground/80 py-1.5 transition-colors"
-			>
-				<Bug className="w-3 h-3 text-primary" />
-				{t("support.reportBug")}
-			</button>
-			{onSaveDiagnostic && (
-				<button
-					type="button"
-					onClick={onSaveDiagnostic}
-					className="flex-1 flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground hover:text-foreground/80 py-1.5 transition-colors"
-				>
-					<FileDown className="w-3 h-3 text-muted-foreground" />
-					{t("support.saveDiagnostics")}
-				</button>
-			)}
-			<button
-				type="button"
-				onClick={() => {
-					window.electronAPI?.openExternalUrl("https://github.com/siddharthvaddem/openscreen");
-				}}
-				className="flex-1 flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground hover:text-foreground/80 py-1.5 transition-colors"
-			>
-				<Star className="w-3 h-3 text-yellow-400" />
-				{t("support.starOnGithub")}
-			</button>
-		</div>
-	);
+	const commonFooterLinks = null;
 
 	// Annotation selected: show its settings panel instead.
 	if (
@@ -895,7 +872,18 @@ export function SettingsPanel({
 						<Download className="h-4 w-4" />
 					</button>
 				</div>
-				{activePanelMode === "terminal" && !hasTimelineSelection ? (
+				{activePanelMode === "media" && !hasTimelineSelection ? (
+					<div className="flex min-h-0 flex-1 flex-col">
+						<MediaBin
+							assets={mediaAssets ?? []}
+							activePath={mediaActivePath ?? null}
+							onImport={onMediaImport ?? (() => undefined)}
+							onSelect={onMediaSelect ?? (() => undefined)}
+							onRemove={onMediaRemove ?? (() => undefined)}
+							onImportPaths={onMediaImportPaths ?? (() => undefined)}
+						/>
+					</div>
+				) : activePanelMode === "terminal" && !hasTimelineSelection ? (
 					<div className="flex min-h-0 flex-1 flex-col">
 						<div className="flex items-center justify-between border-b border-border px-3 py-2.5">
 							<span className="text-sm font-semibold text-foreground">{activeModeLabel}</span>
