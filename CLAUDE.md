@@ -63,6 +63,9 @@ cutti 引擎已抽成共享包,"导入视频 → 转写 → 真 keep/cut → 真
   (mute/solo/lock/删除),所有时间元素右移 `TRACK_HEADER_WIDTH` 避免遮挡(指针↔时间映射要减回去)。
 - **键盘**(`VideoEditor` 捕获 keydown):Delete/Shift+Delete(普通/ripple)、S/B split、Cmd+D 复制、Cmd+C/V、
   方向键 nudge(Shift=1s);锁定轨道的 clip 全部跳过;不冲突已有 undo/redo/Space。
+- **多选**:`selectedClipIds: string[]`(单选时派生 `selectedClipId` 喂单 clip inspector)。Shift/Cmd-click 切换、
+  空白处 marquee 框选(`clipsInMarquee` 纯函数+单测);拖动选中之一 = 整组同移;删/复制/nudge/split 全作用于选区
+  (锁定的 clip 跳过),每个 bulk 操作一条 undo;>1 时 inspector 显示「N clips selected」+ Mute all / Delete。
 
 **主题**:terracotta 暖橙(取自 kobe Claude 品牌色 + codefox shadcn 变量结构);`ThemeContext` + 工具栏
 `ThemeToggle`(light/dark/system,持久化 localStorage `foxscreen.theme`)。light 模式已基本补齐(media/preview/
