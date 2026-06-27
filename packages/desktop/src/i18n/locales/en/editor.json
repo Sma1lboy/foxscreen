@@ -85,5 +85,10 @@
 	},
 	"grid": {
 		"dragBlock": "Drag to rearrange block"
+	},
+	"mediaBin": {
+		"title": "Media",
+		"import": "Import media",
+		"empty": "Import a video to start"
 	}
 }

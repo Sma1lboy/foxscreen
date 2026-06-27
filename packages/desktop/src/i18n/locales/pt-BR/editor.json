@@ -66,5 +66,10 @@
 	},
 	"grid": {
 		"dragBlock": "Arraste para reorganizar o bloco"
+	},
+	"mediaBin": {
+		"title": "Mídia",
+		"import": "Importar mídia",
+		"empty": "Importe um vídeo para começar"
 	}
 }

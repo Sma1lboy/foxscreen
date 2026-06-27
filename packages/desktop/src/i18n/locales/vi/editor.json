@@ -85,5 +85,10 @@
 	},
 	"grid": {
 		"dragBlock": "Kéo để sắp xếp lại khối"
+	},
+	"mediaBin": {
+		"title": "Phương tiện",
+		"import": "Nhập phương tiện",
+		"empty": "Nhập video để bắt đầu"
 	}
 }

@@ -67,5 +67,10 @@
 	},
 	"grid": {
 		"dragBlock": "Trascina per riordinare il blocco"
+	},
+	"mediaBin": {
+		"title": "Media",
+		"import": "Importa media",
+		"empty": "Importa un video per iniziare"
 	}
 }

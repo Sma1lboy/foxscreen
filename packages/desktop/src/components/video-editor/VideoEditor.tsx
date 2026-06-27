@@ -79,6 +79,7 @@ import {
 	DEFAULT_GIF_SETTINGS,
 	DEFAULT_SOURCE_DIMENSIONS,
 } from "./editorDefaults";
+import { type MediaAsset, MediaBin } from "./MediaBin";
 import PlaybackControls from "./PlaybackControls";
 import {
 	createProjectData,
@@ -221,6 +222,19 @@ export default function VideoEditor() {
 	// lets you enter the editor with a project but no video yet (new empty project, or
 	// a saved project whose source isn't attached) — project ≠ video.
 	const [projectOpen, setProjectOpen] = useState(false);
+	// The project's media library (every imported source). Standard-NLE foundation:
+	// sources picked here become the preview source today, timeline clips next.
+	const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
+	const addMediaAsset = useCallback((path: string) => {
+		setMediaAssets((prev) =>
+			prev.some((a) => a.path === path)
+				? prev
+				: [
+						...prev,
+						{ id: globalThis.crypto.randomUUID(), path, name: path.split(/[\\/]/).pop() ?? path },
+					],
+		);
+	}, []);
 	const [videoSourcePath, setVideoSourcePath] = useState<string | null>(null);
 	const [webcamVideoPath, setWebcamVideoPath] = useState<string | null>(null);
 	const [webcamVideoSourcePath, setWebcamVideoSourcePath] = useState<string | null>(null);
@@ -401,6 +415,7 @@ export default function VideoEditor() {
 			setRecordingCursorCaptureMode(projectCursorCaptureMode);
 			setCurrentProjectPath(path ?? null);
 			setProjectOpen(true);
+			if (sourcePath) addMediaAsset(sourcePath);
 
 			// A loaded project keeps its zooms exactly as saved, so never auto-suggest
 			// over it (even if it has zero zooms because the user deleted them all).
@@ -480,7 +495,7 @@ export default function VideoEditor() {
 			);
 			return true;
 		},
-		[pushState],
+		[addMediaAsset, pushState],
 	);
 
 	// Attach a video source into the currently-open project (from the no-source view).
@@ -492,6 +507,19 @@ export default function VideoEditor() {
 		setError(null);
 		setVideoSourcePath(result.path);
 		setVideoPath(toFileUrl(result.path));
+		setWebcamVideoPath(null);
+		setWebcamVideoSourcePath(null);
+		setProjectOpen(true);
+		addMediaAsset(result.path);
+	}, [addMediaAsset]);
+
+	// Load an existing library asset into the preview (switch the active source).
+	const selectMediaAsset = useCallback(async (asset: MediaAsset) => {
+		const setResult = await nativeBridgeClient.project.setCurrentVideoPath(asset.path);
+		if (!setResult.success) return;
+		setError(null);
+		setVideoSourcePath(asset.path);
+		setVideoPath(toFileUrl(asset.path));
 		setWebcamVideoPath(null);
 		setWebcamVideoSourcePath(null);
 		setProjectOpen(true);
@@ -590,6 +618,7 @@ export default function VideoEditor() {
 					setWebcamVideoPath(webcamSourcePath ? toFileUrl(webcamSourcePath) : null);
 					setRecordingCursorCaptureMode(session.cursorCaptureMode ?? null);
 					setCurrentProjectPath(null);
+					addMediaAsset(sourcePath);
 					setLastSavedSnapshot(
 						createProjectSnapshot(
 							{
@@ -614,6 +643,7 @@ export default function VideoEditor() {
 					setLastSavedSnapshot(
 						createProjectSnapshot({ screenVideoPath: result.path }, INITIAL_EDITOR_STATE),
 					);
+					addMediaAsset(result.path);
 				}
 				// No video/project/session, so leave videoPath null and let the
 				// EditorEmptyState dashboard render instead of an error screen.
@@ -625,7 +655,7 @@ export default function VideoEditor() {
 		}
 
 		loadInitialData();
-	}, [applyLoadedProject]);
+	}, [addMediaAsset, applyLoadedProject]);
 
 	// Avoid overwriting saved prefs with defaults before they've loaded.
 	const [prefsHydrated, setPrefsHydrated] = useState(false);
@@ -2730,6 +2760,7 @@ export default function VideoEditor() {
 							setWebcamVideoPath(null);
 							setWebcamVideoSourcePath(null);
 							setProjectOpen(true);
+							addMediaAsset(path);
 						}}
 						onNewProject={handleNewProject}
 						onProjectOpened={async (project, path) => {
@@ -2753,9 +2784,22 @@ export default function VideoEditor() {
 							<PanelGroup
 								direction="horizontal"
 								className="h-full min-h-0"
-								autoSaveId="foxscreen.topDeckSplit"
+								autoSaveId="foxscreen.topDeck.v2"
 							>
-								<Panel defaultSize={72} minSize={42} className="min-h-0">
+								<Panel defaultSize={16} minSize={10} maxSize={32} className="min-h-0">
+									<MediaBin
+										assets={mediaAssets}
+										activePath={videoSourcePath}
+										onImport={handleImportVideoSource}
+										onSelect={selectMediaAsset}
+									/>
+								</Panel>
+
+								<PanelResizeHandle className="editor-resize-handle-h group">
+									<div className="h-10 w-1 rounded-full bg-white/20 transition-colors group-hover:bg-[#CC785C]/70" />
+								</PanelResizeHandle>
+
+								<Panel defaultSize={56} minSize={34} className="min-h-0">
 									<div
 										ref={playerContainerRef}
 										className={

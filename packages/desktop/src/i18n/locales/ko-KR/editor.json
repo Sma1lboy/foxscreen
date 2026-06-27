@@ -85,5 +85,10 @@
 	},
 	"grid": {
 		"dragBlock": "드래그하여 블록 재배치"
+	},
+	"mediaBin": {
+		"title": "미디어",
+		"import": "미디어 가져오기",
+		"empty": "비디오를 가져와 시작"
 	}
 }

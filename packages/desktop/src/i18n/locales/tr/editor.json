@@ -85,5 +85,10 @@
 	},
 	"grid": {
 		"dragBlock": "Bloğu yeniden düzenlemek için sürükleyin"
+	},
+	"mediaBin": {
+		"title": "Medya",
+		"import": "Medya içe aktar",
+		"empty": "Başlamak için video içe aktarın"
 	}
 }

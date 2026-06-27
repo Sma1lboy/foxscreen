@@ -85,5 +85,10 @@
 	},
 	"grid": {
 		"dragBlock": "Glisser pour réorganiser le bloc"
+	},
+	"mediaBin": {
+		"title": "Médias",
+		"import": "Importer un média",
+		"empty": "Importez une vidéo pour commencer"
 	}
 }

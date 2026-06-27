@@ -85,5 +85,10 @@
 	},
 	"grid": {
 		"dragBlock": "拖动以重新排列区块"
+	},
+	"mediaBin": {
+		"title": "素材",
+		"import": "导入素材",
+		"empty": "导入视频开始"
 	}
 }
