@@ -61,5 +61,8 @@
 		"noAudio": "Questo video non contiene audio utilizzabile per la trascrizione.",
 		"failed": "Impossibile generare i sottotitoli.",
 		"truncated": "Sono stati trascritti solo i primi {{minutes}} minuti."
+	},
+	"terminal": {
+		"title": "Terminale"
 	}
 }

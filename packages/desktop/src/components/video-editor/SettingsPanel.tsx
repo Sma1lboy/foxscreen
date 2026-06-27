@@ -15,6 +15,7 @@ import {
 	SlidersHorizontal,
 	Sparkles,
 	Star,
+	Terminal,
 	Trash2,
 	Unlock,
 	Upload,
@@ -59,6 +60,7 @@ import ColorPicker from "../ui/color-picker";
 import { AnnotationSettingsPanel } from "./AnnotationSettingsPanel";
 import { BlurSettingsPanel } from "./BlurSettingsPanel";
 import { BACKGROUND_IMAGE_ACCEPT, isSupportedBackgroundImageType } from "./backgroundImageUpload";
+import { ClaudeTerminal } from "./ClaudeTerminal";
 import { CropControl } from "./CropControl";
 import { parseCustomPlaybackSpeedInput } from "./customPlaybackSpeed";
 import {
@@ -361,7 +363,14 @@ const ZOOM_DEPTH_OPTIONS: Array<{ depth: ZoomDepth; label: string }> = [
 	{ depth: 6, label: "5×" },
 ];
 
-type SettingsPanelMode = "background" | "effects" | "layout" | "cursor" | "export" | "timeline";
+type SettingsPanelMode =
+	| "background"
+	| "effects"
+	| "layout"
+	| "cursor"
+	| "export"
+	| "timeline"
+	| "terminal";
 
 const MP4_EXPORT_SHORT_SIDES = {
 	medium: 720,
@@ -651,6 +660,7 @@ export function SettingsPanel({
 		{ id: "effects", label: t("effects.title"), icon: SlidersHorizontal },
 		{ id: "layout", label: t("layout.title"), icon: LayoutPanelTop, disabled: !hasWebcam },
 		{ id: "timeline", label: t("timeline.title"), icon: Brackets },
+		{ id: "terminal", label: t("terminal.title"), icon: Terminal },
 		...(hasCursorPanel
 			? [
 					{
@@ -885,989 +895,1010 @@ export function SettingsPanel({
 						<Download className="h-4 w-4" />
 					</button>
 				</div>
-				<div className="flex-1 overflow-y-auto custom-scrollbar p-3 pb-0">
-					<div className="mb-3 flex items-center justify-between px-1">
-						<span className="text-sm font-semibold text-slate-100">{activeModeLabel}</span>
-						<KeyboardShortcutsHelp />
+				{activePanelMode === "terminal" && !hasTimelineSelection ? (
+					<div className="flex min-h-0 flex-1 flex-col">
+						<div className="flex items-center justify-between border-b border-white/[0.07] px-3 py-2.5">
+							<span className="text-sm font-semibold text-slate-100">{activeModeLabel}</span>
+						</div>
+						<div className="min-h-0 flex-1 p-1.5">
+							<ClaudeTerminal />
+						</div>
 					</div>
-					{zoomEnabled && (
-						<div className="editor-panel-section mb-3 space-y-3 px-1">
-							<div className="flex items-center justify-between">
-								<span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-									{t("zoom.level")}
-								</span>
-								<span className="rounded-full border border-[#CC785C]/25 bg-[#CC785C]/10 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[#CC785C]">
-									{(
-										selectedZoomCustomScale ??
-										(selectedZoomDepth != null
-											? ZOOM_DEPTH_SCALES[selectedZoomDepth]
-											: MIN_ZOOM_SCALE)
-									).toFixed(2)}
-									×
-								</span>
-							</div>
-							<div className="grid grid-cols-6 gap-1">
-								{ZOOM_DEPTH_OPTIONS.map((option) => {
-									const effectiveScale =
-										selectedZoomCustomScale ??
-										(selectedZoomDepth != null ? ZOOM_DEPTH_SCALES[selectedZoomDepth] : null);
-									const isActive = effectiveScale === ZOOM_DEPTH_SCALES[option.depth];
-									return (
-										<Button
-											key={option.depth}
-											type="button"
-											disabled={!zoomEnabled}
-											onClick={() => onZoomDepthChange?.(option.depth)}
-											className={cn(
-												"h-8 w-full rounded-lg border px-1 text-center transition-all duration-150 ease-out",
-												zoomEnabled
-													? "opacity-100 cursor-pointer"
-													: "opacity-40 cursor-not-allowed",
-												isActive
-													? "border-[#CC785C]/70 bg-[#CC785C] text-white shadow-[0_8px_20px_rgba(52,178,123,0.18)]"
-													: "border-white/[0.06] bg-white/[0.035] text-slate-400 hover:bg-white/[0.075] hover:border-white/15 hover:text-slate-200",
-											)}
-										>
-											<span className="text-[11px] font-semibold">{option.label}</span>
-										</Button>
-									);
-								})}
-							</div>
-							{zoomEnabled && (
-								<div>
-									<SliderPrimitive.Root
-										min={MIN_ZOOM_SCALE}
-										max={MAX_ZOOM_SCALE}
-										step={0.01}
-										value={[
+				) : (
+					<div className="flex-1 overflow-y-auto custom-scrollbar p-3 pb-0">
+						<div className="mb-3 flex items-center justify-between px-1">
+							<span className="text-sm font-semibold text-slate-100">{activeModeLabel}</span>
+							<KeyboardShortcutsHelp />
+						</div>
+						{zoomEnabled && (
+							<div className="editor-panel-section mb-3 space-y-3 px-1">
+								<div className="flex items-center justify-between">
+									<span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+										{t("zoom.level")}
+									</span>
+									<span className="rounded-full border border-[#CC785C]/25 bg-[#CC785C]/10 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[#CC785C]">
+										{(
 											selectedZoomCustomScale ??
-												(selectedZoomDepth != null
-													? ZOOM_DEPTH_SCALES[selectedZoomDepth]
-													: MIN_ZOOM_SCALE),
-										]}
-										onValueChange={(values) => onZoomCustomScaleChange?.(values[0])}
-										onValueCommit={() => onZoomCustomScaleCommit?.()}
-										disabled={!zoomEnabled}
-										className="relative flex w-full touch-none select-none items-center py-1"
-									>
-										<SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full border border-white/10 bg-white/5">
-											<SliderPrimitive.Range
+											(selectedZoomDepth != null
+												? ZOOM_DEPTH_SCALES[selectedZoomDepth]
+												: MIN_ZOOM_SCALE)
+										).toFixed(2)}
+										×
+									</span>
+								</div>
+								<div className="grid grid-cols-6 gap-1">
+									{ZOOM_DEPTH_OPTIONS.map((option) => {
+										const effectiveScale =
+											selectedZoomCustomScale ??
+											(selectedZoomDepth != null ? ZOOM_DEPTH_SCALES[selectedZoomDepth] : null);
+										const isActive = effectiveScale === ZOOM_DEPTH_SCALES[option.depth];
+										return (
+											<Button
+												key={option.depth}
+												type="button"
+												disabled={!zoomEnabled}
+												onClick={() => onZoomDepthChange?.(option.depth)}
 												className={cn(
-													"absolute h-full transition-colors duration-150",
-													selectedZoomCustomScale != null ? "bg-[#CC785C]" : "bg-white/20",
+													"h-8 w-full rounded-lg border px-1 text-center transition-all duration-150 ease-out",
+													zoomEnabled
+														? "opacity-100 cursor-pointer"
+														: "opacity-40 cursor-not-allowed",
+													isActive
+														? "border-[#CC785C]/70 bg-[#CC785C] text-white shadow-[0_8px_20px_rgba(52,178,123,0.18)]"
+														: "border-white/[0.06] bg-white/[0.035] text-slate-400 hover:bg-white/[0.075] hover:border-white/15 hover:text-slate-200",
+												)}
+											>
+												<span className="text-[11px] font-semibold">{option.label}</span>
+											</Button>
+										);
+									})}
+								</div>
+								{zoomEnabled && (
+									<div>
+										<SliderPrimitive.Root
+											min={MIN_ZOOM_SCALE}
+											max={MAX_ZOOM_SCALE}
+											step={0.01}
+											value={[
+												selectedZoomCustomScale ??
+													(selectedZoomDepth != null
+														? ZOOM_DEPTH_SCALES[selectedZoomDepth]
+														: MIN_ZOOM_SCALE),
+											]}
+											onValueChange={(values) => onZoomCustomScaleChange?.(values[0])}
+											onValueCommit={() => onZoomCustomScaleCommit?.()}
+											disabled={!zoomEnabled}
+											className="relative flex w-full touch-none select-none items-center py-1"
+										>
+											<SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full border border-white/10 bg-white/5">
+												<SliderPrimitive.Range
+													className={cn(
+														"absolute h-full transition-colors duration-150",
+														selectedZoomCustomScale != null ? "bg-[#CC785C]" : "bg-white/20",
+													)}
+												/>
+											</SliderPrimitive.Track>
+											<SliderPrimitive.Thumb
+												className={cn(
+													"block h-3.5 w-3.5 rounded-full border-2 shadow transition-all duration-150",
+													"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#CC785C]/50",
+													"disabled:pointer-events-none disabled:opacity-50 cursor-grab active:cursor-grabbing",
+													selectedZoomCustomScale != null
+														? "border-[#CC785C] bg-[#CC785C] shadow-[0_0_6px_rgba(52,178,123,0.4)]"
+														: "border-white/20 bg-[#2a2a30] hover:border-white/40",
 												)}
 											/>
-										</SliderPrimitive.Track>
-										<SliderPrimitive.Thumb
-											className={cn(
-												"block h-3.5 w-3.5 rounded-full border-2 shadow transition-all duration-150",
-												"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#CC785C]/50",
-												"disabled:pointer-events-none disabled:opacity-50 cursor-grab active:cursor-grabbing",
-												selectedZoomCustomScale != null
-													? "border-[#CC785C] bg-[#CC785C] shadow-[0_0_6px_rgba(52,178,123,0.4)]"
-													: "border-white/20 bg-[#2a2a30] hover:border-white/40",
-											)}
-										/>
-									</SliderPrimitive.Root>
-									<div className="flex justify-between text-[10px] text-slate-600 mt-1">
-										<span>{MIN_ZOOM_SCALE.toFixed(1)}×</span>
-										<span>{MAX_ZOOM_SCALE.toFixed(1)}×</span>
+										</SliderPrimitive.Root>
+										<div className="flex justify-between text-[10px] text-slate-600 mt-1">
+											<span>{MIN_ZOOM_SCALE.toFixed(1)}×</span>
+											<span>{MAX_ZOOM_SCALE.toFixed(1)}×</span>
+										</div>
 									</div>
-								</div>
-							)}
-							{zoomEnabled && hasCursorTelemetry && (
-								<div className="space-y-1.5">
-									<div className="flex items-center justify-between gap-3">
-										<span className="text-[11px] font-medium text-slate-400">
-											{t("zoom.focusMode.title")}
+								)}
+								{zoomEnabled && hasCursorTelemetry && (
+									<div className="space-y-1.5">
+										<div className="flex items-center justify-between gap-3">
+											<span className="text-[11px] font-medium text-slate-400">
+												{t("zoom.focusMode.title")}
+											</span>
+											<div className="grid w-32 grid-cols-2 gap-0.5 rounded-lg border border-white/[0.06] bg-white/[0.035] p-0.5">
+												{(["manual", "auto"] as const).map((mode) => {
+													const isActive = selectedZoomFocusMode === mode;
+													return (
+														<Button
+															key={mode}
+															type="button"
+															disabled={focusModeLocked}
+															onClick={() => !focusModeLocked && onZoomFocusModeChange?.(mode)}
+															className={cn(
+																"h-6 w-full rounded-md border px-1 text-center transition-all duration-150 ease-out",
+																isActive
+																	? "border-[#CC785C]/50 bg-[#CC785C] text-white"
+																	: "border-transparent bg-transparent text-slate-400 hover:bg-white/[0.06] hover:text-slate-200",
+																focusModeLocked
+																	? "cursor-not-allowed opacity-50"
+																	: "cursor-pointer",
+															)}
+														>
+															<span className="text-[10px] font-semibold capitalize">
+																{t(`zoom.focusMode.${mode}`)}
+															</span>
+														</Button>
+													);
+												})}
+											</div>
+										</div>
+										{focusModeLocked && (
+											<div className="flex items-start gap-1 text-[10px] leading-snug text-slate-500">
+												<Info size={11} className="mt-px shrink-0" />
+												<span>{t("zoom.focusMode.lockedDisclaimer")}</span>
+											</div>
+										)}
+									</div>
+								)}
+								{zoomEnabled && onZoomPreviewStart && onZoomPreviewEnd && (
+									<Button
+										type="button"
+										onPointerDown={() => onZoomPreviewStart()}
+										onPointerUp={() => onZoomPreviewEnd()}
+										onPointerLeave={() => onZoomPreviewEnd()}
+										onPointerCancel={() => onZoomPreviewEnd()}
+										onKeyDown={(e) => {
+											if ((e.key === " " || e.key === "Enter") && !e.repeat) {
+												e.preventDefault();
+												onZoomPreviewStart();
+											}
+										}}
+										onKeyUp={(e) => {
+											if (e.key === " " || e.key === "Enter") {
+												e.preventDefault();
+												onZoomPreviewEnd();
+											}
+										}}
+										onBlur={() => onZoomPreviewEnd()}
+										className="h-7 w-full select-none rounded-md border border-white/[0.08] bg-white/[0.04] text-[10px] font-semibold text-slate-300 transition-all duration-150 ease-out hover:bg-white/[0.08] hover:text-slate-100 active:border-[#CC785C]/50 active:bg-[#CC785C] active:text-white cursor-pointer"
+									>
+										{t("zoom.previewHold")}
+									</Button>
+								)}
+								{zoomEnabled &&
+									selectedZoomFocusMode !== "auto" &&
+									selectedZoomFocus &&
+									onZoomFocusCoordinateChange &&
+									(() => {
+										const effectiveZoomScale =
+											selectedZoomCustomScale ??
+											(selectedZoomDepth != null
+												? ZOOM_DEPTH_SCALES[selectedZoomDepth]
+												: MIN_ZOOM_SCALE);
+										const bounds = getFocusBoundsForScale(effectiveZoomScale);
+										const xRange = bounds.maxX - bounds.minX;
+										const yRange = bounds.maxY - bounds.minY;
+										const focusToPercentX = (cx: number) =>
+											xRange <= 0
+												? 50
+												: Math.max(0, Math.min(100, ((cx - bounds.minX) / xRange) * 100));
+										const focusToPercentY = (cy: number) =>
+											yRange <= 0
+												? 50
+												: Math.max(0, Math.min(100, ((cy - bounds.minY) / yRange) * 100));
+										const percentToFocusX = (p: number) =>
+											xRange <= 0 ? bounds.minX : bounds.minX + (p / 100) * xRange;
+										const percentToFocusY = (p: number) =>
+											yRange <= 0 ? bounds.minY : bounds.minY + (p / 100) * yRange;
+										return (
+											<div>
+												<span className="text-[11px] font-medium text-slate-400 mb-1.5 block">
+													{t("zoom.position.title")}
+												</span>
+												<div className="grid grid-cols-2 gap-2">
+													<div className="flex flex-col gap-1">
+														<label className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+															{t("zoom.position.x")}
+														</label>
+														<ZoomFocusCoordInput
+															ariaLabel={t("zoom.position.x")}
+															percent={focusToPercentX(selectedZoomFocus.cx)}
+															onChange={(p) =>
+																onZoomFocusCoordinateChange({
+																	cx: percentToFocusX(p),
+																	cy: selectedZoomFocus.cy,
+																})
+															}
+															onCommit={onZoomFocusCoordinateCommit}
+														/>
+													</div>
+													<div className="flex flex-col gap-1">
+														<label className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+															{t("zoom.position.y")}
+														</label>
+														<ZoomFocusCoordInput
+															ariaLabel={t("zoom.position.y")}
+															percent={focusToPercentY(selectedZoomFocus.cy)}
+															onChange={(p) =>
+																onZoomFocusCoordinateChange({
+																	cx: selectedZoomFocus.cx,
+																	cy: percentToFocusY(p),
+																})
+															}
+															onCommit={onZoomFocusCoordinateCommit}
+														/>
+													</div>
+												</div>
+											</div>
+										);
+									})()}
+								{zoomEnabled && (
+									<div>
+										<span className="text-[11px] font-medium text-slate-400 mb-1.5 block">
+											{t("zoom.threeD.title")}
 										</span>
-										<div className="grid w-32 grid-cols-2 gap-0.5 rounded-lg border border-white/[0.06] bg-white/[0.035] p-0.5">
-											{(["manual", "auto"] as const).map((mode) => {
-												const isActive = selectedZoomFocusMode === mode;
+										<div className="grid grid-cols-3 gap-1.5">
+											{ROTATION_3D_PRESET_ORDER.map((preset) => {
+												const isActive = selectedZoomRotationPreset === preset;
 												return (
 													<Button
-														key={mode}
+														key={preset}
 														type="button"
-														disabled={focusModeLocked}
-														onClick={() => !focusModeLocked && onZoomFocusModeChange?.(mode)}
+														onClick={() => onZoomRotationPresetChange?.(isActive ? null : preset)}
 														className={cn(
-															"h-6 w-full rounded-md border px-1 text-center transition-all duration-150 ease-out",
+															"h-8 w-full rounded-lg border px-1 text-center transition-all duration-150 ease-out cursor-pointer",
 															isActive
-																? "border-[#CC785C]/50 bg-[#CC785C] text-white"
-																: "border-transparent bg-transparent text-slate-400 hover:bg-white/[0.06] hover:text-slate-200",
-															focusModeLocked ? "cursor-not-allowed opacity-50" : "cursor-pointer",
+																? "border-[#CC785C]/60 bg-[#CC785C] text-white"
+																: "border-white/[0.06] bg-white/[0.035] text-slate-400 hover:bg-white/[0.075] hover:border-white/15 hover:text-slate-200",
 														)}
 													>
-														<span className="text-[10px] font-semibold capitalize">
-															{t(`zoom.focusMode.${mode}`)}
+														<span className="text-xs font-semibold capitalize">
+															{t(`zoom.threeD.preset.${preset}`)}
 														</span>
 													</Button>
 												);
 											})}
 										</div>
 									</div>
-									{focusModeLocked && (
-										<div className="flex items-start gap-1 text-[10px] leading-snug text-slate-500">
-											<Info size={11} className="mt-px shrink-0" />
-											<span>{t("zoom.focusMode.lockedDisclaimer")}</span>
-										</div>
-									)}
-								</div>
-							)}
-							{zoomEnabled && onZoomPreviewStart && onZoomPreviewEnd && (
-								<Button
-									type="button"
-									onPointerDown={() => onZoomPreviewStart()}
-									onPointerUp={() => onZoomPreviewEnd()}
-									onPointerLeave={() => onZoomPreviewEnd()}
-									onPointerCancel={() => onZoomPreviewEnd()}
-									onKeyDown={(e) => {
-										if ((e.key === " " || e.key === "Enter") && !e.repeat) {
-											e.preventDefault();
-											onZoomPreviewStart();
-										}
-									}}
-									onKeyUp={(e) => {
-										if (e.key === " " || e.key === "Enter") {
-											e.preventDefault();
-											onZoomPreviewEnd();
-										}
-									}}
-									onBlur={() => onZoomPreviewEnd()}
-									className="h-7 w-full select-none rounded-md border border-white/[0.08] bg-white/[0.04] text-[10px] font-semibold text-slate-300 transition-all duration-150 ease-out hover:bg-white/[0.08] hover:text-slate-100 active:border-[#CC785C]/50 active:bg-[#CC785C] active:text-white cursor-pointer"
-								>
-									{t("zoom.previewHold")}
-								</Button>
-							)}
-							{zoomEnabled &&
-								selectedZoomFocusMode !== "auto" &&
-								selectedZoomFocus &&
-								onZoomFocusCoordinateChange &&
-								(() => {
-									const effectiveZoomScale =
-										selectedZoomCustomScale ??
-										(selectedZoomDepth != null
-											? ZOOM_DEPTH_SCALES[selectedZoomDepth]
-											: MIN_ZOOM_SCALE);
-									const bounds = getFocusBoundsForScale(effectiveZoomScale);
-									const xRange = bounds.maxX - bounds.minX;
-									const yRange = bounds.maxY - bounds.minY;
-									const focusToPercentX = (cx: number) =>
-										xRange <= 0
-											? 50
-											: Math.max(0, Math.min(100, ((cx - bounds.minX) / xRange) * 100));
-									const focusToPercentY = (cy: number) =>
-										yRange <= 0
-											? 50
-											: Math.max(0, Math.min(100, ((cy - bounds.minY) / yRange) * 100));
-									const percentToFocusX = (p: number) =>
-										xRange <= 0 ? bounds.minX : bounds.minX + (p / 100) * xRange;
-									const percentToFocusY = (p: number) =>
-										yRange <= 0 ? bounds.minY : bounds.minY + (p / 100) * yRange;
-									return (
-										<div>
-											<span className="text-[11px] font-medium text-slate-400 mb-1.5 block">
-												{t("zoom.position.title")}
-											</span>
-											<div className="grid grid-cols-2 gap-2">
-												<div className="flex flex-col gap-1">
-													<label className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
-														{t("zoom.position.x")}
-													</label>
-													<ZoomFocusCoordInput
-														ariaLabel={t("zoom.position.x")}
-														percent={focusToPercentX(selectedZoomFocus.cx)}
-														onChange={(p) =>
-															onZoomFocusCoordinateChange({
-																cx: percentToFocusX(p),
-																cy: selectedZoomFocus.cy,
-															})
-														}
-														onCommit={onZoomFocusCoordinateCommit}
-													/>
-												</div>
-												<div className="flex flex-col gap-1">
-													<label className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
-														{t("zoom.position.y")}
-													</label>
-													<ZoomFocusCoordInput
-														ariaLabel={t("zoom.position.y")}
-														percent={focusToPercentY(selectedZoomFocus.cy)}
-														onChange={(p) =>
-															onZoomFocusCoordinateChange({
-																cx: selectedZoomFocus.cx,
-																cy: percentToFocusY(p),
-															})
-														}
-														onCommit={onZoomFocusCoordinateCommit}
-													/>
-												</div>
-											</div>
-										</div>
-									);
-								})()}
-							{zoomEnabled && (
-								<div>
-									<span className="text-[11px] font-medium text-slate-400 mb-1.5 block">
-										{t("zoom.threeD.title")}
-									</span>
-									<div className="grid grid-cols-3 gap-1.5">
-										{ROTATION_3D_PRESET_ORDER.map((preset) => {
-											const isActive = selectedZoomRotationPreset === preset;
-											return (
-												<Button
-													key={preset}
-													type="button"
-													onClick={() => onZoomRotationPresetChange?.(isActive ? null : preset)}
-													className={cn(
-														"h-8 w-full rounded-lg border px-1 text-center transition-all duration-150 ease-out cursor-pointer",
-														isActive
-															? "border-[#CC785C]/60 bg-[#CC785C] text-white"
-															: "border-white/[0.06] bg-white/[0.035] text-slate-400 hover:bg-white/[0.075] hover:border-white/15 hover:text-slate-200",
-													)}
-												>
-													<span className="text-xs font-semibold capitalize">
-														{t(`zoom.threeD.preset.${preset}`)}
-													</span>
-												</Button>
-											);
-										})}
-									</div>
-								</div>
-							)}
+								)}
 
-							{zoomEnabled && (
-								<Button
-									onClick={handleDeleteClick}
-									variant="destructive"
-									size="sm"
-									className="mt-1 w-full gap-2 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30 transition-all h-8 text-xs"
-								>
-									<Trash2 className="w-3 h-3" />
-									{t("zoom.deleteZoom")}
-								</Button>
-							)}
-						</div>
-					)}
-
-					{trimEnabled && (
-						<div className="mb-4">
-							<Button
-								onClick={handleTrimDeleteClick}
-								variant="destructive"
-								size="sm"
-								className="w-full gap-2 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30 transition-all h-8 text-xs"
-							>
-								<Trash2 className="w-3 h-3" />
-								{t("trim.deleteRegion")}
-							</Button>
-						</div>
-					)}
-
-					{selectedSpeedId && (
-						<div className="editor-panel-section mb-3 space-y-3 px-1">
-							<div className="flex items-center justify-between">
-								<span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-									{t("speed.playbackSpeed")}
-								</span>
-								{selectedSpeedId && selectedSpeedValue && (
-									<span className="rounded-full border border-[#d97706]/25 bg-[#d97706]/10 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[#d97706]">
-										{SPEED_OPTIONS.find((o) => o.speed === selectedSpeedValue)?.label ??
-											`${selectedSpeedValue}×`}
-									</span>
+								{zoomEnabled && (
+									<Button
+										onClick={handleDeleteClick}
+										variant="destructive"
+										size="sm"
+										className="mt-1 w-full gap-2 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30 transition-all h-8 text-xs"
+									>
+										<Trash2 className="w-3 h-3" />
+										{t("zoom.deleteZoom")}
+									</Button>
 								)}
 							</div>
-							<div className="grid grid-cols-5 gap-1">
-								{SPEED_OPTIONS.map((option) => {
-									const isActive = selectedSpeedValue === option.speed;
-									return (
-										<Button
-											key={option.speed}
-											type="button"
-											disabled={!selectedSpeedId}
-											onClick={() => onSpeedChange?.(option.speed)}
-											className={cn(
-												"h-8 w-full rounded-lg border px-1 text-center transition-all duration-150 ease-out",
-												selectedSpeedId
-													? "opacity-100 cursor-pointer"
-													: "opacity-40 cursor-not-allowed",
-												isActive
-													? "border-[#d97706]/70 bg-[#d97706] text-white shadow-[0_8px_20px_rgba(217,119,6,0.16)]"
-													: "border-white/[0.06] bg-white/[0.035] text-slate-400 hover:bg-white/[0.075] hover:border-white/15 hover:text-slate-200",
-											)}
-										>
-											<span className="text-[11px] font-semibold">{option.label}</span>
-										</Button>
-									);
-								})}
-							</div>
-							<div className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.03] px-2 py-1.5">
-								<span
-									className={cn(
-										"text-[11px]",
-										selectedSpeedId ? "text-slate-500" : "text-slate-600",
-									)}
-								>
-									{t("speed.customPlaybackSpeed")}
-								</span>
-								{selectedSpeedId ? (
-									<CustomSpeedInput
-										value={selectedSpeedValue ?? 1}
-										onChange={(val) => onSpeedChange?.(val)}
-										onError={() => toast.error(t("speed.maxSpeedError"))}
-									/>
-								) : (
-									<div className="flex items-center gap-1 opacity-40">
-										<div className="w-12 bg-white/5 border border-white/10 rounded-md px-1 py-0.5 text-[11px] font-semibold text-slate-600 text-center">
-											--
-										</div>
-										<span className="text-[11px] font-semibold text-slate-600">×</span>
-									</div>
-								)}
-							</div>
-							{selectedSpeedId && (
+						)}
+
+						{trimEnabled && (
+							<div className="mb-4">
 								<Button
-									onClick={() => selectedSpeedId && onSpeedDelete?.(selectedSpeedId)}
+									onClick={handleTrimDeleteClick}
 									variant="destructive"
 									size="sm"
 									className="w-full gap-2 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30 transition-all h-8 text-xs"
 								>
 									<Trash2 className="w-3 h-3" />
-									{t("speed.deleteRegion")}
+									{t("trim.deleteRegion")}
 								</Button>
-							)}
-						</div>
-					)}
+							</div>
+						)}
 
-					{!hasTimelineSelection && (
-						<Accordion type="multiple" value={[activePanelMode]} className="space-y-2">
-							{hasWebcam && activePanelMode === "layout" && (
-								<AccordionItem value="layout" className="editor-panel-section px-3">
-									<AccordionTrigger className="py-2.5 hover:no-underline">
-										<div className="flex items-center gap-2">
-											<Sparkles className="w-4 h-4 text-[#CC785C]" />
-											<span className="text-xs font-medium">{t("layout.title")}</span>
-										</div>
-									</AccordionTrigger>
-									<AccordionContent className="pb-3">
-										<div className="p-2 rounded-lg editor-control-surface">
-											<div className="text-[10px] font-medium text-slate-300 mb-1.5">
-												{t("layout.preset")}
-											</div>
-											<Select
-												value={webcamLayoutPreset}
-												onValueChange={(value: WebcamLayoutPreset) =>
-													onWebcamLayoutPresetChange?.(value)
-												}
+						{selectedSpeedId && (
+							<div className="editor-panel-section mb-3 space-y-3 px-1">
+								<div className="flex items-center justify-between">
+									<span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+										{t("speed.playbackSpeed")}
+									</span>
+									{selectedSpeedId && selectedSpeedValue && (
+										<span className="rounded-full border border-[#d97706]/25 bg-[#d97706]/10 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[#d97706]">
+											{SPEED_OPTIONS.find((o) => o.speed === selectedSpeedValue)?.label ??
+												`${selectedSpeedValue}×`}
+										</span>
+									)}
+								</div>
+								<div className="grid grid-cols-5 gap-1">
+									{SPEED_OPTIONS.map((option) => {
+										const isActive = selectedSpeedValue === option.speed;
+										return (
+											<Button
+												key={option.speed}
+												type="button"
+												disabled={!selectedSpeedId}
+												onClick={() => onSpeedChange?.(option.speed)}
+												className={cn(
+													"h-8 w-full rounded-lg border px-1 text-center transition-all duration-150 ease-out",
+													selectedSpeedId
+														? "opacity-100 cursor-pointer"
+														: "opacity-40 cursor-not-allowed",
+													isActive
+														? "border-[#d97706]/70 bg-[#d97706] text-white shadow-[0_8px_20px_rgba(217,119,6,0.16)]"
+														: "border-white/[0.06] bg-white/[0.035] text-slate-400 hover:bg-white/[0.075] hover:border-white/15 hover:text-slate-200",
+												)}
 											>
-												<SelectTrigger className="h-8 bg-black/20 border-white/10 text-xs">
-													<SelectValue placeholder={t("layout.selectPreset")} />
-												</SelectTrigger>
-												<SelectContent>
-													{WEBCAM_LAYOUT_PRESETS.filter((preset) => {
-														if (preset.value === "picture-in-picture") return true;
-														if (preset.value === "no-webcam") return true;
-														if (preset.value === "vertical-stack") return isPortraitCanvas;
-														return !isPortraitCanvas;
-													}).map((preset) => (
-														<SelectItem key={preset.value} value={preset.value} className="text-xs">
-															{preset.value === "picture-in-picture"
-																? t("layout.pictureInPicture")
-																: preset.value === "vertical-stack"
-																	? t("layout.verticalStack")
-																	: preset.value === "no-webcam"
-																		? t("layout.noWebcam")
-																		: t("layout.dualFrame")}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
+												<span className="text-[11px] font-semibold">{option.label}</span>
+											</Button>
+										);
+									})}
+								</div>
+								<div className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.03] px-2 py-1.5">
+									<span
+										className={cn(
+											"text-[11px]",
+											selectedSpeedId ? "text-slate-500" : "text-slate-600",
+										)}
+									>
+										{t("speed.customPlaybackSpeed")}
+									</span>
+									{selectedSpeedId ? (
+										<CustomSpeedInput
+											value={selectedSpeedValue ?? 1}
+											onChange={(val) => onSpeedChange?.(val)}
+											onError={() => toast.error(t("speed.maxSpeedError"))}
+										/>
+									) : (
+										<div className="flex items-center gap-1 opacity-40">
+											<div className="w-12 bg-white/5 border border-white/10 rounded-md px-1 py-0.5 text-[11px] font-semibold text-slate-600 text-center">
+												--
+											</div>
+											<span className="text-[11px] font-semibold text-slate-600">×</span>
 										</div>
-										{webcamLayoutPreset !== "no-webcam" && (
-											<div className="mt-2 flex items-center justify-between p-2 rounded-lg editor-control-surface">
-												<div className="text-[10px] font-medium text-slate-300">
-													{t("layout.mirrorWebcam")}
-												</div>
-												<Switch
-													checked={webcamMirrored}
-													onCheckedChange={onWebcamMirroredChange}
-													className="data-[state=checked]:bg-[#CC785C] scale-90"
-													aria-label={t("layout.mirrorWebcam")}
-												/>
-											</div>
-										)}
-										{webcamLayoutPreset === "picture-in-picture" && (
-											<div className="mt-2 flex items-center justify-between p-2 rounded-lg editor-control-surface">
-												<div className="flex items-center gap-1 text-[10px] font-medium text-slate-300">
-													<span>{t("layout.reactiveWebcam")}</span>
-													<Tooltip
-														content={t("layout.reactiveWebcamDescription")}
-														className="max-w-[220px] leading-snug whitespace-normal"
-													>
-														<button
-															type="button"
-															className="text-slate-400 transition-colors hover:text-slate-200"
-															aria-label={t("layout.reactiveWebcamDescription")}
-														>
-															<Info size={11} />
-														</button>
-													</Tooltip>
-												</div>
-												<Switch
-													checked={webcamReactiveZoom}
-													onCheckedChange={onWebcamReactiveZoomChange}
-													className="data-[state=checked]:bg-[#CC785C] scale-90"
-													aria-label={t("layout.reactiveWebcam")}
-												/>
-											</div>
-										)}
-										{webcamLayoutPreset === "picture-in-picture" && (
-											<div className="mt-2 p-2 rounded-lg editor-control-surface">
-												<div className="text-[10px] font-medium text-slate-300 mb-1.5">
-													{t("layout.webcamShape")}
-												</div>
-												<div className="grid grid-cols-4 gap-1.5">
-													{(
-														[
-															{ value: "rectangle", label: "Rect" },
-															{ value: "circle", label: "Circle" },
-															{ value: "square", label: "Square" },
-															{ value: "rounded", label: "Rounded" },
-														] as Array<{ value: WebcamMaskShape; label: string }>
-													).map((shape) => (
-														<button
-															key={shape.value}
-															type="button"
-															onClick={() => onWebcamMaskShapeChange?.(shape.value)}
-															className={cn(
-																"h-10 rounded-lg border flex flex-col items-center justify-center gap-0.5 transition-all",
-																webcamMaskShape === shape.value
-																	? "bg-[#CC785C] border-[#CC785C] text-white"
-																	: "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-slate-400",
-															)}
-														>
-															<svg
-																width="16"
-																height="16"
-																viewBox="0 0 16 16"
-																fill="none"
-																xmlns="http://www.w3.org/2000/svg"
-															>
-																{shape.value === "rectangle" && (
-																	<rect
-																		x="1"
-																		y="3"
-																		width="14"
-																		height="10"
-																		rx="2"
-																		stroke="currentColor"
-																		strokeWidth="1.5"
-																	/>
-																)}
-																{shape.value === "circle" && (
-																	<circle
-																		cx="8"
-																		cy="8"
-																		r="6.5"
-																		stroke="currentColor"
-																		strokeWidth="1.5"
-																	/>
-																)}
-																{shape.value === "square" && (
-																	<rect
-																		x="2"
-																		y="2"
-																		width="12"
-																		height="12"
-																		rx="1"
-																		stroke="currentColor"
-																		strokeWidth="1.5"
-																	/>
-																)}
-																{shape.value === "rounded" && (
-																	<rect
-																		x="1"
-																		y="3"
-																		width="14"
-																		height="10"
-																		rx="5"
-																		stroke="currentColor"
-																		strokeWidth="1.5"
-																	/>
-																)}
-															</svg>
-															<span className="text-[8px] leading-none">{shape.label}</span>
-														</button>
-													))}
-												</div>
-											</div>
-										)}
-										{webcamLayoutPreset === "picture-in-picture" && (
-											<div className="p-2 rounded-lg editor-control-surface mt-2">
-												<div className="flex items-center justify-between mb-1.5">
-													<div className="text-[10px] font-medium text-slate-300">
-														{t("layout.webcamSize")}
-													</div>
-													<div className="text-[10px] font-medium text-slate-400">
-														{webcamSizePreset}%
-													</div>
-												</div>
-												<Slider
-													value={[webcamSizePreset]}
-													onValueChange={(values) => onWebcamSizePresetChange?.(values[0])}
-													onValueCommit={() => onWebcamSizePresetCommit?.()}
-													min={10}
-													max={50}
-													step={1}
-													className="w-full"
-												/>
-											</div>
-										)}
-									</AccordionContent>
-								</AccordionItem>
-							)}
+									)}
+								</div>
+								{selectedSpeedId && (
+									<Button
+										onClick={() => selectedSpeedId && onSpeedDelete?.(selectedSpeedId)}
+										variant="destructive"
+										size="sm"
+										className="w-full gap-2 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30 transition-all h-8 text-xs"
+									>
+										<Trash2 className="w-3 h-3" />
+										{t("speed.deleteRegion")}
+									</Button>
+								)}
+							</div>
+						)}
 
-							{(activePanelMode === "effects" || activePanelMode === "cursor") && (
-								<AccordionItem value={activePanelMode} className="editor-panel-section px-3">
-									<AccordionTrigger className="py-2.5 hover:no-underline">
-										<div className="flex items-center gap-2">
-											{activePanelMode === "cursor" ? (
-												<MousePointerClick className="w-4 h-4 text-[#CC785C]" />
-											) : (
-												<SlidersHorizontal className="w-4 h-4 text-[#CC785C]" />
+						{!hasTimelineSelection && (
+							<Accordion type="multiple" value={[activePanelMode]} className="space-y-2">
+								{hasWebcam && activePanelMode === "layout" && (
+									<AccordionItem value="layout" className="editor-panel-section px-3">
+										<AccordionTrigger className="py-2.5 hover:no-underline">
+											<div className="flex items-center gap-2">
+												<Sparkles className="w-4 h-4 text-[#CC785C]" />
+												<span className="text-xs font-medium">{t("layout.title")}</span>
+											</div>
+										</AccordionTrigger>
+										<AccordionContent className="pb-3">
+											<div className="p-2 rounded-lg editor-control-surface">
+												<div className="text-[10px] font-medium text-slate-300 mb-1.5">
+													{t("layout.preset")}
+												</div>
+												<Select
+													value={webcamLayoutPreset}
+													onValueChange={(value: WebcamLayoutPreset) =>
+														onWebcamLayoutPresetChange?.(value)
+													}
+												>
+													<SelectTrigger className="h-8 bg-black/20 border-white/10 text-xs">
+														<SelectValue placeholder={t("layout.selectPreset")} />
+													</SelectTrigger>
+													<SelectContent>
+														{WEBCAM_LAYOUT_PRESETS.filter((preset) => {
+															if (preset.value === "picture-in-picture") return true;
+															if (preset.value === "no-webcam") return true;
+															if (preset.value === "vertical-stack") return isPortraitCanvas;
+															return !isPortraitCanvas;
+														}).map((preset) => (
+															<SelectItem
+																key={preset.value}
+																value={preset.value}
+																className="text-xs"
+															>
+																{preset.value === "picture-in-picture"
+																	? t("layout.pictureInPicture")
+																	: preset.value === "vertical-stack"
+																		? t("layout.verticalStack")
+																		: preset.value === "no-webcam"
+																			? t("layout.noWebcam")
+																			: t("layout.dualFrame")}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+											</div>
+											{webcamLayoutPreset !== "no-webcam" && (
+												<div className="mt-2 flex items-center justify-between p-2 rounded-lg editor-control-surface">
+													<div className="text-[10px] font-medium text-slate-300">
+														{t("layout.mirrorWebcam")}
+													</div>
+													<Switch
+														checked={webcamMirrored}
+														onCheckedChange={onWebcamMirroredChange}
+														className="data-[state=checked]:bg-[#CC785C] scale-90"
+														aria-label={t("layout.mirrorWebcam")}
+													/>
+												</div>
 											)}
-											<span className="text-xs font-medium">{t("effects.title")}</span>
-										</div>
-									</AccordionTrigger>
-									<AccordionContent className="pb-3">
-										{activePanelMode === "effects" && (
-											<>
-												<div className="grid grid-cols-2 gap-2 mb-3">
-													<div className="flex items-center justify-between p-2 rounded-lg editor-control-surface">
+											{webcamLayoutPreset === "picture-in-picture" && (
+												<div className="mt-2 flex items-center justify-between p-2 rounded-lg editor-control-surface">
+													<div className="flex items-center gap-1 text-[10px] font-medium text-slate-300">
+														<span>{t("layout.reactiveWebcam")}</span>
+														<Tooltip
+															content={t("layout.reactiveWebcamDescription")}
+															className="max-w-[220px] leading-snug whitespace-normal"
+														>
+															<button
+																type="button"
+																className="text-slate-400 transition-colors hover:text-slate-200"
+																aria-label={t("layout.reactiveWebcamDescription")}
+															>
+																<Info size={11} />
+															</button>
+														</Tooltip>
+													</div>
+													<Switch
+														checked={webcamReactiveZoom}
+														onCheckedChange={onWebcamReactiveZoomChange}
+														className="data-[state=checked]:bg-[#CC785C] scale-90"
+														aria-label={t("layout.reactiveWebcam")}
+													/>
+												</div>
+											)}
+											{webcamLayoutPreset === "picture-in-picture" && (
+												<div className="mt-2 p-2 rounded-lg editor-control-surface">
+													<div className="text-[10px] font-medium text-slate-300 mb-1.5">
+														{t("layout.webcamShape")}
+													</div>
+													<div className="grid grid-cols-4 gap-1.5">
+														{(
+															[
+																{ value: "rectangle", label: "Rect" },
+																{ value: "circle", label: "Circle" },
+																{ value: "square", label: "Square" },
+																{ value: "rounded", label: "Rounded" },
+															] as Array<{ value: WebcamMaskShape; label: string }>
+														).map((shape) => (
+															<button
+																key={shape.value}
+																type="button"
+																onClick={() => onWebcamMaskShapeChange?.(shape.value)}
+																className={cn(
+																	"h-10 rounded-lg border flex flex-col items-center justify-center gap-0.5 transition-all",
+																	webcamMaskShape === shape.value
+																		? "bg-[#CC785C] border-[#CC785C] text-white"
+																		: "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-slate-400",
+																)}
+															>
+																<svg
+																	width="16"
+																	height="16"
+																	viewBox="0 0 16 16"
+																	fill="none"
+																	xmlns="http://www.w3.org/2000/svg"
+																>
+																	{shape.value === "rectangle" && (
+																		<rect
+																			x="1"
+																			y="3"
+																			width="14"
+																			height="10"
+																			rx="2"
+																			stroke="currentColor"
+																			strokeWidth="1.5"
+																		/>
+																	)}
+																	{shape.value === "circle" && (
+																		<circle
+																			cx="8"
+																			cy="8"
+																			r="6.5"
+																			stroke="currentColor"
+																			strokeWidth="1.5"
+																		/>
+																	)}
+																	{shape.value === "square" && (
+																		<rect
+																			x="2"
+																			y="2"
+																			width="12"
+																			height="12"
+																			rx="1"
+																			stroke="currentColor"
+																			strokeWidth="1.5"
+																		/>
+																	)}
+																	{shape.value === "rounded" && (
+																		<rect
+																			x="1"
+																			y="3"
+																			width="14"
+																			height="10"
+																			rx="5"
+																			stroke="currentColor"
+																			strokeWidth="1.5"
+																		/>
+																	)}
+																</svg>
+																<span className="text-[8px] leading-none">{shape.label}</span>
+															</button>
+														))}
+													</div>
+												</div>
+											)}
+											{webcamLayoutPreset === "picture-in-picture" && (
+												<div className="p-2 rounded-lg editor-control-surface mt-2">
+													<div className="flex items-center justify-between mb-1.5">
 														<div className="text-[10px] font-medium text-slate-300">
-															{t("effects.blurBg")}
+															{t("layout.webcamSize")}
+														</div>
+														<div className="text-[10px] font-medium text-slate-400">
+															{webcamSizePreset}%
+														</div>
+													</div>
+													<Slider
+														value={[webcamSizePreset]}
+														onValueChange={(values) => onWebcamSizePresetChange?.(values[0])}
+														onValueCommit={() => onWebcamSizePresetCommit?.()}
+														min={10}
+														max={50}
+														step={1}
+														className="w-full"
+													/>
+												</div>
+											)}
+										</AccordionContent>
+									</AccordionItem>
+								)}
+
+								{(activePanelMode === "effects" || activePanelMode === "cursor") && (
+									<AccordionItem value={activePanelMode} className="editor-panel-section px-3">
+										<AccordionTrigger className="py-2.5 hover:no-underline">
+											<div className="flex items-center gap-2">
+												{activePanelMode === "cursor" ? (
+													<MousePointerClick className="w-4 h-4 text-[#CC785C]" />
+												) : (
+													<SlidersHorizontal className="w-4 h-4 text-[#CC785C]" />
+												)}
+												<span className="text-xs font-medium">{t("effects.title")}</span>
+											</div>
+										</AccordionTrigger>
+										<AccordionContent className="pb-3">
+											{activePanelMode === "effects" && (
+												<>
+													<div className="grid grid-cols-2 gap-2 mb-3">
+														<div className="flex items-center justify-between p-2 rounded-lg editor-control-surface">
+															<div className="text-[10px] font-medium text-slate-300">
+																{t("effects.blurBg")}
+															</div>
+															<Switch
+																checked={showBlur}
+																onCheckedChange={onBlurChange}
+																className="data-[state=checked]:bg-[#CC785C] scale-90"
+															/>
+														</div>
+													</div>
+
+													<div className="grid grid-cols-2 gap-2">
+														<div className="p-2 rounded-lg editor-control-surface">
+															<div className="flex items-center justify-between mb-1">
+																<div className="text-[10px] font-medium text-slate-300">
+																	{t("effects.motionBlur")}
+																</div>
+																<span className="text-[10px] text-slate-500 font-mono">
+																	{motionBlurAmount === 0
+																		? t("effects.off")
+																		: motionBlurAmount.toFixed(2)}
+																</span>
+															</div>
+															<Slider
+																value={[motionBlurAmount]}
+																onValueChange={(values) => onMotionBlurChange?.(values[0])}
+																onValueCommit={() => onMotionBlurCommit?.()}
+																min={0}
+																max={1}
+																step={0.01}
+																className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
+															/>
+														</div>
+														<div className="p-2 rounded-lg editor-control-surface">
+															<div className="flex items-center justify-between mb-1">
+																<div className="text-[10px] font-medium text-slate-300">
+																	{t("effects.shadow")}
+																</div>
+																<span className="text-[10px] text-slate-500 font-mono">
+																	{Math.round(shadowIntensity * 100)}%
+																</span>
+															</div>
+															<Slider
+																value={[shadowIntensity]}
+																onValueChange={(values) => onShadowChange?.(values[0])}
+																onValueCommit={() => onShadowCommit?.()}
+																min={0}
+																max={1}
+																step={0.01}
+																className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
+															/>
+														</div>
+														<div className="p-2 rounded-lg editor-control-surface">
+															<div className="flex items-center justify-between mb-1">
+																<div className="text-[10px] font-medium text-slate-300">
+																	{t("effects.roundness")}
+																</div>
+																<span className="text-[10px] text-slate-500 font-mono">
+																	{borderRadius}px
+																</span>
+															</div>
+															<Slider
+																value={[borderRadius]}
+																onValueChange={(values) => onBorderRadiusChange?.(values[0])}
+																onValueCommit={() => onBorderRadiusCommit?.()}
+																min={0}
+																max={64}
+																step={0.5}
+																className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
+															/>
+														</div>
+														<div
+															className={`p-2 rounded-lg editor-control-surface ${webcamLayoutPreset === "vertical-stack" ? "opacity-40 pointer-events-none" : ""}`}
+														>
+															<div className="flex items-center justify-between mb-1">
+																<div className="text-[10px] font-medium text-slate-300">
+																	{t("effects.padding")}
+																</div>
+																<span className="text-[10px] text-slate-500 font-mono">
+																	{webcamLayoutPreset === "vertical-stack" ? "—" : `${padding}%`}
+																</span>
+															</div>
+															<Slider
+																value={[webcamLayoutPreset === "vertical-stack" ? 0 : padding]}
+																onValueChange={(values) => onPaddingChange?.(values[0])}
+																onValueCommit={() => onPaddingCommit?.()}
+																min={0}
+																max={100}
+																step={1}
+																disabled={webcamLayoutPreset === "vertical-stack"}
+																className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
+															/>
+														</div>
+													</div>
+												</>
+											)}
+
+											{activePanelMode === "cursor" && showCursorSettings && hasCursorData && (
+												<div className="p-2 rounded-lg editor-control-surface mt-2 space-y-3">
+													<div className="flex items-center justify-between">
+														<div className="text-[10px] font-medium text-slate-300">
+															{t("cursor.show")}
 														</div>
 														<Switch
-															checked={showBlur}
-															onCheckedChange={onBlurChange}
+															checked={showCursor}
+															onCheckedChange={onShowCursorChange}
 															className="data-[state=checked]:bg-[#CC785C] scale-90"
 														/>
 													</div>
-												</div>
-
-												<div className="grid grid-cols-2 gap-2">
-													<div className="p-2 rounded-lg editor-control-surface">
-														<div className="flex items-center justify-between mb-1">
-															<div className="text-[10px] font-medium text-slate-300">
-																{t("effects.motionBlur")}
-															</div>
-															<span className="text-[10px] text-slate-500 font-mono">
-																{motionBlurAmount === 0
-																	? t("effects.off")
-																	: motionBlurAmount.toFixed(2)}
-															</span>
-														</div>
-														<Slider
-															value={[motionBlurAmount]}
-															onValueChange={(values) => onMotionBlurChange?.(values[0])}
-															onValueCommit={() => onMotionBlurCommit?.()}
-															min={0}
-															max={1}
-															step={0.01}
-															className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
-														/>
-													</div>
-													<div className="p-2 rounded-lg editor-control-surface">
-														<div className="flex items-center justify-between mb-1">
-															<div className="text-[10px] font-medium text-slate-300">
-																{t("effects.shadow")}
-															</div>
-															<span className="text-[10px] text-slate-500 font-mono">
-																{Math.round(shadowIntensity * 100)}%
-															</span>
-														</div>
-														<Slider
-															value={[shadowIntensity]}
-															onValueChange={(values) => onShadowChange?.(values[0])}
-															onValueCommit={() => onShadowCommit?.()}
-															min={0}
-															max={1}
-															step={0.01}
-															className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
-														/>
-													</div>
-													<div className="p-2 rounded-lg editor-control-surface">
-														<div className="flex items-center justify-between mb-1">
-															<div className="text-[10px] font-medium text-slate-300">
-																{t("effects.roundness")}
-															</div>
-															<span className="text-[10px] text-slate-500 font-mono">
-																{borderRadius}px
-															</span>
-														</div>
-														<Slider
-															value={[borderRadius]}
-															onValueChange={(values) => onBorderRadiusChange?.(values[0])}
-															onValueCommit={() => onBorderRadiusCommit?.()}
-															min={0}
-															max={64}
-															step={0.5}
-															className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
-														/>
-													</div>
-													<div
-														className={`p-2 rounded-lg editor-control-surface ${webcamLayoutPreset === "vertical-stack" ? "opacity-40 pointer-events-none" : ""}`}
-													>
-														<div className="flex items-center justify-between mb-1">
-															<div className="text-[10px] font-medium text-slate-300">
-																{t("effects.padding")}
-															</div>
-															<span className="text-[10px] text-slate-500 font-mono">
-																{webcamLayoutPreset === "vertical-stack" ? "—" : `${padding}%`}
-															</span>
-														</div>
-														<Slider
-															value={[webcamLayoutPreset === "vertical-stack" ? 0 : padding]}
-															onValueChange={(values) => onPaddingChange?.(values[0])}
-															onValueCommit={() => onPaddingCommit?.()}
-															min={0}
-															max={100}
-															step={1}
-															disabled={webcamLayoutPreset === "vertical-stack"}
-															className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
-														/>
-													</div>
-												</div>
-											</>
-										)}
-
-										{activePanelMode === "cursor" && showCursorSettings && hasCursorData && (
-											<div className="p-2 rounded-lg editor-control-surface mt-2 space-y-3">
-												<div className="flex items-center justify-between">
-													<div className="text-[10px] font-medium text-slate-300">
-														{t("cursor.show")}
-													</div>
-													<Switch
-														checked={showCursor}
-														onCheckedChange={onShowCursorChange}
-														className="data-[state=checked]:bg-[#CC785C] scale-90"
-													/>
-												</div>
-												{showCursor && (
-													<>
-														<div className="flex items-center justify-between">
-															<div className="flex items-center gap-1 text-[10px] font-medium text-slate-300">
-																<span>{t("cursor.clipToBounds")}</span>
-																<Tooltip
-																	content={t("cursor.clipToBoundsDescription")}
-																	className="max-w-[220px] leading-snug whitespace-normal"
-																>
-																	<button
-																		type="button"
-																		className="text-slate-400 transition-colors hover:text-slate-200"
-																		aria-label={t("cursor.clipToBoundsDescription")}
+													{showCursor && (
+														<>
+															<div className="flex items-center justify-between">
+																<div className="flex items-center gap-1 text-[10px] font-medium text-slate-300">
+																	<span>{t("cursor.clipToBounds")}</span>
+																	<Tooltip
+																		content={t("cursor.clipToBoundsDescription")}
+																		className="max-w-[220px] leading-snug whitespace-normal"
 																	>
-																		<Info size={11} />
-																	</button>
-																</Tooltip>
-															</div>
-															<Switch
-																checked={cursorClipToBounds}
-																onCheckedChange={onCursorClipToBoundsChange}
-																className="data-[state=checked]:bg-[#CC785C] scale-90"
-																aria-label={t("cursor.clipToBounds")}
-															/>
-														</div>
-														{cursorThemeOptions.length > 1 && (
-															<div className="space-y-1.5">
-																<div className="text-[10px] font-medium text-slate-300">
-																	{t("cursor.theme")}
+																		<button
+																			type="button"
+																			className="text-slate-400 transition-colors hover:text-slate-200"
+																			aria-label={t("cursor.clipToBoundsDescription")}
+																		>
+																			<Info size={11} />
+																		</button>
+																	</Tooltip>
 																</div>
-																<div className="flex flex-wrap gap-1.5">
-																	{cursorThemeOptions.map((option) => {
-																		const isSelected = cursorTheme === option.id;
-																		return (
-																			<button
-																				type="button"
-																				key={option.id}
-																				title={option.name}
-																				aria-label={option.name}
-																				aria-pressed={isSelected}
-																				onClick={() => onCursorThemeChange?.(option.id)}
-																				className={cn(
-																					"flex items-center justify-center w-8 h-8 rounded-lg border overflow-hidden transition-all duration-150 shadow-sm bg-white/5",
-																					isSelected
-																						? "border-[#CC785C] ring-1 ring-[#CC785C]/30"
-																						: "border-white/10 hover:border-[#CC785C]/40 opacity-80 hover:opacity-100",
-																				)}
-																			>
-																				<img
-																					src={option.previewUrl}
-																					alt=""
-																					className="w-5 h-5 object-contain"
-																					draggable={false}
-																				/>
-																			</button>
-																		);
-																	})}
-																</div>
-															</div>
-														)}
-														<div className="grid grid-cols-2 gap-2">
-															<div className="p-2 rounded-lg bg-white/5 border border-white/5">
-																<div className="flex items-center justify-between mb-1">
-																	<div className="text-[10px] font-medium text-slate-300">
-																		{t("cursor.size")}
-																	</div>
-																	<span className="text-[10px] text-slate-500 font-mono">
-																		{cursorSize.toFixed(1)}
-																	</span>
-																</div>
-																<Slider
-																	value={[cursorSize]}
-																	onValueChange={(values) => onCursorSizeChange?.(values[0])}
-																	min={0.5}
-																	max={10}
-																	step={0.1}
-																	className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
+																<Switch
+																	checked={cursorClipToBounds}
+																	onCheckedChange={onCursorClipToBoundsChange}
+																	className="data-[state=checked]:bg-[#CC785C] scale-90"
+																	aria-label={t("cursor.clipToBounds")}
 																/>
 															</div>
-															<div className="p-2 rounded-lg bg-white/5 border border-white/5">
-																<div className="flex items-center justify-between mb-1">
+															{cursorThemeOptions.length > 1 && (
+																<div className="space-y-1.5">
 																	<div className="text-[10px] font-medium text-slate-300">
-																		{t("cursor.smoothing")}
+																		{t("cursor.theme")}
 																	</div>
-																	<span className="text-[10px] text-slate-500 font-mono">
-																		{Math.round(cursorSmoothing * 100)}%
-																	</span>
-																</div>
-																<Slider
-																	value={[cursorSmoothing]}
-																	onValueChange={(values) => onCursorSmoothingChange?.(values[0])}
-																	min={0}
-																	max={1}
-																	step={0.01}
-																	className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
-																/>
-															</div>
-															<div className="p-2 rounded-lg bg-white/5 border border-white/5">
-																<div className="flex items-center justify-between mb-1">
-																	<div className="text-[10px] font-medium text-slate-300">
-																		{t("cursor.motionBlur")}
+																	<div className="flex flex-wrap gap-1.5">
+																		{cursorThemeOptions.map((option) => {
+																			const isSelected = cursorTheme === option.id;
+																			return (
+																				<button
+																					type="button"
+																					key={option.id}
+																					title={option.name}
+																					aria-label={option.name}
+																					aria-pressed={isSelected}
+																					onClick={() => onCursorThemeChange?.(option.id)}
+																					className={cn(
+																						"flex items-center justify-center w-8 h-8 rounded-lg border overflow-hidden transition-all duration-150 shadow-sm bg-white/5",
+																						isSelected
+																							? "border-[#CC785C] ring-1 ring-[#CC785C]/30"
+																							: "border-white/10 hover:border-[#CC785C]/40 opacity-80 hover:opacity-100",
+																					)}
+																				>
+																					<img
+																						src={option.previewUrl}
+																						alt=""
+																						className="w-5 h-5 object-contain"
+																						draggable={false}
+																					/>
+																				</button>
+																			);
+																		})}
 																	</div>
-																	<span className="text-[10px] text-slate-500 font-mono">
-																		{Math.round(cursorMotionBlur * 100)}%
-																	</span>
 																</div>
-																<Slider
-																	value={[cursorMotionBlur]}
-																	onValueChange={(values) => onCursorMotionBlurChange?.(values[0])}
-																	min={0}
-																	max={1}
-																	step={0.01}
-																	className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
-																/>
-															</div>
-															<div className="p-2 rounded-lg bg-white/5 border border-white/5">
-																<div className="flex items-center justify-between mb-1">
-																	<div className="text-[10px] font-medium text-slate-300">
-																		{t("cursor.clickBounce")}
+															)}
+															<div className="grid grid-cols-2 gap-2">
+																<div className="p-2 rounded-lg bg-white/5 border border-white/5">
+																	<div className="flex items-center justify-between mb-1">
+																		<div className="text-[10px] font-medium text-slate-300">
+																			{t("cursor.size")}
+																		</div>
+																		<span className="text-[10px] text-slate-500 font-mono">
+																			{cursorSize.toFixed(1)}
+																		</span>
 																	</div>
-																	<span className="text-[10px] text-slate-500 font-mono">
-																		{cursorClickBounce.toFixed(1)}
-																	</span>
+																	<Slider
+																		value={[cursorSize]}
+																		onValueChange={(values) => onCursorSizeChange?.(values[0])}
+																		min={0.5}
+																		max={10}
+																		step={0.1}
+																		className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
+																	/>
 																</div>
-																<Slider
-																	value={[cursorClickBounce]}
-																	onValueChange={(values) => onCursorClickBounceChange?.(values[0])}
-																	min={0}
-																	max={5}
-																	step={0.1}
-																	className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
-																/>
+																<div className="p-2 rounded-lg bg-white/5 border border-white/5">
+																	<div className="flex items-center justify-between mb-1">
+																		<div className="text-[10px] font-medium text-slate-300">
+																			{t("cursor.smoothing")}
+																		</div>
+																		<span className="text-[10px] text-slate-500 font-mono">
+																			{Math.round(cursorSmoothing * 100)}%
+																		</span>
+																	</div>
+																	<Slider
+																		value={[cursorSmoothing]}
+																		onValueChange={(values) => onCursorSmoothingChange?.(values[0])}
+																		min={0}
+																		max={1}
+																		step={0.01}
+																		className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
+																	/>
+																</div>
+																<div className="p-2 rounded-lg bg-white/5 border border-white/5">
+																	<div className="flex items-center justify-between mb-1">
+																		<div className="text-[10px] font-medium text-slate-300">
+																			{t("cursor.motionBlur")}
+																		</div>
+																		<span className="text-[10px] text-slate-500 font-mono">
+																			{Math.round(cursorMotionBlur * 100)}%
+																		</span>
+																	</div>
+																	<Slider
+																		value={[cursorMotionBlur]}
+																		onValueChange={(values) =>
+																			onCursorMotionBlurChange?.(values[0])
+																		}
+																		min={0}
+																		max={1}
+																		step={0.01}
+																		className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
+																	/>
+																</div>
+																<div className="p-2 rounded-lg bg-white/5 border border-white/5">
+																	<div className="flex items-center justify-between mb-1">
+																		<div className="text-[10px] font-medium text-slate-300">
+																			{t("cursor.clickBounce")}
+																		</div>
+																		<span className="text-[10px] text-slate-500 font-mono">
+																			{cursorClickBounce.toFixed(1)}
+																		</span>
+																	</div>
+																	<Slider
+																		value={[cursorClickBounce]}
+																		onValueChange={(values) =>
+																			onCursorClickBounceChange?.(values[0])
+																		}
+																		min={0}
+																		max={5}
+																		step={0.1}
+																		className="w-full [&_[role=slider]]:bg-[#CC785C] [&_[role=slider]]:border-[#CC785C] [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
+																	/>
+																</div>
 															</div>
-														</div>
-													</>
-												)}
+														</>
+													)}
+												</div>
+											)}
+										</AccordionContent>
+									</AccordionItem>
+								)}
+
+								{activePanelMode === "background" && (
+									<AccordionItem value="background" className="editor-panel-section px-3">
+										<AccordionTrigger className="py-2.5 hover:no-underline">
+											<div className="flex items-center gap-2">
+												<Palette className="w-4 h-4 text-[#CC785C]" />
+												<span className="text-xs font-medium">{t("background.title")}</span>
 											</div>
-										)}
-									</AccordionContent>
-								</AccordionItem>
-							)}
-
-							{activePanelMode === "background" && (
-								<AccordionItem value="background" className="editor-panel-section px-3">
-									<AccordionTrigger className="py-2.5 hover:no-underline">
-										<div className="flex items-center gap-2">
-											<Palette className="w-4 h-4 text-[#CC785C]" />
-											<span className="text-xs font-medium">{t("background.title")}</span>
-										</div>
-									</AccordionTrigger>
-									<AccordionContent className="pb-3">
-										<Tabs defaultValue="image" className="w-full">
-											<TabsList className="mb-2 bg-white/5 border border-white/5 p-0.5 w-full grid grid-cols-3 h-7 rounded-lg">
-												<TabsTrigger
-													value="image"
-													className="data-[state=active]:bg-[#CC785C] data-[state=active]:text-white text-slate-400 text-[10px] py-1 rounded-md transition-all"
-												>
-													{t("background.image")}
-												</TabsTrigger>
-												<TabsTrigger
-													value="color"
-													className="data-[state=active]:bg-[#CC785C] data-[state=active]:text-white text-slate-400 text-[10px] py-1 rounded-md transition-all"
-												>
-													{t("background.color")}
-												</TabsTrigger>
-												<TabsTrigger
-													value="gradient"
-													className="data-[state=active]:bg-[#CC785C] data-[state=active]:text-white text-slate-400 text-[10px] py-1 rounded-md transition-all"
-												>
-													{t("background.gradient")}
-												</TabsTrigger>
-											</TabsList>
-
-											<div className="overflow-y-auto custom-scrollbar">
-												<TabsContent value="image" className="mt-0 space-y-2">
-													<input
-														type="file"
-														ref={fileInputRef}
-														onChange={handleImageUpload}
-														accept={BACKGROUND_IMAGE_ACCEPT}
-														className="hidden"
-													/>
-													<Button
-														onClick={() => fileInputRef.current?.click()}
-														variant="outline"
-														className="w-full gap-2 bg-white/5 text-slate-200 border-white/10 hover:bg-[#CC785C] hover:text-white hover:border-[#CC785C] transition-all h-7 text-[10px]"
+										</AccordionTrigger>
+										<AccordionContent className="pb-3">
+											<Tabs defaultValue="image" className="w-full">
+												<TabsList className="mb-2 bg-white/5 border border-white/5 p-0.5 w-full grid grid-cols-3 h-7 rounded-lg">
+													<TabsTrigger
+														value="image"
+														className="data-[state=active]:bg-[#CC785C] data-[state=active]:text-white text-slate-400 text-[10px] py-1 rounded-md transition-all"
 													>
-														<Upload className="w-3 h-3" />
-														{t("background.uploadCustom")}
-													</Button>
+														{t("background.image")}
+													</TabsTrigger>
+													<TabsTrigger
+														value="color"
+														className="data-[state=active]:bg-[#CC785C] data-[state=active]:text-white text-slate-400 text-[10px] py-1 rounded-md transition-all"
+													>
+														{t("background.color")}
+													</TabsTrigger>
+													<TabsTrigger
+														value="gradient"
+														className="data-[state=active]:bg-[#CC785C] data-[state=active]:text-white text-slate-400 text-[10px] py-1 rounded-md transition-all"
+													>
+														{t("background.gradient")}
+													</TabsTrigger>
+												</TabsList>
 
-													<div className="grid grid-cols-6 gap-2">
-														{customImages.map((imageUrl, idx) => {
-															const isSelected = selected === imageUrl;
-															return (
-																<div
-																	key={`custom-${idx}`}
-																	className={cn(
-																		"aspect-square w-8 h-8 rounded-lg border overflow-hidden cursor-pointer transition-all duration-150 relative group shadow-sm",
-																		isSelected
-																			? "border-[#CC785C] ring-1 ring-[#CC785C]/30"
-																			: "border-white/10 hover:border-[#CC785C]/40 opacity-80 hover:opacity-100 bg-white/5",
-																	)}
-																	style={{
-																		backgroundImage: `url(${imageUrl})`,
-																		backgroundSize: "cover",
-																		backgroundPosition: "center",
-																	}}
-																	onClick={() => onWallpaperChange(imageUrl)}
-																	role="button"
-																>
-																	<button
-																		onClick={(e) => handleRemoveCustomImage(imageUrl, e)}
-																		className="absolute top-0.5 right-0.5 w-3 h-3 bg-red-500/90 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+												<div className="overflow-y-auto custom-scrollbar">
+													<TabsContent value="image" className="mt-0 space-y-2">
+														<input
+															type="file"
+															ref={fileInputRef}
+															onChange={handleImageUpload}
+															accept={BACKGROUND_IMAGE_ACCEPT}
+															className="hidden"
+														/>
+														<Button
+															onClick={() => fileInputRef.current?.click()}
+															variant="outline"
+															className="w-full gap-2 bg-white/5 text-slate-200 border-white/10 hover:bg-[#CC785C] hover:text-white hover:border-[#CC785C] transition-all h-7 text-[10px]"
+														>
+															<Upload className="w-3 h-3" />
+															{t("background.uploadCustom")}
+														</Button>
+
+														<div className="grid grid-cols-6 gap-2">
+															{customImages.map((imageUrl, idx) => {
+																const isSelected = selected === imageUrl;
+																return (
+																	<div
+																		key={`custom-${idx}`}
+																		className={cn(
+																			"aspect-square w-8 h-8 rounded-lg border overflow-hidden cursor-pointer transition-all duration-150 relative group shadow-sm",
+																			isSelected
+																				? "border-[#CC785C] ring-1 ring-[#CC785C]/30"
+																				: "border-white/10 hover:border-[#CC785C]/40 opacity-80 hover:opacity-100 bg-white/5",
+																		)}
+																		style={{
+																			backgroundImage: `url(${imageUrl})`,
+																			backgroundSize: "cover",
+																			backgroundPosition: "center",
+																		}}
+																		onClick={() => onWallpaperChange(imageUrl)}
+																		role="button"
 																	>
-																		<X className="w-2 h-2 text-white" />
-																	</button>
-																</div>
-															);
-														})}
+																		<button
+																			onClick={(e) => handleRemoveCustomImage(imageUrl, e)}
+																			className="absolute top-0.5 right-0.5 w-3 h-3 bg-red-500/90 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+																		>
+																			<X className="w-2 h-2 text-white" />
+																		</button>
+																	</div>
+																);
+															})}
 
-														{WALLPAPER_PATHS.map((canonicalPath, i) => {
-															const previewUrl = wallpaperPreviewUrls[i] ?? canonicalPath;
-															const isSelected = selected === canonicalPath;
-															return (
+															{WALLPAPER_PATHS.map((canonicalPath, i) => {
+																const previewUrl = wallpaperPreviewUrls[i] ?? canonicalPath;
+																const isSelected = selected === canonicalPath;
+																return (
+																	<div
+																		key={canonicalPath}
+																		className={cn(
+																			"aspect-square w-8 h-8 rounded-lg border overflow-hidden cursor-pointer transition-all duration-150 shadow-sm",
+																			isSelected
+																				? "border-[#CC785C] ring-1 ring-[#CC785C]/30"
+																				: "border-white/10 hover:border-[#CC785C]/40 opacity-80 hover:opacity-100 bg-white/5",
+																		)}
+																		style={{
+																			backgroundImage: `url(${previewUrl})`,
+																			backgroundSize: "cover",
+																			backgroundPosition: "center",
+																		}}
+																		onClick={() => onWallpaperChange(canonicalPath)}
+																		role="button"
+																	/>
+																);
+															})}
+														</div>
+													</TabsContent>
+
+													<TabsContent value="color" className="mt-0">
+														<ColorPicker
+															selectedColor={selectedColor}
+															colorPalette={colorPalette}
+															translations={{
+																colorWheel: t("background.colorWheel"),
+																colorPalette: t("background.colorPalette"),
+															}}
+															onUpdateColor={(color) => {
+																setSelectedColor(color);
+																onWallpaperChange(color);
+															}}
+														/>
+													</TabsContent>
+
+													<TabsContent value="gradient" className="mt-0">
+														<div className="grid grid-cols-6 gap-2">
+															{GRADIENTS.map((g, idx) => (
 																<div
-																	key={canonicalPath}
+																	key={g}
 																	className={cn(
 																		"aspect-square w-8 h-8 rounded-lg border overflow-hidden cursor-pointer transition-all duration-150 shadow-sm",
-																		isSelected
+																		gradient === g
 																			? "border-[#CC785C] ring-1 ring-[#CC785C]/30"
 																			: "border-white/10 hover:border-[#CC785C]/40 opacity-80 hover:opacity-100 bg-white/5",
 																	)}
-																	style={{
-																		backgroundImage: `url(${previewUrl})`,
-																		backgroundSize: "cover",
-																		backgroundPosition: "center",
+																	style={{ background: g }}
+																	aria-label={t("background.gradientLabel", {
+																		index: idx + 1,
+																	})}
+																	onClick={() => {
+																		setGradient(g);
+																		onWallpaperChange(g);
 																	}}
-																	onClick={() => onWallpaperChange(canonicalPath)}
 																	role="button"
 																/>
-															);
-														})}
-													</div>
-												</TabsContent>
-
-												<TabsContent value="color" className="mt-0">
-													<ColorPicker
-														selectedColor={selectedColor}
-														colorPalette={colorPalette}
-														translations={{
-															colorWheel: t("background.colorWheel"),
-															colorPalette: t("background.colorPalette"),
-														}}
-														onUpdateColor={(color) => {
-															setSelectedColor(color);
-															onWallpaperChange(color);
-														}}
-													/>
-												</TabsContent>
-
-												<TabsContent value="gradient" className="mt-0">
-													<div className="grid grid-cols-6 gap-2">
-														{GRADIENTS.map((g, idx) => (
-															<div
-																key={g}
-																className={cn(
-																	"aspect-square w-8 h-8 rounded-lg border overflow-hidden cursor-pointer transition-all duration-150 shadow-sm",
-																	gradient === g
-																		? "border-[#CC785C] ring-1 ring-[#CC785C]/30"
-																		: "border-white/10 hover:border-[#CC785C]/40 opacity-80 hover:opacity-100 bg-white/5",
-																)}
-																style={{ background: g }}
-																aria-label={t("background.gradientLabel", {
-																	index: idx + 1,
-																})}
-																onClick={() => {
-																	setGradient(g);
-																	onWallpaperChange(g);
-																}}
-																role="button"
-															/>
-														))}
-													</div>
-												</TabsContent>
+															))}
+														</div>
+													</TabsContent>
+												</div>
+											</Tabs>
+										</AccordionContent>
+									</AccordionItem>
+								)}
+								{activePanelMode === "timeline" && (
+									<AccordionItem value="timeline" className="editor-panel-section px-3">
+										<AccordionTrigger className="py-2.5 hover:no-underline">
+											<div className="flex items-center gap-2">
+												<Brackets className="w-4 h-4 text-[#CC785C]" />
+												<span className="text-xs font-medium">{t("timeline.title")}</span>
 											</div>
-										</Tabs>
-									</AccordionContent>
-								</AccordionItem>
-							)}
-							{activePanelMode === "timeline" && (
-								<AccordionItem value="timeline" className="editor-panel-section px-3">
-									<AccordionTrigger className="py-2.5 hover:no-underline">
-										<div className="flex items-center gap-2">
-											<Brackets className="w-4 h-4 text-[#CC785C]" />
-											<span className="text-xs font-medium">{t("timeline.title")}</span>
-										</div>
-									</AccordionTrigger>
-									<AccordionContent className="pb-3">
-										<div className="flex items-center justify-between p-2 rounded-lg editor-control-surface">
-											<div className="text-[10px] font-medium text-slate-300">
-												{t("timeline.waveform")}
+										</AccordionTrigger>
+										<AccordionContent className="pb-3">
+											<div className="flex items-center justify-between p-2 rounded-lg editor-control-surface">
+												<div className="text-[10px] font-medium text-slate-300">
+													{t("timeline.waveform")}
+												</div>
+												<Switch
+													checked={showTrimWaveform}
+													onCheckedChange={onTrimWaveformChange}
+													className="data-[state=checked]:bg-[#CC785C] scale-90 ml-2 shrink-0"
+												/>
 											</div>
-											<Switch
-												checked={showTrimWaveform}
-												onCheckedChange={onTrimWaveformChange}
-												className="data-[state=checked]:bg-[#CC785C] scale-90 ml-2 shrink-0"
-											/>
-										</div>
-									</AccordionContent>
-								</AccordionItem>
-							)}
-						</Accordion>
-					)}
-				</div>
+										</AccordionContent>
+									</AccordionItem>
+								)}
+							</Accordion>
+						)}
+					</div>
+				)}
 			</div>
 
 			{showCropDropdown && cropRegion && onCropChange && (

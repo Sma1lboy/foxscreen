@@ -3,6 +3,8 @@
 // electronApi compatibility shim. This keeps the migration thin: this crate just
 // registers plugins + a couple of helper commands.
 
+mod pty;
+
 /// Electron-style platform string ("darwin" | "win32" | "linux" | other) so the
 /// shim's `getPlatform()` is a drop-in for `process.platform`.
 #[tauri::command]
@@ -28,7 +30,15 @@ pub fn run() {
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![get_platform, get_asset_base_url])
+        .manage(pty::PtyManager::default())
+        .invoke_handler(tauri::generate_handler![
+            get_platform,
+            get_asset_base_url,
+            pty::pty_open,
+            pty::pty_write,
+            pty::pty_resize,
+            pty::pty_kill
+        ])
         .run(tauri::generate_context!())
         .expect("error while running foxscreen");
 }

@@ -79,5 +79,8 @@
 			"couldNotOpenTitle": "Không thể mở tệp",
 			"couldNotOpenMessage": "Không thể mở tệp dự án. Video mà nó tham chiếu có thể đã bị di chuyển hoặc xóa."
 		}
+	},
+	"terminal": {
+		"title": "Terminal"
 	}
 }

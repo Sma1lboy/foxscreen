@@ -79,5 +79,8 @@
 			"couldNotOpenTitle": "無法開啟檔案",
 			"couldNotOpenMessage": "無法開啟專案檔案。它所參照的影片可能已被移動或刪除。"
 		}
+	},
+	"terminal": {
+		"title": "終端"
 	}
 }

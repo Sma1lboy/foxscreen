@@ -79,5 +79,8 @@
 			"couldNotOpenTitle": "Impossible d'ouvrir le fichier",
 			"couldNotOpenMessage": "Le fichier de projet n'a pas pu être ouvert. La vidéo qu'il référence a peut-être été déplacée ou supprimée."
 		}
+	},
+	"terminal": {
+		"title": "Terminal"
 	}
 }
