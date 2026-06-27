@@ -672,7 +672,7 @@ export function SettingsPanel({
 		{ id: "effects", label: t("effects.title"), icon: SlidersHorizontal },
 		{ id: "layout", label: t("layout.title"), icon: LayoutPanelTop, disabled: !hasWebcam },
 		{ id: "timeline", label: t("timeline.title"), icon: Brackets },
-		{ id: "terminal", label: t("terminal.title"), icon: Terminal },
+		{ id: "terminal", label: tEditor("terminal.title"), icon: Terminal },
 		...(hasCursorPanel
 			? [
 					{

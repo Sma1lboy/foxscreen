@@ -3,12 +3,16 @@ import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import { I18nProvider } from "./contexts/I18nContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { installBrowserDevMock } from "./lib/tauri/browserDevMock";
 import { installElectronApiShim } from "./lib/tauri/electronApiShim";
 import "./index.css";
 
 // Under Tauri, install the Electron-compat shim before anything reads
 // window.electronAPI. No-op under Electron (real preload bridge is used).
 installElectronApiShim();
+// In a plain browser (dev:web for visual QA), install a safe inert native-bridge
+// mock so the editor shell can mount for screenshots. No-op under Tauri/prod.
+installBrowserDevMock();
 
 const windowType = new URLSearchParams(window.location.search).get("windowType") || "";
 if (

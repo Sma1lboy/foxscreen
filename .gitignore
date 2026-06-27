@@ -72,3 +72,4 @@ ref/cutti-swift/.build/
 ref/cutti-swift/.swiftpm/
 **/*.xcuserdata/
 examples/test-media/
+.gstack/
