@@ -101,7 +101,8 @@
 		"zoomIn": "拡大",
 		"zoomOut": "縮小",
 		"videoTrack": "ビデオトラック",
-		"audioTrack": "オーディオトラック"
+		"audioTrack": "オーディオトラック",
+		"snapping": "スナップ"
 	},
 	"clipInspector": {
 		"title": "クリップ",

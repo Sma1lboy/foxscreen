@@ -169,6 +169,81 @@ export function nextClipStart(clips: TimelineClip[], timelineSec: number): numbe
 }
 
 /**
+ * A copy of a clip placed immediately after the original on the same track
+ * (its left edge lands on the original's right edge), keeping the same source
+ * window, track and audio. The copy gets a fresh id. Pure — used by the
+ * "duplicate" shortcut/command.
+ */
+export function duplicateClip(clip: TimelineClip, makeId: () => string = genClipId): TimelineClip {
+	return { ...clip, id: makeId(), startSec: clipEndSec(clip) };
+}
+
+/**
+ * Shift a clip along the timeline by `deltaSec`, clamped so its left edge never
+ * goes negative. Pure — the single source of truth for keyboard nudging.
+ */
+export function nudgeClip(clip: TimelineClip, deltaSec: number): TimelineClip {
+	return { ...clip, startSec: Math.max(0, clip.startSec + deltaSec) };
+}
+
+/**
+ * Clone a set of clips with fresh ids, every `startSec` shifted by `deltaSec`
+ * while preserving the clips' relative offsets. The shift is clamped so the
+ * earliest clip's left edge never goes below 0 (the whole set moves together).
+ * Pure — the engine behind paste.
+ */
+export function offsetClips(
+	clips: TimelineClip[],
+	deltaSec: number,
+	makeId: () => string = genClipId,
+): TimelineClip[] {
+	if (clips.length === 0) return [];
+	const earliest = clips.reduce((min, c) => Math.min(min, c.startSec), Number.POSITIVE_INFINITY);
+	// Never push the earliest clip before 0; the rest keep their relative spacing.
+	const clampedDelta = Math.max(deltaSec, -earliest);
+	return clips.map((c) => ({ ...c, id: makeId(), startSec: c.startSec + clampedDelta }));
+}
+
+/**
+ * Paste a clipboard of clips so the earliest one lands at `atSec`, relative
+ * offsets preserved and ids freshly minted. Returns `[]` for an empty
+ * clipboard. Pure — wraps {@link offsetClips}.
+ */
+export function pasteClipsAt(
+	clipboard: TimelineClip[],
+	atSec: number,
+	makeId: () => string = genClipId,
+): TimelineClip[] {
+	if (clipboard.length === 0) return [];
+	const earliest = clipboard.reduce(
+		(min, c) => Math.min(min, c.startSec),
+		Number.POSITIVE_INFINITY,
+	);
+	return offsetClips(clipboard, atSec - earliest, makeId);
+}
+
+/**
+ * Remove the clip with `clipId` and close the gap it leaves: every later clip on
+ * the same track shifts left by the removed clip's duration (clamped at 0).
+ * Clips before it, and clips on other tracks, are untouched. Returns the input
+ * unchanged when the id isn't found. Pure — the shared engine for ripple-delete
+ * (toolbar button + keyboard Shift+Delete).
+ */
+export function rippleDeleteClip(clips: TimelineClip[], clipId: string): TimelineClip[] {
+	const target = clips.find((c) => c.id === clipId);
+	if (!target) return clips;
+	const gap = clipDuration(target);
+	const cutEnd = clipEndSec(target);
+	return clips
+		.filter((c) => c.id !== clipId)
+		.map((c) =>
+			c.trackIndex === target.trackIndex && c.startSec >= cutEnd
+				? { ...c, startSec: Math.max(0, c.startSec - gap) }
+				: c,
+		);
+}
+
+/**
  * Split a clip at an absolute timeline position into a left/right pair.
  * Returns `null` if the cut lands outside the clip (or too close to an edge to
  * leave both halves at least {@link MIN_CLIP_LENGTH} long).

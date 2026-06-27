@@ -101,7 +101,8 @@
 		"zoomIn": "Phóng to",
 		"zoomOut": "Thu nhỏ",
 		"videoTrack": "Rãnh video",
-		"audioTrack": "Rãnh âm thanh"
+		"audioTrack": "Rãnh âm thanh",
+		"snapping": "Hút dính"
 	},
 	"clipInspector": {
 		"title": "Đoạn",

@@ -101,7 +101,8 @@
 		"zoomIn": "확대",
 		"zoomOut": "축소",
 		"videoTrack": "비디오 트랙",
-		"audioTrack": "오디오 트랙"
+		"audioTrack": "오디오 트랙",
+		"snapping": "스냅"
 	},
 	"clipInspector": {
 		"title": "클립",

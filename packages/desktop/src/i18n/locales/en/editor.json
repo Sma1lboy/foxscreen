@@ -101,7 +101,8 @@
 		"zoomIn": "Zoom in",
 		"zoomOut": "Zoom out",
 		"videoTrack": "Video track",
-		"audioTrack": "Audio track"
+		"audioTrack": "Audio track",
+		"snapping": "Snapping"
 	},
 	"clipInspector": {
 		"title": "Clip",

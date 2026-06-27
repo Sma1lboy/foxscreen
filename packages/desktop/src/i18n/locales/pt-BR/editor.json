@@ -82,7 +82,8 @@
 		"zoomIn": "Ampliar",
 		"zoomOut": "Reduzir",
 		"videoTrack": "Faixa de vídeo",
-		"audioTrack": "Faixa de áudio"
+		"audioTrack": "Faixa de áudio",
+		"snapping": "Ajuste magnético"
 	},
 	"clipInspector": {
 		"title": "Clipe",

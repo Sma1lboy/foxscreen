@@ -4,9 +4,14 @@ import {
 	clipDuration,
 	clipEndSec,
 	clipsTotalDuration,
+	duplicateClip,
 	gainAt,
 	MIN_CLIP_LENGTH,
 	nextClipStart,
+	nudgeClip,
+	offsetClips,
+	pasteClipsAt,
+	rippleDeleteClip,
 	splitClipAt,
 	type TimelineClip,
 	trackEndSec,
@@ -141,6 +146,139 @@ describe("splitClipAt", () => {
 	it("rejects a cut outside the clip span", () => {
 		expect(splitClipAt(base, 5)).toBeNull();
 		expect(splitClipAt(base, 20)).toBeNull();
+	});
+});
+
+describe("duplicateClip", () => {
+	// timeline span [10,16], source window [2,8] on track 1
+	const base = clip({ id: "orig", trackIndex: 1, startSec: 10, inSec: 2, outSec: 8 });
+
+	it("places the copy immediately after the original on the same track", () => {
+		const dup = duplicateClip(base, () => "dup-id");
+		expect(dup.id).toBe("dup-id");
+		expect(dup.startSec).toBe(clipEndSec(base)); // 16
+		expect(dup.trackIndex).toBe(1);
+		// source window + audio carried over unchanged
+		expect(dup.inSec).toBe(2);
+		expect(dup.outSec).toBe(8);
+		expect(clipDuration(dup)).toBe(clipDuration(base));
+	});
+
+	it("preserves audio fields and only the id + startSec differ", () => {
+		const withAudio = clip({ volume: 0.5, muted: true, fadeInSec: 1, fadeOutSec: 2 });
+		const dup = duplicateClip(withAudio, () => "x");
+		expect(dup.volume).toBe(0.5);
+		expect(dup.muted).toBe(true);
+		expect(dup.fadeInSec).toBe(1);
+		expect(dup.fadeOutSec).toBe(2);
+		expect(dup).toMatchObject({ ...withAudio, id: "x", startSec: clipEndSec(withAudio) });
+	});
+
+	it("uses an injected makeId for deterministic ids", () => {
+		expect(duplicateClip(base, () => "fixed").id).toBe("fixed");
+	});
+});
+
+describe("nudgeClip", () => {
+	const base = clip({ startSec: 5 });
+
+	it("shifts startSec by the (signed) delta", () => {
+		expect(nudgeClip(base, 1.5).startSec).toBe(6.5);
+		expect(nudgeClip(base, -2).startSec).toBe(3);
+	});
+	it("clamps the left edge at 0", () => {
+		expect(nudgeClip(base, -100).startSec).toBe(0);
+	});
+	it("leaves every other field untouched", () => {
+		expect(nudgeClip(base, 1)).toMatchObject({ ...base, startSec: 6 });
+	});
+});
+
+describe("offsetClips", () => {
+	const clips = [
+		clip({ id: "a", startSec: 4, inSec: 0, outSec: 2 }),
+		clip({ id: "b", startSec: 9, inSec: 0, outSec: 3 }),
+	];
+
+	it("returns [] for an empty set", () => {
+		expect(offsetClips([], 5, () => "x")).toEqual([]);
+	});
+
+	it("shifts every clip and preserves relative offsets", () => {
+		let n = 0;
+		const out = offsetClips(clips, 3, () => `id-${++n}`);
+		expect(out.map((c) => c.startSec)).toEqual([7, 12]); // +3 each
+		// relative gap (5s) is preserved
+		expect(out[1].startSec - out[0].startSec).toBe(9 - 4);
+	});
+
+	it("mints fresh deterministic ids from makeId", () => {
+		let n = 0;
+		const out = offsetClips(clips, 0, () => `id-${++n}`);
+		expect(out.map((c) => c.id)).toEqual(["id-1", "id-2"]);
+	});
+
+	it("clamps so the earliest clip never goes below 0, moving the whole set together", () => {
+		// earliest is at 4; a -10 shift would push it to -6, so clamp to -4.
+		const out = offsetClips(clips, -10, () => "x");
+		expect(out[0].startSec).toBe(0); // 4 - 4
+		expect(out[1].startSec).toBe(5); // 9 - 4 — relative gap intact
+	});
+});
+
+describe("pasteClipsAt", () => {
+	const clipboard = [
+		clip({ id: "a", startSec: 4, inSec: 0, outSec: 2 }),
+		clip({ id: "b", startSec: 9, inSec: 0, outSec: 3 }),
+	];
+
+	it("returns [] for an empty clipboard", () => {
+		expect(pasteClipsAt([], 10, () => "x")).toEqual([]);
+	});
+
+	it("lands the earliest clip at atSec, preserving relative offsets + fresh ids", () => {
+		let n = 0;
+		const out = pasteClipsAt(clipboard, 20, () => `p-${++n}`);
+		expect(out[0].startSec).toBe(20); // earliest (was 4) → atSec
+		expect(out[1].startSec).toBe(25); // kept its +5 gap
+		expect(out.map((c) => c.id)).toEqual(["p-1", "p-2"]);
+	});
+
+	it("clamps a paste at 0 (or negative) so nothing goes below 0", () => {
+		const out = pasteClipsAt(clipboard, 0, () => "x");
+		expect(out[0].startSec).toBe(0);
+		expect(out[1].startSec).toBe(5);
+	});
+});
+
+describe("rippleDeleteClip", () => {
+	const clips = [
+		clip({ id: "a", trackIndex: 0, startSec: 0, inSec: 0, outSec: 3 }), // [0,3)
+		clip({ id: "b", trackIndex: 0, startSec: 3, inSec: 0, outSec: 4 }), // [3,7) — to delete (dur 4)
+		clip({ id: "c", trackIndex: 0, startSec: 8, inSec: 0, outSec: 2 }), // [8,10)
+		clip({ id: "d", trackIndex: 1, startSec: 9, inSec: 0, outSec: 2 }), // other track
+	];
+
+	it("removes the clip and shifts later same-track clips left by its duration", () => {
+		const out = rippleDeleteClip(clips, "b");
+		expect(out.map((c) => c.id)).toEqual(["a", "c", "d"]);
+		expect(out.find((c) => c.id === "a")?.startSec).toBe(0); // before the cut — unchanged
+		expect(out.find((c) => c.id === "c")?.startSec).toBe(4); // 8 - 4
+		expect(out.find((c) => c.id === "d")?.startSec).toBe(9); // other track — unchanged
+	});
+
+	it("returns the input unchanged when the id is missing", () => {
+		expect(rippleDeleteClip(clips, "nope")).toBe(clips);
+	});
+
+	it("clamps shifted starts at 0", () => {
+		const two = [
+			clip({ id: "x", trackIndex: 0, startSec: 0, inSec: 0, outSec: 5 }), // dur 5
+			clip({ id: "y", trackIndex: 0, startSec: 2, inSec: 0, outSec: 1 }), // overlaps; start < cutEnd → untouched
+		];
+		// y.startSec (2) < clipEndSec(x)=5, so y is not "after" → left as-is, only x removed.
+		const out = rippleDeleteClip(two, "x");
+		expect(out).toEqual([two[1]]);
 	});
 });
 

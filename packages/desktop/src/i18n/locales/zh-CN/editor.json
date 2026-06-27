@@ -101,7 +101,8 @@
 		"zoomIn": "放大",
 		"zoomOut": "缩小",
 		"videoTrack": "视频轨道",
-		"audioTrack": "音频轨道"
+		"audioTrack": "音频轨道",
+		"snapping": "吸附"
 	},
 	"clipInspector": {
 		"title": "片段",

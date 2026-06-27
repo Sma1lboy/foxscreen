@@ -101,7 +101,8 @@
 		"zoomIn": "Yakınlaştır",
 		"zoomOut": "Uzaklaştır",
 		"videoTrack": "Video parçası",
-		"audioTrack": "Ses parçası"
+		"audioTrack": "Ses parçası",
+		"snapping": "Yapışma"
 	},
 	"clipInspector": {
 		"title": "Klip",

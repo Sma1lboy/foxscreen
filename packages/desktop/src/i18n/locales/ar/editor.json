@@ -101,7 +101,8 @@
 		"zoomIn": "تكبير",
 		"zoomOut": "تصغير",
 		"videoTrack": "مسار الفيديو",
-		"audioTrack": "مسار الصوت"
+		"audioTrack": "مسار الصوت",
+		"snapping": "الالتصاق"
 	},
 	"clipInspector": {
 		"title": "مقطع",

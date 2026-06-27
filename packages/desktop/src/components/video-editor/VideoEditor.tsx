@@ -95,9 +95,14 @@ import {
 	clipAtTime,
 	clipEndSec,
 	clipsTotalDuration,
+	duplicateClip,
 	gainAt,
 	genClipId,
 	nextClipStart,
+	nudgeClip,
+	pasteClipsAt,
+	rippleDeleteClip,
+	splitClipAt,
 	type TimelineClip,
 	trackEndSec,
 } from "./timeline/clipModel";
@@ -132,6 +137,10 @@ const AUTO_CAPTION_PROGRESS_TOAST_ID = "auto-caption-progress";
 
 /** Placeholder clip length used when a seeded asset's real duration isn't known yet. */
 const FALLBACK_CLIP_SECONDS = 5;
+
+/** Keyboard nudge: one ~frame (30fps) for a plain Arrow, one second with Shift. */
+const CLIP_NUDGE_STEP_SEC = 1 / 30;
+const CLIP_NUDGE_STEP_LARGE_SEC = 1;
 
 function isClickInteractionType(interactionType: string | null | undefined) {
 	return (
@@ -255,6 +264,8 @@ export default function VideoEditor() {
 	// the single-source preview (multi-clip compositing is a later phase).
 	const [clips, setClips] = useState<TimelineClip[]>([]);
 	const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
+	// Copy/paste buffer for the standard-NLE clip shortcuts (Cmd/Ctrl+C / +V).
+	const [clipboard, setClipboard] = useState<TimelineClip[]>([]);
 	const [videoSourcePath, setVideoSourcePath] = useState<string | null>(null);
 	const [webcamVideoPath, setWebcamVideoPath] = useState<string | null>(null);
 	const [webcamVideoSourcePath, setWebcamVideoSourcePath] = useState<string | null>(null);
@@ -272,6 +283,10 @@ export default function VideoEditor() {
 	isPlayingRef.current = isPlaying;
 	const clipsRef = useRef(clips);
 	clipsRef.current = clips;
+	const selectedClipIdRef = useRef(selectedClipId);
+	selectedClipIdRef.current = selectedClipId;
+	const clipboardRef = useRef(clipboard);
+	clipboardRef.current = clipboard;
 	const videoSourcePathRef = useRef(videoSourcePath);
 	videoSourcePathRef.current = videoSourcePath;
 	// The clip currently driving the single-source preview during sequence playback
@@ -610,6 +625,8 @@ export default function VideoEditor() {
 		},
 		[videoSourcePath],
 	);
+	const handleSelectClipRef = useRef(handleSelectClip);
+	handleSelectClipRef.current = handleSelectClip;
 
 	// Point the single <video> at a different source. Switching `videoPath` remounts
 	// <VideoPlayback> (its `key` includes the path), so any follow-up seek/resume is
@@ -2240,6 +2257,85 @@ export default function VideoEditor() {
 				e.stopPropagation();
 				redo();
 				return;
+			}
+
+			// Standard-NLE clip shortcuts. Only when the timeline has clips and the
+			// user isn't typing in a field — so they never fight the global Space/play,
+			// undo/redo, or text entry. They run before the frame-step arrows below so a
+			// selected clip's Arrow nudges the clip instead of stepping the playhead.
+			const targetEl = e.target;
+			const typing =
+				targetEl instanceof HTMLInputElement ||
+				targetEl instanceof HTMLTextAreaElement ||
+				targetEl instanceof HTMLSelectElement ||
+				(targetEl instanceof HTMLElement && targetEl.isContentEditable);
+			if (!typing && clipsRef.current.length > 0) {
+				const selId = selectedClipIdRef.current;
+				const selected = selId ? (clipsRef.current.find((c) => c.id === selId) ?? null) : null;
+
+				// Copy / paste act on the whole clipboard, not just a selection.
+				if (mod && key === "c") {
+					if (selected) {
+						e.preventDefault();
+						e.stopPropagation();
+						setClipboard([selected]);
+					}
+					return;
+				}
+				if (mod && key === "v") {
+					const buffer = clipboardRef.current;
+					if (buffer.length > 0) {
+						e.preventDefault();
+						e.stopPropagation();
+						const pasted = pasteClipsAt(buffer, currentTimeRef.current, genClipId);
+						setClips((prev) => [...prev, ...pasted]);
+						if (pasted[0]) void handleSelectClipRef.current(pasted[0]);
+					}
+					return;
+				}
+				if (mod && key === "d") {
+					if (selected) {
+						e.preventDefault();
+						e.stopPropagation();
+						const dup = duplicateClip(selected, genClipId);
+						setClips((prev) => [...prev, dup]);
+						void handleSelectClipRef.current(dup);
+					}
+					return;
+				}
+
+				// The rest need a selection and ignore Cmd/Ctrl combos.
+				if (selected && !mod) {
+					if (e.key === "Delete" || e.key === "Backspace") {
+						e.preventDefault();
+						e.stopPropagation();
+						if (e.shiftKey) {
+							setClips((prev) => rippleDeleteClip(prev, selected.id));
+						} else {
+							setClips((prev) => prev.filter((c) => c.id !== selected.id));
+						}
+						setSelectedClipId(null);
+						return;
+					}
+					if (key === "s" || key === "b") {
+						e.preventDefault();
+						e.stopPropagation();
+						const halves = splitClipAt(selected, currentTimeRef.current, genClipId);
+						if (halves) {
+							setClips((prev) => prev.flatMap((c) => (c.id === selected.id ? halves : [c])));
+							setSelectedClipId(halves[0].id);
+						}
+						return;
+					}
+					if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+						e.preventDefault();
+						e.stopPropagation();
+						const step = e.shiftKey ? CLIP_NUDGE_STEP_LARGE_SEC : CLIP_NUDGE_STEP_SEC;
+						const delta = e.key === "ArrowLeft" ? -step : step;
+						setClips((prev) => prev.map((c) => (c.id === selected.id ? nudgeClip(c, delta) : c)));
+						return;
+					}
+				}
 			}
 
 			// Frame-step navigation (arrow keys, no modifiers)

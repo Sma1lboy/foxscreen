@@ -1,4 +1,4 @@
-import { Eraser, Scissors, Trash2, ZoomIn, ZoomOut } from "lucide-react";
+import { Eraser, Magnet, Scissors, Trash2, ZoomIn, ZoomOut } from "lucide-react";
 import {
 	type DragEvent as ReactDragEvent,
 	type ReactNode,
@@ -18,6 +18,7 @@ import {
 	DEFAULT_TRACKS,
 	genClipId,
 	MIN_CLIP_LENGTH,
+	rippleDeleteClip,
 	splitClipAt,
 	type TimelineClip,
 	type TimelineTrack,
@@ -141,6 +142,11 @@ export function ClipTimeline({
 }: ClipTimelineProps) {
 	const t = useScopedT("editor");
 	const [pxPerSec, setPxPerSecState] = useState(DEFAULT_PX_PER_SEC);
+	// Edge/playhead snapping during move & drop. Toggled from the toolbar magnet;
+	// when off, move/drop land exactly where the pointer is.
+	const [snapEnabled, setSnapEnabled] = useState(true);
+	const snapEnabledRef = useRef(snapEnabled);
+	snapEnabledRef.current = snapEnabled;
 	// Mirror props/state into refs so the document-level pointer handlers
 	// (attached once per drag) always read the latest values without re-binding.
 	const pxPerSecRef = useRef(pxPerSec);
@@ -226,6 +232,10 @@ export function ClipTimeline({
 			const playhead = currentTimeRef.current;
 			const snapPoints = buildSnapPoints(list, drag.clipId, playhead);
 			const orig = drag.orig;
+			// When snapping is off the magnet is disabled — land exactly on the pointer.
+			const snapV = snapEnabledRef.current
+				? (v: number) => snap(v, snapPoints, pps)
+				: (v: number) => v;
 
 			const next = list.map((c) => {
 				if (c.id !== drag.clipId) return c;
@@ -233,8 +243,8 @@ export function ClipTimeline({
 					let start = Math.max(0, orig.startSec + dxSec);
 					const dur = clipDuration(orig);
 					// Snap whichever edge (left/right) lands closest to a target.
-					const snappedStart = snap(start, snapPoints, pps);
-					const snappedEnd = snap(start + dur, snapPoints, pps) - dur;
+					const snappedStart = snapV(start);
+					const snappedEnd = snapV(start + dur) - dur;
 					start =
 						Math.abs(snappedStart - start) <= Math.abs(snappedEnd - start)
 							? snappedStart
@@ -244,7 +254,7 @@ export function ClipTimeline({
 					return { ...c, startSec: start, trackIndex };
 				}
 				if (drag.kind === "trim-left") {
-					let newStart = snap(Math.max(0, orig.startSec + dxSec), snapPoints, pps);
+					let newStart = snapV(Math.max(0, orig.startSec + dxSec));
 					const maxStart = clipEndSec(orig) - MIN_CLIP_LENGTH;
 					newStart = Math.min(maxStart, Math.max(0, newStart));
 					const delta = newStart - orig.startSec;
@@ -252,7 +262,7 @@ export function ClipTimeline({
 					return { ...c, startSec: orig.startSec + (newIn - orig.inSec), inSec: newIn };
 				}
 				// trim-right
-				const newEnd = snap(orig.startSec + dxSec + clipDuration(orig), snapPoints, pps);
+				const newEnd = snapV(orig.startSec + dxSec + clipDuration(orig));
 				const newOut = Math.max(
 					orig.inSec + MIN_CLIP_LENGTH,
 					orig.outSec + (newEnd - clipEndSec(orig)),
@@ -310,15 +320,7 @@ export function ClipTimeline({
 
 	const handleRippleDelete = useCallback(() => {
 		if (!selectedClip) return;
-		const gap = clipDuration(selectedClip);
-		const next = clips
-			.filter((c) => c.id !== selectedClip.id)
-			.map((c) =>
-				c.trackIndex === selectedClip.trackIndex && c.startSec >= clipEndSec(selectedClip)
-					? { ...c, startSec: Math.max(0, c.startSec - gap) }
-					: c,
-			);
-		onClipsChange(next);
+		onClipsChange(rippleDeleteClip(clips, selectedClip.id));
 		onSelectClip(null);
 	}, [selectedClip, clips, onClipsChange, onSelectClip]);
 
@@ -351,10 +353,12 @@ export function ClipTimeline({
 			const trackIndex = laneIndexFromY(clientY, rect.top);
 			const raw = Math.max(0, (clientX - rect.left) / pxPerSec);
 			const snapPoints = buildSnapPoints(clips, "", currentTime);
-			const startSec = Math.max(0, snap(raw, snapPoints, pxPerSec));
+			const startSec = snapEnabled
+				? Math.max(0, snap(raw, snapPoints, pxPerSec))
+				: Math.max(0, raw);
 			return { trackIndex, startSec };
 		},
-		[clips, currentTime, laneIndexFromY, pxPerSec],
+		[clips, currentTime, laneIndexFromY, pxPerSec, snapEnabled],
 	);
 
 	const handleLanesDragOver = useCallback(
@@ -435,6 +439,13 @@ export function ClipTimeline({
 					icon={<ZoomIn className="h-4 w-4" />}
 					label={t("clipTimeline.zoomIn")}
 					onClick={() => setPxPerSec(pxPerSec * 1.5)}
+				/>
+				<div className="mx-1 h-5 w-px bg-border" />
+				<ToolButton
+					icon={<Magnet className="h-4 w-4" />}
+					label={t("clipTimeline.snapping")}
+					onClick={() => setSnapEnabled((s) => !s)}
+					active={snapEnabled}
 				/>
 			</div>
 
@@ -602,9 +613,11 @@ interface ToolButtonProps {
 	label: string;
 	onClick: () => void;
 	disabled?: boolean;
+	/** Render as a pressed/active toggle (primary tint). */
+	active?: boolean;
 }
 
-function ToolButton({ icon, label, onClick, disabled }: ToolButtonProps) {
+function ToolButton({ icon, label, onClick, disabled, active }: ToolButtonProps) {
 	return (
 		<button
 			type="button"
@@ -612,7 +625,10 @@ function ToolButton({ icon, label, onClick, disabled }: ToolButtonProps) {
 			disabled={disabled}
 			title={label}
 			aria-label={label}
-			className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+			aria-pressed={active}
+			className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40 ${
+				active ? "bg-primary/15 text-primary hover:text-primary" : "text-muted-foreground"
+			}`}
 		>
 			{icon}
 		</button>

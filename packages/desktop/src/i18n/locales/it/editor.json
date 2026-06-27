@@ -83,7 +83,8 @@
 		"zoomIn": "Ingrandisci",
 		"zoomOut": "Riduci",
 		"videoTrack": "Traccia video",
-		"audioTrack": "Traccia audio"
+		"audioTrack": "Traccia audio",
+		"snapping": "Aggancio"
 	},
 	"clipInspector": {
 		"title": "Clip",

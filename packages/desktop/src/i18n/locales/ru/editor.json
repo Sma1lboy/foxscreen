@@ -101,7 +101,8 @@
 		"zoomIn": "Приблизить",
 		"zoomOut": "Отдалить",
 		"videoTrack": "Видеодорожка",
-		"audioTrack": "Аудиодорожка"
+		"audioTrack": "Аудиодорожка",
+		"snapping": "Привязка"
 	},
 	"clipInspector": {
 		"title": "Клип",
