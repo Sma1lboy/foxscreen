@@ -80,7 +80,7 @@
 	.editor-workspace {
 		display: flex;
 		flex-direction: column;
-		padding: 14px;
+		padding: 10px;
 		background:
 			radial-gradient(circle at 18% 0%, hsl(var(--primary) / 0.06), transparent 30%),
 			hsl(var(--background));
@@ -130,7 +130,7 @@
 			linear-gradient(180deg, hsl(var(--foreground) / 0.035), hsl(var(--foreground) / 0.012)),
 			hsl(var(--card));
 		box-shadow:
-			0 24px 70px hsl(var(--background) / 0.42),
+			0 6px 22px hsl(var(--background) / 0.5),
 			inset 0 1px 0 hsl(var(--foreground) / 0.045);
 	}
 
@@ -198,7 +198,7 @@
 		border: 1px solid hsl(var(--border));
 		border-radius: 18px;
 		box-shadow:
-			0 24px 70px hsl(var(--background) / 0.42),
+			0 6px 22px hsl(var(--background) / 0.5),
 			inset 0 1px 0 hsl(var(--foreground) / 0.045);
 	}
 
@@ -225,7 +225,7 @@
 	}
 
 	.editor-resize-handle {
-		height: 10px;
+		height: 6px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -311,7 +311,7 @@
 
 	@media (min-width: 1900px) {
 		.editor-workspace {
-			padding: 18px;
+			padding: 12px;
 			gap: 18px;
 		}
 
