@@ -156,7 +156,7 @@ function CustomSpeedInput({
 				onChange={handleChange}
 				onBlur={handleBlur}
 				onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
-				className="w-12 bg-muted border border-border rounded-md px-1 py-0.5 text-[11px] font-semibold text-[#d97706] text-center focus:outline-none focus:border-[#d97706]/40"
+				className="w-12 bg-muted border border-border rounded-md px-1 py-0.5 text-[11px] font-semibold text-primary text-center focus:outline-none focus:border-primary/40"
 			/>
 			<span className="text-[11px] font-semibold text-muted-foreground">×</span>
 		</div>
@@ -1207,7 +1207,7 @@ export function SettingsPanel({
 										{t("speed.playbackSpeed")}
 									</span>
 									{selectedSpeedId && selectedSpeedValue && (
-										<span className="rounded-full border border-[#d97706]/25 bg-[#d97706]/10 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[#d97706]">
+										<span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-primary">
 											{SPEED_OPTIONS.find((o) => o.speed === selectedSpeedValue)?.label ??
 												`${selectedSpeedValue}×`}
 										</span>
@@ -1228,7 +1228,7 @@ export function SettingsPanel({
 														? "opacity-100 cursor-pointer"
 														: "opacity-40 cursor-not-allowed",
 													isActive
-														? "border-[#d97706]/70 bg-[#d97706] text-foreground shadow-[0_8px_20px_rgba(217,119,6,0.16)]"
+														? "border-primary/70 bg-primary text-foreground shadow-[0_8px_20px_hsl(var(--primary)/0.16)]"
 														: "border-border bg-muted text-muted-foreground hover:bg-accent hover:border-border hover:text-foreground",
 												)}
 											>
@@ -2225,7 +2225,7 @@ export function SettingsPanel({
 							type="button"
 							size="lg"
 							onClick={onExport}
-							className="w-full py-5 text-sm font-semibold flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/20 hover:bg-[#3fc98d] hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
+							className="w-full py-5 text-sm font-semibold flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
 						>
 							<Download className="w-4 h-4" />
 							{exportFormat === "gif" ? t("export.gifButton") : t("export.videoButton")}
