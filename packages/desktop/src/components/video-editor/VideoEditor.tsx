@@ -538,6 +538,24 @@ export default function VideoEditor() {
 		[videoSourcePath],
 	);
 
+	// Import video files dropped onto the bin: add all, load the first into the preview.
+	const importMediaPaths = useCallback(
+		async (paths: string[]) => {
+			for (const p of paths) addMediaAsset(p);
+			const first = paths[0];
+			if (!first) return;
+			const setResult = await nativeBridgeClient.project.setCurrentVideoPath(first);
+			if (!setResult.success) return;
+			setError(null);
+			setVideoSourcePath(first);
+			setVideoPath(toFileUrl(first));
+			setWebcamVideoPath(null);
+			setWebcamVideoSourcePath(null);
+			setProjectOpen(true);
+		},
+		[addMediaAsset],
+	);
+
 	const currentProjectSnapshot = useMemo(() => {
 		if (!currentProjectMedia) {
 			return null;
@@ -2806,6 +2824,7 @@ export default function VideoEditor() {
 										onImport={handleImportVideoSource}
 										onSelect={selectMediaAsset}
 										onRemove={removeMediaAsset}
+										onImportPaths={importMediaPaths}
 									/>
 								</Panel>
 

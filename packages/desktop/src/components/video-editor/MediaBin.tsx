@@ -1,5 +1,8 @@
-import { Film, FolderPlus, X } from "lucide-react";
+import { Film, FolderPlus, Upload, X } from "lucide-react";
+import { type DragEvent, useCallback, useState } from "react";
 import { useScopedT } from "@/contexts/I18nContext";
+
+const VIDEO_EXT = /\.(mp4|mov|webm|mkv|avi|m4v|wmv)$/i;
 
 /** One imported source in the project's media library. */
 export interface MediaAsset {
@@ -20,6 +23,8 @@ interface MediaBinProps {
 	onSelect: (asset: MediaAsset) => void;
 	/** Remove an asset from the library. */
 	onRemove: (asset: MediaAsset) => void;
+	/** Import one or more video files (dropped onto the bin) by absolute path. */
+	onImportPaths: (paths: string[]) => void;
 }
 
 /**
@@ -28,11 +33,54 @@ interface MediaBinProps {
  * this is the foundation for multi-source editing (sources you pick here become
  * the preview source today, and clips you drag onto the timeline next).
  */
-export function MediaBin({ assets, activePath, onImport, onSelect, onRemove }: MediaBinProps) {
+export function MediaBin({
+	assets,
+	activePath,
+	onImport,
+	onSelect,
+	onRemove,
+	onImportPaths,
+}: MediaBinProps) {
 	const t = useScopedT("editor");
+	const [isDraggingOver, setIsDraggingOver] = useState(false);
+
+	const handleDrop = useCallback(
+		(e: DragEvent) => {
+			e.preventDefault();
+			setIsDraggingOver(false);
+			const paths: string[] = [];
+			for (const file of Array.from(e.dataTransfer.files)) {
+				if (!VIDEO_EXT.test(file.name)) continue;
+				try {
+					const p = window.electronAPI.getPathForFile(file);
+					if (p) paths.push(p);
+				} catch {
+					// Skip files whose path can't be resolved.
+				}
+			}
+			if (paths.length > 0) onImportPaths(paths);
+		},
+		[onImportPaths],
+	);
 
 	return (
-		<div className="editor-inspector-shell flex h-full w-full flex-col overflow-hidden">
+		<div
+			className="editor-inspector-shell relative flex h-full w-full flex-col overflow-hidden"
+			onDragOver={(e) => {
+				e.preventDefault();
+				if (e.dataTransfer.types.includes("Files")) setIsDraggingOver(true);
+			}}
+			onDragLeave={(e) => {
+				if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDraggingOver(false);
+			}}
+			onDrop={handleDrop}
+		>
+			{isDraggingOver && (
+				<div className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-primary/60 bg-primary/10 text-primary">
+					<Upload className="h-6 w-6" />
+					<span className="text-xs font-semibold">{t("mediaBin.drop")}</span>
+				</div>
+			)}
 			<div className="flex items-center justify-between px-3 py-2.5 border-b border-white/[0.06]">
 				<span className="text-[13px] font-semibold text-slate-200">{t("mediaBin.title")}</span>
 				<button

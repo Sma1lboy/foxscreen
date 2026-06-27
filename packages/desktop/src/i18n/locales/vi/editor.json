@@ -90,6 +90,7 @@
 		"title": "Phương tiện",
 		"import": "Nhập phương tiện",
 		"empty": "Nhập video để bắt đầu",
-		"remove": "Xóa"
+		"remove": "Xóa",
+		"drop": "Thả video để nhập"
 	}
 }

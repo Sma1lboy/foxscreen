@@ -90,6 +90,7 @@
 		"title": "Medios",
 		"import": "Importar medios",
 		"empty": "Importa un vídeo para empezar",
-		"remove": "Quitar"
+		"remove": "Quitar",
+		"drop": "Suelta vídeos para importar"
 	}
 }

@@ -90,6 +90,7 @@
 		"title": "Media",
 		"import": "Import media",
 		"empty": "Import a video to start",
-		"remove": "Remove"
+		"remove": "Remove",
+		"drop": "Drop videos to import"
 	}
 }
