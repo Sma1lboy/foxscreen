@@ -90,7 +90,15 @@ import {
 } from "./projectPersistence";
 import { SettingsPanel } from "./SettingsPanel";
 import ClipTimeline from "./timeline/ClipTimeline";
-import { genClipId, type TimelineClip, trackEndSec } from "./timeline/clipModel";
+import {
+	clipAtTime,
+	clipEndSec,
+	clipsTotalDuration,
+	genClipId,
+	nextClipStart,
+	type TimelineClip,
+	trackEndSec,
+} from "./timeline/clipModel";
 import { buildAutoZoomSuggestions } from "./timeline/zoomSuggestionUtils";
 import {
 	type AnnotationRegion,
@@ -258,6 +266,33 @@ export default function VideoEditor() {
 	currentTimeRef.current = currentTime;
 	const durationRef = useRef(duration);
 	durationRef.current = duration;
+	const isPlayingRef = useRef(isPlaying);
+	isPlayingRef.current = isPlaying;
+	const clipsRef = useRef(clips);
+	clipsRef.current = clips;
+	const videoSourcePathRef = useRef(videoSourcePath);
+	videoSourcePathRef.current = videoSourcePath;
+	// The clip currently driving the single-source preview during sequence playback
+	// (multi-clip v1). Source-relative video time is mapped back to timeline time
+	// against this clip; advancing past its source out-point hops to the next clip.
+	const activeClipRef = useRef<TimelineClip | null>(null);
+	// A source switch remounts <VideoPlayback>, so the seek (and optional resume)
+	// can't happen synchronously — stash it and apply once the new <video> is ready.
+	const pendingSourceSeekRef = useRef<{ offsetSec: number; play: boolean } | null>(null);
+	// Timeline length = the whole clip sequence when clips exist; otherwise the
+	// single source's duration (legacy single-source preview, unchanged).
+	const timelineDuration = useMemo(
+		() => (clips.length > 0 ? clipsTotalDuration(clips) : duration),
+		[clips, duration],
+	);
+	// The video clip under the playhead — the single source of truth for which
+	// source the preview should be showing. Recomputed each tick (cheap); the sync
+	// effect below only acts when the clip *identity* changes.
+	const activeClip = useMemo(
+		() => (clips.length > 0 ? clipAtTime(clips, currentTime) : null),
+		[clips, currentTime],
+	);
+	const activeClipId = activeClip?.id ?? null;
 	const [selectedZoomId, setSelectedZoomId] = useState<string | null>(null);
 	const [isPreviewingZoom, setIsPreviewingZoom] = useState(false);
 	const [selectedTrimId, setSelectedTrimId] = useState<string | null>(null);
@@ -562,6 +597,137 @@ export default function VideoEditor() {
 		},
 		[videoSourcePath],
 	);
+
+	// Point the single <video> at a different source. Switching `videoPath` remounts
+	// <VideoPlayback> (its `key` includes the path), so any follow-up seek/resume is
+	// deferred via pendingSourceSeekRef and applied once the new element is ready.
+	const switchSource = useCallback(async (sourcePath: string) => {
+		const setResult = await nativeBridgeClient.project.setCurrentVideoPath(sourcePath);
+		if (!setResult.success) return;
+		setError(null);
+		setVideoSourcePath(sourcePath);
+		setVideoPath(toFileUrl(sourcePath));
+		setWebcamVideoPath(null);
+		setWebcamVideoSourcePath(null);
+	}, []);
+
+	// Timeline → source sync (multi-clip v1). Keyed on the *active clip identity* so
+	// it only fires when the playhead crosses into a different clip (or a gap), not
+	// on every playback tick. Manual seeks within the loaded clip are handled
+	// directly in handleSeek; this effect covers playback-driven clip advances and
+	// any out-of-band clip/selection change.
+	useEffect(() => {
+		if (clipsRef.current.length === 0) {
+			activeClipRef.current = null;
+			return;
+		}
+		const clip = activeClipId
+			? (clipsRef.current.find((c) => c.id === activeClipId) ?? null)
+			: null;
+		if (!clip) {
+			// Gap or empty span under the playhead: nothing to show, stop playing.
+			activeClipRef.current = null;
+			if (isPlayingRef.current) {
+				try {
+					videoPlaybackRef.current?.pause();
+				} catch {
+					// no-op
+				}
+			}
+			return;
+		}
+		activeClipRef.current = clip;
+		const offsetSec = clip.inSec + Math.max(0, currentTimeRef.current - clip.startSec);
+		if (clip.sourcePath !== videoSourcePathRef.current) {
+			// Different source → remount + deferred seek (resume if we were playing).
+			pendingSourceSeekRef.current = { offsetSec, play: isPlayingRef.current };
+			void switchSource(clip.sourcePath);
+		} else {
+			// Same source already loaded (e.g. two clips cut from one file): seek in place.
+			const video = videoPlaybackRef.current?.video;
+			if (video && Math.abs(video.currentTime - offsetSec) > 0.08) {
+				try {
+					video.currentTime = offsetSec;
+				} catch {
+					// no-op
+				}
+			}
+		}
+	}, [activeClipId, switchSource]);
+
+	// Apply a deferred seek (and optional resume) after a source switch remounts the
+	// <video>. The element loads async, so retry until metadata is available. Pure
+	// defensive polling — never throws, gives up after ~2s.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: videoSourcePath is the trigger — re-run when the source switches so the pending seek lands on the new element
+	useEffect(() => {
+		const pending = pendingSourceSeekRef.current;
+		if (!pending) return;
+		let raf = 0;
+		let tries = 0;
+		const apply = () => {
+			const video = videoPlaybackRef.current?.video;
+			if (video && video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+				try {
+					video.currentTime = pending.offsetSec;
+				} catch {
+					// no-op
+				}
+				if (pending.play) {
+					videoPlaybackRef.current?.play().catch(() => {
+						// Resume is best-effort; the user can press play.
+					});
+				}
+				pendingSourceSeekRef.current = null;
+				return;
+			}
+			if (tries++ < 120) {
+				raf = requestAnimationFrame(apply);
+			} else {
+				pendingSourceSeekRef.current = null;
+			}
+		};
+		raf = requestAnimationFrame(apply);
+		return () => cancelAnimationFrame(raf);
+	}, [videoSourcePath]);
+
+	// Playback clock: the playing <video> reports source-relative time; map it back
+	// to *timeline* time against the active clip, and advance to the next clip when
+	// we reach the clip's source out-point (or the element ends). With 0 clips this
+	// is the legacy identity mapping (currentTime = video.currentTime), unchanged.
+	const handleVideoTime = useCallback((videoTime: number) => {
+		const list = clipsRef.current;
+		if (list.length === 0) {
+			setCurrentTime(videoTime);
+			return;
+		}
+		const active = activeClipRef.current;
+		if (!active) return; // gap / mid-switch — the sync effect owns the source
+		const ended = videoPlaybackRef.current?.video?.ended ?? false;
+		// Reaching the clip's source out-point (small lead so timeupdate granularity
+		// doesn't overshoot into the next source's frames) → hop to the next clip.
+		if (ended || videoTime >= active.outSec - 0.04) {
+			const ns = nextClipStart(list, active.startSec);
+			if (ns != null) {
+				// Clearing the ref makes onTimeUpdate idle until the sync effect (driven
+				// by the new currentTime) loads + seeks the next clip and resumes.
+				activeClipRef.current = null;
+				setCurrentTime(ns);
+			} else {
+				// End of the sequence: stop and clamp to the very end.
+				try {
+					videoPlaybackRef.current?.pause();
+				} catch {
+					// no-op
+				}
+				setIsPlaying(false);
+				setCurrentTime(clipEndSec(active));
+			}
+			return;
+		}
+		const timelineSec = active.startSec + (videoTime - active.inSec);
+		const clamped = Math.min(Math.max(timelineSec, active.startSec), clipEndSec(active));
+		setCurrentTime(clamped);
+	}, []);
 
 	// Drop a bin asset onto the timeline: build a new clip at the dropped lane +
 	// position. Length is the asset's real duration when it's the active source
@@ -1273,10 +1439,45 @@ export default function VideoEditor() {
 
 		if (isPlaying) {
 			playback.pause();
-		} else {
+			return;
+		}
+
+		const list = clipsRef.current;
+		if (list.length === 0) {
+			// Legacy single-source preview — play from wherever the <video> is.
 			playback.play().catch((err) => console.error("Video play failed:", err));
+			return;
+		}
+
+		// Multi-clip: restart from 0 if parked at/after the sequence end, then resolve
+		// the clip (hopping over a gap if needed) before playing.
+		const end = clipsTotalDuration(list);
+		let from = currentTimeRef.current >= end - 0.05 ? 0 : currentTimeRef.current;
+		let clip = clipAtTime(list, from);
+		if (!clip) {
+			const ns = nextClipStart(list, from);
+			if (ns == null) return;
+			from = ns;
+			clip = clipAtTime(list, from);
+			if (!clip) return;
+		}
+		setCurrentTime(from);
+		activeClipRef.current = clip;
+		const offsetSec = clip.inSec + (from - clip.startSec);
+		if (clip.sourcePath === videoSourcePathRef.current) {
+			try {
+				video.currentTime = offsetSec;
+			} catch {
+				// no-op
+			}
+			playback.play().catch((err) => console.error("Video play failed:", err));
+		} else {
+			pendingSourceSeekRef.current = { offsetSec, play: true };
+			void switchSource(clip.sourcePath);
 		}
 	}
+	const togglePlayPauseRef = useRef(togglePlayPause);
+	togglePlayPauseRef.current = togglePlayPause;
 
 	const toggleFullscreen = useCallback(() => {
 		setIsFullscreen((prev) => !prev);
@@ -1294,9 +1495,44 @@ export default function VideoEditor() {
 	}, [isFullscreen]);
 
 	function handleSeek(time: number) {
-		const video = videoPlaybackRef.current?.video;
-		if (!video) return;
-		video.currentTime = time;
+		const list = clipsRef.current;
+		if (list.length === 0) {
+			// Legacy: timeline time == source time, seek the <video> directly.
+			const video = videoPlaybackRef.current?.video;
+			if (!video) return;
+			video.currentTime = time;
+			return;
+		}
+		// Multi-clip: seeking is timeline-relative. Move the playhead, then switch /
+		// seek the source to the clip + in-clip offset under the new time.
+		const clamped = Math.min(Math.max(time, 0), clipsTotalDuration(list));
+		setCurrentTime(clamped);
+		const clip = clipAtTime(list, clamped);
+		if (!clip) {
+			// Seeked into a gap: show nothing playing.
+			activeClipRef.current = null;
+			try {
+				videoPlaybackRef.current?.pause();
+			} catch {
+				// no-op
+			}
+			return;
+		}
+		activeClipRef.current = clip;
+		const offsetSec = clip.inSec + (clamped - clip.startSec);
+		if (clip.sourcePath === videoSourcePathRef.current) {
+			const video = videoPlaybackRef.current?.video;
+			if (video) {
+				try {
+					video.currentTime = offsetSec;
+				} catch {
+					// no-op
+				}
+			}
+		} else {
+			pendingSourceSeekRef.current = { offsetSec, play: isPlayingRef.current };
+			void switchSource(clip.sourcePath);
+		}
 	}
 
 	const handleSelectZoom = useCallback((id: string | null) => {
@@ -2034,6 +2270,12 @@ export default function VideoEditor() {
 					return;
 				}
 				e.preventDefault();
+				// Multi-clip sequence: route through togglePlayPause (handles end-restart,
+				// gap-hop, source switch). Legacy single-source keeps the direct toggle.
+				if (clipsRef.current.length > 0) {
+					togglePlayPauseRef.current();
+					return;
+				}
 				const playback = videoPlaybackRef.current;
 				if (playback?.video) {
 					playback.video.paused ? playback.play().catch(console.error) : playback.pause();
@@ -3186,7 +3428,7 @@ export default function VideoEditor() {
 														onWebcamPositionChange={(pos) => updateState({ webcamPosition: pos })}
 														onWebcamPositionDragEnd={commitState}
 														onDurationChange={setDuration}
-														onTimeUpdate={setCurrentTime}
+														onTimeUpdate={handleVideoTime}
 														currentTime={currentTime}
 														onPlayStateChange={setIsPlaying}
 														onError={setError}
@@ -3256,7 +3498,7 @@ export default function VideoEditor() {
 												<PlaybackControls
 													isPlaying={isPlaying}
 													currentTime={currentTime}
-													duration={duration}
+													duration={timelineDuration}
 													isFullscreen={isFullscreen}
 													onToggleFullscreen={toggleFullscreen}
 													onTogglePlayPause={togglePlayPause}

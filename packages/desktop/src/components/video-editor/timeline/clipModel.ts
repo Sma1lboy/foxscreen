@@ -83,6 +83,47 @@ export function clipsTotalDuration(clips: TimelineClip[]): number {
 	return end;
 }
 
+/** Track indices that carry picture (drive the single-source preview). */
+const VIDEO_TRACK_INDICES = new Set([0, 1]);
+
+function isVideoClip(clip: TimelineClip): boolean {
+	return VIDEO_TRACK_INDICES.has(clip.trackIndex);
+}
+
+/**
+ * The video clip under the playhead, i.e. whose half-open timeline span
+ * `[startSec, clipEndSec)` contains `timelineSec`. Only video tracks (0/1) are
+ * considered; on overlap the topmost track wins (trackIndex 0 over 1). The end
+ * boundary is exclusive, so a playhead exactly on a clip's right edge belongs to
+ * the next clip (or a gap), never the one that just ended. Returns `null` for a
+ * gap or empty timeline. Pure — this is the single source of truth for "which
+ * source should the preview be showing right now".
+ */
+export function clipAtTime(clips: TimelineClip[], timelineSec: number): TimelineClip | null {
+	let best: TimelineClip | null = null;
+	for (const clip of clips) {
+		if (!isVideoClip(clip)) continue;
+		if (timelineSec < clip.startSec || timelineSec >= clipEndSec(clip)) continue;
+		if (best === null || clip.trackIndex < best.trackIndex) best = clip;
+	}
+	return best;
+}
+
+/**
+ * The smallest video-clip `startSec` strictly greater than `timelineSec`, used to
+ * skip a gap (or hop to the next clip) during sequence playback. Returns `null`
+ * when nothing starts later — i.e. the playhead is at/after the last clip.
+ */
+export function nextClipStart(clips: TimelineClip[], timelineSec: number): number | null {
+	let next: number | null = null;
+	for (const clip of clips) {
+		if (!isVideoClip(clip)) continue;
+		if (clip.startSec <= timelineSec) continue;
+		if (next === null || clip.startSec < next) next = clip.startSec;
+	}
+	return next;
+}
+
 /**
  * Split a clip at an absolute timeline position into a left/right pair.
  * Returns `null` if the cut lands outside the clip (or too close to an edge to
