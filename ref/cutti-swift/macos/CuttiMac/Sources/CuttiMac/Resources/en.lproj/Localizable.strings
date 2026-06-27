@@ -1,0 +1,1124 @@
+/* Settings — General */
+"General" = "General";
+"Show subtitles by default" = "Show subtitles by default";
+"New editing sessions start with subtitle overlays visible in the viewer and timeline." = "New editing sessions start with subtitle overlays visible in the viewer and timeline.";
+
+/* Settings — Video Editor */
+"Video Editor" = "Video Editor";
+"Speech language" = "Speech language";
+"Choose the main spoken language in your clip. Cutti will handle speech recognition automatically in the background." = "Choose the main spoken language in your clip. Cutti will handle speech recognition automatically in the background.";
+"Interface language" = "Interface language";
+"Choose the language used throughout Cutti's interface. Independent from the speech-recognition language above." = "Choose the language used throughout Cutti's interface. Independent from the speech-recognition language above.";
+"System" = "System";
+"English" = "English";
+"Chinese" = "Chinese";
+"Automatic" = "Automatic";
+
+/* Settings — AI */
+"AI" = "AI";
+"Provider" = "Provider";
+"Azure OpenAI" = "Azure OpenAI";
+"OpenAI" = "OpenAI";
+"Endpoint" = "Endpoint";
+"API Key" = "API Key";
+"Deployment" = "Deployment";
+"API Version" = "API Version";
+"Model" = "Model";
+"Azure OpenAI is preconfigured for Cutti." = "Azure OpenAI is preconfigured for Cutti.";
+
+/* Settings — Developer */
+"Developer" = "Developer";
+"Show agent trace" = "Show agent trace";
+"Reveals the raw agent trace inspector in the AI Editor header, with per-turn step lists, Undo Entire Plan, and Copy Trace JSON. Off by default — everyday users only need the plain-language action bubbles in the chat." = "Reveals the raw agent trace inspector in the AI Editor header, with per-turn step lists, Undo Entire Plan, and Copy Trace JSON. Off by default — everyday users only need the plain-language action bubbles in the chat.";
+
+/* Restart prompt */
+"Restart Required" = "Restart Required";
+"Apply & Restart" = "Apply & Restart";
+"Cancel" = "Cancel";
+"Changing the interface language requires restarting Cutti. Your project and unsaved edits will be preserved." = "Changing the interface language requires restarting Cutti. Your project and unsaved edits will be preserved.";
+
+/* Common UI */
+"AI Editor" = "AI Editor";
+"Media" = "Media";
+"Send" = "Send";
+"Save" = "Save";
+"Configure API key to enable AI editing…" = "Configure API key to enable AI editing…";
+
+/* Relay errors */
+"Please sign in from Settings." = "Please sign in from Settings.";
+"Please verify your email address before using AI features. Check your inbox for the verification link from Cutti." = "Please verify your email address before using AI features. Check your inbox for the verification link from Cutti.";
+"You've used your AI credits for this month (%1$@). %2$@. Upgrade to a paid plan for more." = "You've used your AI credits for this month (%1$@). %2$@. Upgrade to a paid plan for more.";
+"You've used your AI credits for this month (%@). Upgrade to a paid plan for more." = "You've used your AI credits for this month (%@). Upgrade to a paid plan for more.";
+"Animation rendering is temporarily unavailable. Please try again in a moment." = "Animation rendering is temporarily unavailable. Please try again in a moment.";
+"Image generation is temporarily unavailable. Please try again in a moment." = "Image generation is temporarily unavailable. Please try again in a moment.";
+"AI is temporarily unavailable. Please try again in a moment." = "AI is temporarily unavailable. Please try again in a moment.";
+"Too many requests right now. Please try again in a moment." = "Too many requests right now. Please try again in a moment.";
+"AI returned an unexpected response. Please try again." = "AI returned an unexpected response. Please try again.";
+"AI returned an empty response. Please try again." = "AI returned an empty response. Please try again.";
+"Network error. Please check your connection and try again." = "Network error. Please check your connection and try again.";
+"Cutti is temporarily unavailable. Please try again in a moment." = "Cutti is temporarily unavailable. Please try again in a moment.";
+"That media clip is no longer in the project." = "That media clip is no longer in the project.";
+"Speech recognition isn't available for this language on this device." = "Speech recognition isn't available for this language on this device.";
+"Cutti needs Speech Recognition permission. Enable it in System Settings → Privacy & Security → Speech Recognition." = "Cutti needs Speech Recognition permission. Enable it in System Settings → Privacy & Security → Speech Recognition.";
+"Transcription returned no text. The audio may be silent or too short." = "Transcription returned no text. The audio may be silent or too short.";
+"Transcription failed. Please try again." = "Transcription failed. Please try again.";
+"Report is too large (%d KB, limit %d KB). Please trim the description or steps." = "Report is too large (%1$d KB, limit %2$d KB). Please trim the description or steps.";
+"Too many reports. Please try again in about %d seconds." = "Too many reports. Please try again in about %d seconds.";
+"Couldn't submit the bug report right now. Please try again in a moment." = "Couldn't submit the bug report right now. Please try again in a moment.";
+
+/* App menu — Edit / View */
+"Undo" = "Undo";
+"Redo" = "Redo";
+"Delete Selection" = "Delete Selection";
+"View" = "View";
+"Zoom In Timeline" = "Zoom In Timeline";
+"Zoom Out Timeline" = "Zoom Out Timeline";
+"Reset Timeline Zoom" = "Reset Timeline Zoom";
+
+/* Editor command bar */
+"Import" = "Import";
+"Export" = "Export";
+"Exporting…" = "Exporting…";
+
+/* Viewer transport bar tooltips */
+"Previous frame" = "Previous frame";
+"Next frame" = "Next frame";
+"Play" = "Play";
+"Pause" = "Pause";
+"Playback speed" = "Playback speed";
+"Loop" = "Loop";
+"Loop on" = "Loop on";
+"Toggle fullscreen (Esc to exit)" = "Toggle fullscreen (Esc to exit)";
+"Toggle focus mode (Esc to exit)" = "Toggle focus mode (Esc to exit)";
+
+/* Timeline dock — header, tools, tooltips */
+"TIMELINE" = "TIMELINE";
+"%d selected" = "%d selected";
+"%d AI edits pending review" = "%d AI edits pending review";
+"Speed" = "Speed";
+"Mixed" = "Mixed";
+"Split" = "Split";
+"Merge selected" = "Merge selected";
+"Delete" = "Delete";
+"Normalize loudness (-16 dB)" = "Normalize loudness (-16 dB)";
+"Compress silences (>1s, 4×)" = "Compress silences (>1s, 4×)";
+"Auto-detect speakers" = "Auto-detect speakers";
+"Add BGM track…" = "Add BGM track…";
+"Audio" = "Audio";
+"Import a clip first" = "Import a clip first";
+"B-roll" = "B-roll";
+"Issues" = "Issues";
+"Volume" = "Volume";
+"Rotate 90°" = "Rotate 90°";
+"Rotate 90° (now %d°)" = "Rotate 90° (now %d°)";
+"Flip horizontally" = "Flip horizontally";
+"✓ Flip horizontally" = "✓ Flip horizontally";
+"Flip vertically" = "Flip vertically";
+"✓ Flip vertically" = "✓ Flip vertically";
+"Transform" = "Transform";
+"Hide subtitles" = "Hide subtitles";
+"Subtitles" = "Subtitles";
+"Select All Segments" = "Select All Segments";
+"Clear Segment Selection" = "Clear Segment Selection";
+
+/* AgentTraceView */
+"Agent Trace" = "Agent Trace";
+"No agent edits yet" = "No agent edits yet";
+"Ask the Agent to edit your timeline. Each plan appears here with a step-by-step trace and an undo option." = "Ask the Agent to edit your timeline. Each plan appears here with a step-by-step trace and an undo option.";
+"User prompt" = "User prompt";
+"%d step(s)" = "%d step(s)";
+"Undo Entire Plan" = "Undo Entire Plan";
+"Copy Trace JSON" = "Copy Trace JSON";
+
+/* ContentView — Qwen3-ASR setup overlay + banners */
+"Looks like a presenter cam — apply Picture-in-Picture?" = "Looks like a presenter cam — apply Picture-in-Picture?";
+"Apply" = "Apply";
+"Dismiss" = "Dismiss";
+"Done" = "Done";
+"Speech Recognition Setup" = "Speech Recognition Setup";
+"Cutti uses a local Qwen3-ASR model for accurate Chinese, Cantonese and English subtitles. The first install downloads ~6 GB and runs entirely on your Mac.\nYou can skip and continue with Apple Speech as a fallback." = "Cutti uses a local Qwen3-ASR model for accurate Chinese, Cantonese and English subtitles. The first install downloads ~6 GB and runs entirely on your Mac.\nYou can skip and continue with Apple Speech as a fallback.";
+"Download Speech Model" = "Download Speech Model";
+"Hide" = "Hide";
+"Download failed" = "Download failed";
+"Retry" = "Retry";
+"Skip for Now" = "Skip for Now";
+"Qwen3-ASR was unavailable — used Apple Speech for this clip." = "Qwen3-ASR was unavailable — used Apple Speech for this clip.";
+"Local speech model was unavailable — used Apple Speech for this clip." = "Local speech model was unavailable — used Apple Speech for this clip.";
+"Transcribing with Apple Speech…" = "Transcribing with Apple Speech…";
+"Transcribing with Qwen3-ASR (local)…" = "Transcribing with Qwen3-ASR (local)…";
+"Transcribing locally…" = "Transcribing locally…";
+"Loading Qwen3-ASR model (first run takes ~10s)…" = "Loading Qwen3-ASR model (first run takes ~10s)…";
+"Loading speech model (first run takes ~10s)…" = "Loading speech model (first run takes ~10s)…";
+"Preparing transcription…" = "Preparing transcription…";
+"Loading audio" = "Loading audio";
+"Aligning timestamps" = "Aligning timestamps";
+"Finalising transcript" = "Finalising transcript";
+"Transcription error" = "Transcription error";
+"chunk %d/%d (%@ elapsed)" = "chunk %1$d/%2$d (%3$@ elapsed)";
+"chunk" = "chunk";
+"%@ %d/%d (%@ elapsed)" = "%1$@ %2$d/%3$d (%4$@ elapsed)";
+
+/* ContentView — media panel */
+"MEDIA" = "MEDIA";
+"Collapse media" = "Collapse media";
+"Expand media" = "Expand media";
+"Search" = "Search";
+"Drop videos to import" = "Drop videos to import";
+"Importing…" = "Importing…";
+
+/* EditorSessionContainer */
+"Projects" = "Projects";
+"Project" = "Project";
+"Back to dashboard" = "Back to dashboard";
+"Finish current task first" = "Finish current task first";
+
+/* ProjectDashboardView */
+"AI-Powered Video Editor" = "AI-Powered Video Editor";
+"New Project" = "New Project";
+"No Projects Yet" = "No Projects Yet";
+"Create a new project to start editing your videos with AI." = "Create a new project to start editing your videos with AI.";
+"Create Your First Project" = "Create Your First Project";
+"%d clips" = "%d clips";
+"Open" = "Open";
+"Rename…" = "Rename…";
+"Create New Project" = "Create New Project";
+"Rename Project" = "Rename Project";
+"Enter a name for the new project." = "Enter a name for the new project.";
+"Enter the new project name." = "Enter the new project name.";
+"Create" = "Create";
+"Rename" = "Rename";
+"Project Name" = "Project Name";
+"Project name…" = "Project name…";
+
+/* SettingsView — account */
+"Sign Out" = "Sign Out";
+"Sign In" = "Sign In";
+"Create Account" = "Create Account";
+"Create your account on cutti.app, then come back here to sign in." = "Create your account on cutti.app, then come back here to sign in.";
+"%@ monthly credits left" = "%@ monthly credits left";
+"of %@" = "of %@";
+"%@ pack credits left" = "%@ pack credits left";
+"· never expire" = "· never expire";
+"Verify your email" = "Verify your email";
+"Resend email" = "Resend email";
+"Email" = "Email";
+"Password" = "Password";
+"Don't have an account? Create one →" = "Don't have an account? Create one →";
+"Subscription products are not available on this build yet." = "Subscription products are not available on this build yet.";
+"Subscribe" = "Subscribe";
+"Restore Purchases" = "Restore Purchases";
+
+/* ChatPanel */
+"Show agent trace" = "Show agent trace";
+"Use agent mode (multi-step planning)" = "Use agent mode (multi-step planning)";
+"Listening…" = "Listening…";
+"Transcribing…" = "Transcribing…";
+"Ask Cutti anything…" = "Ask Cutti anything…";
+"Checkpoint saved" = "Checkpoint saved";
+"YOU" = "YOU";
+"SYSTEM" = "SYSTEM";
+"Reject" = "Reject";
+"Apply" = "Apply";
+"+%d more…" = "+%d more…";
+
+/* ChatAttachmentStrip */
+"Scoped to %d segment(s)" = "Scoped to %d segment(s)";
+"CLEAR" = "CLEAR";
+"Remove all attachments" = "Remove all attachments";
+"This segment no longer exists" = "This segment no longer exists";
+"Remove attachment" = "Remove attachment";
+
+/* ChatImageAttachmentView */
+"Open in Preview" = "Open in Preview";
+"Save Image" = "Save Image";
+"Show in Finder" = "Show in Finder";
+"Copy Image" = "Copy Image";
+"Save to Photos" = "Save to Photos";
+"Reveal in Finder" = "Reveal in Finder";
+"Copy" = "Copy";
+"Done" = "Done";
+
+/* AICopilotPromptField */
+"Type a message…" = "Type a message…";
+"Configure your API key in Settings to enable AI features." = "Configure your API key in Settings to enable AI features.";
+"Settings" = "Settings";
+"Send message" = "Send message";
+"Start voice input" = "Start voice input";
+
+/* WorkflowPanel */
+"HISTORY" = "HISTORY";
+"Collapse history" = "Collapse history";
+"Expand history" = "Expand history";
+"No edits yet" = "No edits yet";
+"Start editing by typing in the chat or choosing a workflow below." = "Start editing by typing in the chat or choosing a workflow below.";
+"CURRENT" = "CURRENT";
+"Restore" = "Restore";
+
+/* HighlightsPanel */
+"HIGHLIGHTS" = "HIGHLIGHTS";
+"Collapse highlights" = "Collapse highlights";
+"Expand highlights" = "Expand highlights";
+"No highlights yet" = "No highlights yet";
+"Run ⌘⇧3 to find hook candidates" = "Run ⌘⇧3 to find hook candidates";
+"Highlight" = "Highlight";
+"Drag onto the timeline to insert this highlight as a new clip" = "Drag onto the timeline to insert this highlight as a new clip";
+"Click to reveal in source" = "Click to reveal in source";
+"Can't add highlight — media not found." = "Can't add highlight — media not found.";
+"Can't add highlight — analysis not ready." = "Can't add highlight — analysis not ready.";
+"Can't add highlight — selection is out of range." = "Can't add highlight — selection is out of range.";
+"Insert highlight" = "Insert highlight";
+
+/* HighlightsPanel — PR 10 (manual highlights) */
+"Save to Highlights" = "Save to Highlights";
+"Reveal in source" = "Reveal in source";
+"Remove from Highlights" = "Remove from Highlights";
+"AI" = "AI";
+"Manual" = "Manual";
+"Manual highlight" = "Manual highlight";
+"Highlight saved." = "Highlight saved.";
+"Highlight removed." = "Highlight removed.";
+"Saved %d highlights." = "Saved %d highlights.";
+"Saved %d highlights (%d skipped)." = "Saved %d highlights (%d skipped).";
+"Highlight has changed. Try again." = "Highlight has changed. Try again.";
+"Highlight no longer exists." = "Highlight no longer exists.";
+"Couldn't save any highlights — check the analysis status." = "Couldn't save any highlights — check the analysis status.";
+"Can't save highlight — media not found." = "Can't save highlight — media not found.";
+"Can't save highlight — run AI analysis first." = "Can't save highlight — run AI analysis first.";
+"Can't save highlight — analysis not ready." = "Can't save highlight — analysis not ready.";
+"Can't save highlight — selection is too short." = "Can't save highlight — selection is too short.";
+"Can't remove highlight — media not found." = "Can't remove highlight — media not found.";
+"Failed to save highlight: %@" = "Failed to save highlight: %@";
+"Failed to save highlights: %@" = "Failed to save highlights: %@";
+"Failed to remove highlight: %@" = "Failed to remove highlight: %@";
+
+/* HighlightsPanel — PR 11 (use-as-hook button) */
+"Use as opening hook" = "Use as opening hook";
+"Use as opening hook — insert this highlight at the start of the timeline" = "Use as opening hook — insert this highlight at the start of the timeline";
+"Use-as-hook is unavailable right now" = "Use-as-hook is unavailable right now";
+"Wait for the current AI run to finish before using a highlight as a hook." = "Wait for the current AI run to finish before using a highlight as a hook.";
+"Detach the scope chips above the chat box to use a highlight as a hook." = "Detach the scope chips above the chat box to use a highlight as a hook.";
+"This highlight is missing an end time and can't be used as a hook." = "This highlight is missing an end time and can't be used as a hook.";
+"Source clip for this highlight is no longer in the project." = "Source clip for this highlight is no longer in the project.";
+"Pre-flight rejected:\n%@" = "Pre-flight rejected:\n%@";
+"Pending opening hook — review and Apply in chat." = "Pending opening hook — review and Apply in chat.";
+
+/* WorkflowPresetButton */
+"AI workflows" = "AI workflows";
+"No matching workflow" = "No matching workflow";
+"Click to fill prompt" = "Click to fill prompt";
+"Search workflows…" = "Search workflows…";
+"AI analysis required" = "AI analysis required";
+"Send now" = "Send now";
+
+/* ExportSettingsSheet */
+"Export Video" = "Export Video";
+"Container" = "Container";
+"Resolution" = "Resolution";
+"Output:" = "Output:";
+"Subtitles" = "Subtitles";
+"Style" = "Style";
+"No subtitles in this project." = "No subtitles in this project.";
+"Voice enhancer" = "Voice enhancer";
+"Cancel" = "Cancel";
+"Export SRT" = "Export SRT";
+"Choose Location…" = "Choose Location…";
+"Overview" = "Overview";
+"Segments" = "Segments";
+"Duration" = "Duration";
+"Frame Rate" = "Frame Rate";
+"Format" = "Format";
+"Audio" = "Audio";
+"Export Summary" = "Export Summary";
+"Est. File Size" = "Est. File Size";
+
+/* ExportProgressCard */
+"Exporting video" = "Exporting video";
+"≈ %@ left" = "≈ %@ left";
+"Cancelling…" = "Cancelling…";
+
+/* ImageGenerationSheet */
+"Generate AI image" = "Generate AI image";
+"The image will be added to your Media Browser. Drag it onto the timeline from there." = "The image will be added to your Media Browser. Drag it onto the timeline from there.";
+"Describe the image…" = "Describe the image…";
+"Size" = "Size";
+"Generate" = "Generate";
+
+/* ChapterBarStylePanel */
+"Chapter bar style" = "Chapter bar style";
+"Position" = "Position";
+"Bottom" = "Bottom";
+"Top" = "Top";
+"Background" = "Background";
+"Background opacity" = "Background opacity";
+"Font color" = "Font color";
+"Font size" = "Font size";
+"Reset" = "Reset";
+"Chapter title" = "Chapter title";
+
+/* ChapterBarOverlay */
+"Move to top" = "Move to top";
+"Move to bottom" = "Move to bottom";
+"Chapter style…" = "Chapter style…";
+"Remove chapter bar" = "Remove chapter bar";
+"Chapter title" = "Chapter title";
+"Chapter boundary" = "Chapter boundary";
+"mm:ss.SSS" = "mm:ss.SSS";
+"Range: %@ – %@" = "Range: %@ – %@";
+
+/* MediaBrowserSidebar */
+"Delete" = "Delete";
+
+/* InspectorSidebar */
+"AI LOG" = "AI LOG";
+"Collapse AI log" = "Collapse AI log";
+"Expand AI log" = "Expand AI log";
+"Relink Source" = "Relink Source";
+"Edit Decisions" = "Edit Decisions";
+
+/* InspectorAIAnalysisCard */
+"AI Analysis" = "AI Analysis";
+"TRANSCRIPT PREVIEW" = "TRANSCRIPT PREVIEW";
+"SUGGESTED TRIM" = "SUGGESTED TRIM";
+"ISSUES" = "ISSUES";
+"SUGGESTIONS" = "SUGGESTIONS";
+
+/* SubtitleInspector */
+"Subtitle" = "Subtitle";
+"Font size" = "Font size";
+"Font color" = "Font color";
+"Background" = "Background";
+
+/* SubtitleOverlay */
+"Drag to resize width" = "Drag to resize width";
+
+/* OverlayInspector */
+"Re-rendering…" = "Re-rendering…";
+"Title" = "Title";
+"Theme" = "Theme";
+"Accent color" = "Accent color";
+"No editable props for %@ yet." = "No editable props for %@ yet.";
+
+/* FreeTransformInspector */
+"Transform" = "Transform";
+"Position" = "Position";
+"Scale" = "Scale";
+"Rotation" = "Rotation";
+"Opacity" = "Opacity";
+"Fit" = "Fit";
+"Scale to fit the canvas" = "Scale to fit the canvas";
+"Fill" = "Fill";
+"Scale to cover the canvas" = "Scale to cover the canvas";
+"Reset position / scale / rotation / opacity" = "Reset position / scale / rotation / opacity";
+
+/* PiPOverlayHandle */
+"Turn Off Picture-in-Picture" = "Turn Off Picture-in-Picture";
+
+/* BGMLaneBar */
+"BGM %d" = "BGM %d";
+"Unmute" = "Unmute";
+"Mute" = "Mute";
+"Remove track" = "Remove track";
+
+/* BRollSuggestionStrip */
+"%@: %@" = "%@: %@";
+"Delete suggestion" = "Delete suggestion";
+"Prompt" = "Prompt";
+"Describe the animation" = "Describe the animation";
+"Dismiss" = "Dismiss";
+"Generation is unavailable in this build." = "Generation is unavailable in this build.";
+
+/* ViewerStage */
+"Exit" = "Exit";
+"Program" = "Program";
+"Import or select media" = "Import or select media";
+"Preview unavailable" = "Preview unavailable";
+"Choose a ready proxy clip to preview." = "Choose a ready proxy clip to preview.";
+
+/* AlternativeTakesPopover */
+"Multiple takes for this phrase — click to switch" = "Multiple takes for this phrase — click to switch";
+"Alternative Takes" = "Alternative Takes";
+"The AI found %d takes for this phrase. The active take is highlighted — tap any other to swap it in." = "The AI found %d takes for this phrase. The active take is highlighted — tap any other to swap it in.";
+"(no text)" = "(no text)";
+
+/* OverlayStartTimePopover */
+"Track start time" = "Track start time";
+"seconds" = "seconds";
+"Primary timeline duration: %.2fs" = "Primary timeline duration: %.2fs";
+"Set" = "Set";
+
+/* SegmentEffectsPopover */
+"Segment Effects" = "Segment Effects";
+"Color" = "Color";
+"Brightness" = "Brightness";
+"Contrast" = "Contrast";
+"Saturation" = "Saturation";
+"Audio Fade" = "Audio Fade";
+"Fade In" = "Fade In";
+"Fade Out" = "Fade Out";
+"Reset All Effects" = "Reset All Effects";
+
+/* SegmentSpeedPopover */
+"Custom" = "Custom";
+"Allowed range: %@x–%@x" = "Allowed range: %@x–%@x";
+
+/* TimelineDock+DetachedAudioLane */
+"Reattach to Video" = "Reattach to Video";
+"Delete Audio" = "Delete Audio";
+
+/* TimelineDock+NewTrackDropZone */
+"Drop to create new overlay track at 0:00" = "Drop to create new overlay track at 0:00";
+
+/* TimelineDock+OverlayLane */
+"✨ Auto Picture-in-Picture" = "✨ Auto Picture-in-Picture";
+"Set Start Time…" = "Set Start Time…";
+"✓ Off" = "✓ Off";
+"Off" = "Off";
+"✓ Circle" = "✓ Circle";
+"Circle" = "Circle";
+"✓ Rounded Square" = "✓ Rounded Square";
+"Rounded Square" = "Rounded Square";
+"✓ Square" = "✓ Square";
+"Square" = "Square";
+"Top Left" = "Top Left";
+"Top Right" = "Top Right";
+"Bottom Left" = "Bottom Left";
+"Bottom Right" = "Bottom Right";
+
+/* TimelineDock+SubtitleTrack */
+"Edit subtitle" = "Edit subtitle";
+"Save" = "Save";
+"Add Subtitle Here" = "Add Subtitle Here";
+"Edit Text…" = "Edit Text…";
+
+/* TimelineDock+VideoTrack */
+"Split at Playhead" = "Split at Playhead";
+"Delete Selected Segments" = "Delete Selected Segments";
+"Delete Segment" = "Delete Segment";
+"Show Image" = "Show Image";
+"Show Video" = "Show Video";
+"Hide Image" = "Hide Image";
+"Hide Video" = "Hide Video";
+"Mute Audio" = "Mute Audio";
+"Unmute Audio" = "Unmute Audio";
+"Detach Audio" = "Detach Audio";
+"Reattach Audio" = "Reattach Audio";
+"Add Crossfade to Next (0.5s)" = "Add Crossfade to Next (0.5s)";
+"Add Crossfade from Previous (0.5s)" = "Add Crossfade from Previous (0.5s)";
+"Rotate 90°" = "Rotate 90°";
+"✓ Flip Horizontal" = "✓ Flip Horizontal";
+"Flip Horizontal" = "Flip Horizontal";
+"✓ Flip Vertical" = "✓ Flip Vertical";
+"Flip Vertical" = "Flip Vertical";
+"Reset Effects" = "Reset Effects";
+"Restore %@s cut before this clip" = "Restore %@s cut before this clip";
+"Restore %@s cut after this clip" = "Restore %@s cut after this clip";
+"Source clip not available — can't restore." = "Source clip not available — can't restore.";
+"Inserted recovered footage as a new clip — adjacent segments had different effects, so they couldn't be merged." = "Inserted recovered footage as a new clip — adjacent segments had different effects, so they couldn't be merged.";
+
+/* TranscriptView */
+"Transcript" = "Transcript";
+"%d cues" = "%d cues";
+"Find & Replace (⌘F)" = "Find & Replace (⌘F)";
+"Find" = "Find";
+"Replace" = "Replace";
+"Aa" = "Aa";
+"Case-sensitive match" = "Case-sensitive match";
+"Replace All" = "Replace All";
+"Replaced in %d cue(s)" = "Replaced in %d cue(s)";
+"No matches" = "No matches";
+"No subtitles yet" = "No subtitles yet";
+"Transcribe a video from the Inspector panel to see the transcript here. You can then click text to jump, delete cues to cut video, and use Find & Replace." = "Transcribe a video from the Inspector panel to see the transcript here. You can then click text to jump, delete cues to cut video, and use Find & Replace.";
+"Edit" = "Edit";
+"Delete %d cues" = "Delete %d cues";
+"Split…" = "Split…";
+"Split cue" = "Split cue";
+"Click a marker between words to split the cue there. Timestamps are aligned automatically." = "Click a marker between words to split the cue there. Timestamps are aligned automatically.";
+"This cue has no splittable words." = "This cue has no splittable words.";
+"Split here" = "Split here";
+"Merge with previous cue" = "Merge with previous cue";
+"Merge with next cue" = "Merge with next cue";
+"Merge %d selected cues" = "Merge %d selected cues";
+"Restore" = "Restore";
+
+/* Timeline — zoom slider, popovers, overlay context menu */
+"Zoom out (2×)" = "Zoom out (2×)";
+"Zoom in (2×)" = "Zoom in (2×)";
+"Timeline zoom — drag to see between whole clip and ~1 s" = "Timeline zoom — drag to see between whole clip and ~1 s";
+"Effects" = "Effects";
+"Picture in Picture" = "Picture in Picture";
+
+/* MediaCoreViewModel — banner messages */
+"Checkpoint saved" = "Checkpoint saved";
+"Not enough room in the clip for a new subtitle here." = "Not enough room in the clip for a new subtitle here.";
+"Not enough room between subtitles to add here." = "Not enough room between subtitles to add here.";
+"New subtitle" = "New subtitle";
+"Select 2 or more segments to merge." = "Select 2 or more segments to merge.";
+"Merge requires a continuous selection on the timeline." = "Merge requires a continuous selection on the timeline.";
+"Can't merge segments from different clips." = "Can't merge segments from different clips.";
+"Can't merge — there's a cut between the selected segments." = "Can't merge — there's a cut between the selected segments.";
+"Can't add clip — media not found." = "Can't add clip — media not found.";
+"Can't add clip — analysis not ready." = "Can't add clip — analysis not ready.";
+"B-roll source not found." = "B-roll source not found.";
+"Couldn't insert B-roll: %@" = "Couldn't insert B-roll: %@";
+"Generating animation…" = "Generating animation…";
+"Animation generation failed: %@" = "Animation generation failed: %@";
+"Animation segment not found or not AI-generated." = "Animation segment not found or not AI-generated.";
+"Re-generating animation…" = "Re-generating animation…";
+"Animation re-generation failed: %@" = "Animation re-generation failed: %@";
+"Animation generation is not configured." = "Animation generation is not configured.";
+"MediaCore is not configured." = "MediaCore is not configured.";
+"Project root is not configured." = "Project root is not configured.";
+"Animation media not found after import." = "Animation media not found after import.";
+"Auto PiP: no overlays available to analyze." = "Auto PiP: no overlays available to analyze.";
+"Auto PiP: analyzing %d overlay…" = "Auto PiP: analyzing %d overlay…";
+"Auto PiP: analyzing %d overlays…" = "Auto PiP: analyzing %d overlays…";
+"Auto PiP: applied to %d overlay." = "Auto PiP: applied to %d overlay.";
+"Auto PiP: applied to %d overlays." = "Auto PiP: applied to %d overlays.";
+"Auto PiP: no overlays look like presenter cams." = "Auto PiP: no overlays look like presenter cams.";
+"Nothing on the timeline to chapter." = "Nothing on the timeline to chapter.";
+"Set up an OpenAI API key to generate chapters." = "Set up an OpenAI API key to generate chapters.";
+"Timeline is too short to chapter." = "Timeline is too short to chapter.";
+"Chapter generation failed: %@" = "Chapter generation failed: %@";
+"AI returned no chapters." = "AI returned no chapters.";
+"Generated %d chapter." = "Generated %d chapter.";
+"Generated %d chapters." = "Generated %d chapters.";
+"Chapter persist failed: %@" = "Chapter persist failed: %@";
+"Nothing on the timeline to normalize." = "Nothing on the timeline to normalize.";
+"Analyzing audio loudness…" = "Analyzing audio loudness…";
+"Loudness already at or below %d dB — nothing to attenuate." = "Loudness already at or below %d dB — nothing to attenuate.";
+"Loudness normalization didn't change any segments." = "Loudness normalization didn't change any segments.";
+"Normalized loudness on %d segment." = "Normalized loudness on %d segment.";
+"Normalized loudness on %d segments." = "Normalized loudness on %d segments.";
+"Nothing on the timeline to compress." = "Nothing on the timeline to compress.";
+"Scanning for silences…" = "Scanning for silences…";
+"No silences longer than %.1fs found." = "No silences longer than %.1fs found.";
+"Compressed %d silence." = "Compressed %d silence.";
+"Compressed %d silences." = "Compressed %d silences.";
+"Media core not configured." = "Media core not configured.";
+"Importing BGM %@…" = "Importing BGM %@…";
+"BGM file has no playable duration." = "BGM file has no playable duration.";
+"Added %@ (%.1fs)" = "Added %@ (%.1fs)";
+"Failed to import BGM: %@" = "Failed to import BGM: %@";
+"Run analysis first — there are no subtitles to diarize." = "Run analysis first — there are no subtitles to diarize.";
+"Detected %d speaker." = "Detected %d speaker.";
+"Detected %d speakers." = "Detected %d speakers.";
+"Could not save speaker name: %@" = "Could not save speaker name: %@";
+"Could not save speaker color: %@" = "Could not save speaker color: %@";
+"Couldn't encode animation props." = "Couldn't encode animation props.";
+"Project store not configured" = "Project store not configured";
+"Failed to load manifest: %@" = "Failed to load manifest: %@";
+"MediaCore not configured" = "MediaCore not configured";
+"Relink failed: %@" = "Relink failed: %@";
+"MediaCore or store not configured" = "MediaCore or store not configured";
+"Import failed: %@" = "Import failed: %@";
+"Image import failed: %@" = "Image import failed: %@";
+"Prompt is empty." = "Prompt is empty.";
+"Image generation failed: %@" = "Image generation failed: %@";
+"Could not create media directory: %@" = "Could not create media directory: %@";
+"Could not save generated image: %@" = "Could not save generated image: %@";
+"Store not configured" = "Store not configured";
+"Delete failed: %@" = "Delete failed: %@";
+"Analysis pipeline not configured" = "Analysis pipeline not configured";
+"Analysis already in progress." = "Analysis already in progress.";
+"Clip must be ready before analysis." = "Clip must be ready before analysis.";
+"Missing media metadata." = "Missing media metadata.";
+"Failed to update status: %@" = "Failed to update status: %@";
+"AI analysis complete but no edit suggestions were produced. The LLM call may have failed." = "AI analysis complete but no edit suggestions were produced. The LLM call may have failed.";
+"Analysis failed: %@" = "Analysis failed: %@";
+"AI analysis complete but no segments were kept." = "AI analysis complete but no segments were kept.";
+"No segments to export. Run AI analysis or add segments manually." = "No segments to export. Run AI analysis or add segments manually.";
+"Source clip missing from project." = "Source clip missing from project.";
+"Source file not found: %@. Please relink." = "Source file not found: %@. Please relink.";
+"Export destination must be a file, not a directory." = "Export destination must be a file, not a directory.";
+"Export complete! Saved to %@" = "Export complete! Saved to %@";
+"Export cancelled." = "Export cancelled.";
+"Export failed: %@" = "Export failed: %@";
+
+/* AICopilotPresentation */
+"Untitled Project" = "Untitled Project";
+"AI is preparing clips" = "AI is preparing clips";
+"clip is" = "clip is";
+"clips are" = "clips are";
+"%d %@ still processing." = "%d %@ still processing.";
+"AI suggestions are ready" = "AI suggestions are ready";
+"suggestion" = "suggestion";
+"suggestions" = "suggestions";
+"marker" = "marker";
+"markers" = "markers";
+"%d %@ and %d %@ available." = "%d %@ and %d %@ available.";
+"AI copilot is idle" = "AI copilot is idle";
+"Import media or run analysis to unlock tags and suggestions." = "Import media or run analysis to unlock tags and suggestions.";
+"No clip selected" = "No clip selected";
+"Select a clip to review AI summary, transcript, and edit suggestions." = "Select a clip to review AI summary, transcript, and edit suggestions.";
+"AI analysis unavailable" = "AI analysis unavailable";
+"Relink the original media to resume AI suggestions and markers." = "Relink the original media to resume AI suggestions and markers.";
+"AI analysis in progress" = "AI analysis in progress";
+"Cutti is still preparing this clip. Tags and markers will appear when processing finishes." = "Cutti is still preparing this clip. Tags and markers will appear when processing finishes.";
+"No AI analysis yet" = "No AI analysis yet";
+"Run clip analysis to unlock tags, suggestions, and scene markers." = "Run clip analysis to unlock tags, suggestions, and scene markers.";
+"AI analysis ready" = "AI analysis ready";
+"AI found clip-level insights for this selection." = "AI found clip-level insights for this selection.";
+
+/* AgentMode */
+"Manual" = "Manual";
+"Auto-apply" = "Auto-apply";
+"Review every Agent edit before it applies." = "Review every Agent edit before it applies.";
+"Agent edits apply immediately; undo via revisions." = "Agent edits apply immediately; undo via revisions.";
+
+/* ChatVoiceInputController */
+"Microphone access denied. Enable it in System Settings ▸ Privacy & Security ▸ Microphone." = "Microphone access denied. Enable it in System Settings ▸ Privacy & Security ▸ Microphone.";
+"Could not start recording: %@" = "Could not start recording: %@";
+"Didn't catch anything — try speaking a bit louder." = "Didn't catch anything — try speaking a bit louder.";
+"Transcription failed: %@" = "Transcription failed: %@";
+"Recording error: %@" = "Recording error: %@";
+
+/* MediaCore */
+"Primary transcoder failed and no fallback is configured" = "Primary transcoder failed and no fallback is configured";
+"Original file is missing. Please relink it." = "Original file is missing. Please relink it.";
+"Source changed on disk. Rebuild the proxy." = "Source changed on disk. Rebuild the proxy.";
+
+/* ContentView — file panels and banner */
+"Select a video or image file to import" = "Select a video or image file to import";
+"Select an audio or video file to add as BGM" = "Select an audio or video file to add as BGM";
+"Select the relocated video file" = "Select the relocated video file";
+"Choose where to save" = "Choose where to save";
+"Export subtitles as SRT" = "Export subtitles as SRT";
+"SRT exported to %@" = "SRT exported to %@";
+
+/* ContentView — bottom pane tabs */
+"Timeline" = "Timeline";
+
+/* ChatPanel — input placeholder */
+"Ask AI · ⌘⇧P for workflows" = "Ask AI · ⌘⇧P for workflows";
+
+/* Audit pass — keys used by T()/L() that were missing entries */
+"AI prompt field" = "AI prompt field";
+"AI workflows (⌘⇧P)" = "AI workflows (⌘⇧P)";
+"Agent trace — see & undo past edits (developer)" = "Agent trace — see & undo past edits (developer)";
+"All clips have already been analyzed" = "All clips have already been analyzed";
+"Analysis already running" = "Analysis already running";
+"Ask AI or describe an edit…" = "Ask AI or describe an edit…";
+"Click to fill · ⌥+click to send" = "Click to fill · ⌥+click to send";
+"Click to run · ⌥+click to edit first" = "Click to run · ⌥+click to edit first";
+"Edit before sending" = "Edit before sending";
+"Click to open full size · right-click for Save / Show in Finder" = "Click to open full size · right-click for Save / Show in Finder";
+"Click to rename speaker" = "Click to rename speaker";
+"Close" = "Close";
+"Configure AI settings" = "Configure AI settings";
+"Copy image" = "Copy image";
+"Export SRT only…" = "Export SRT only…";
+"Finder" = "Finder";
+"High-pass + compressor + limiter. Cleaner dialog at the cost of ~15s extra export time." = "High-pass + compressor + limiter. Cleaner dialog at the cost of ~15s extra export time.";
+"Listening… release Fn (or click mic) to transcribe" = "Listening… release Fn (or click mic) to transcribe";
+"No subtitles available. Run AI analysis or add captions to enable." = "No subtitles available. Run AI analysis or add captions to enable.";
+"Open full size" = "Open full size";
+"Open workflow menu" = "Open workflow menu";
+"Output" = "Output";
+"Rename speaker" = "Rename speaker";
+"Run full analysis shortcut" = "Run full analysis shortcut";
+"Save as…" = "Save as…";
+"Save just the subtitle sidecar without rendering the video." = "Save just the subtitle sidecar without rendering the video.";
+"Seed filler prompt shortcut" = "Seed filler prompt shortcut";
+"Speaker name" = "Speaker name";
+"Start editing or run AI analysis\nto create checkpoints" = "Start editing or run AI analysis\nto create checkpoints";
+"Subscription" = "Subscription";
+"Switch between Manual (review every edit) and Auto-apply" = "Switch between Manual (review every edit) and Auto-apply";
+"This segment no longer exists on the timeline" = "This segment no longer exists on the timeline";
+"Transcribing with the local speech model…" = "Transcribing with the local speech model…";
+"Unlabeled" = "Unlabeled";
+"Generate animation" = "Generate animation";
+"Experimental" = "Experimental";
+"Experimental: animation generation" = "Experimental: animation generation";
+"Generate anyway" = "Generate anyway";
+"Animation generation is experimental — the AI may produce unstable, low-quality, or unrenderable animations, and each attempt consumes a large amount of cloud credits. Continue?" = "Animation generation is experimental — the AI may produce unstable, low-quality, or unrenderable animations, and each attempt consumes a large amount of cloud credits. Continue?";
+"Animation generation may produce unstable or low-quality results. Each attempt costs cloud credits." = "Animation generation may produce unstable or low-quality results. Each attempt costs cloud credits.";
+"Describe a Remotion overlay (e.g. counter, bar chart) and drop it on the timeline" = "Describe a Remotion overlay (e.g. counter, bar chart) and drop it on the timeline";
+"Describe the animation. A fresh Remotion composition is generated from the skill pack and rendered as a transparent overlay at the playhead." = "Describe the animation. A fresh Remotion composition is generated from the skill pack and rendered as a transparent overlay at the playhead.";
+"e.g. bar chart counting from 30 to 90" = "e.g. bar chart counting from 30 to 90";
+"__app_name__" = "Cutti";
+"just now" = "just now";
+"%dm ago" = "%dm ago";
+"%dh ago" = "%dh ago";
+"%dd ago" = "%dd ago";
+"Add subtitle" = "Add subtitle";
+"Adjust aux track volume" = "Adjust aux track volume";
+"Adjust color" = "Adjust color";
+"Audio fade" = "Audio fade";
+"Auto-detect speakers" = "Auto-detect speakers";
+"Change speed" = "Change speed";
+"Change volume" = "Change volume";
+"Delete audio clip" = "Delete audio clip";
+"Delete overlay" = "Delete overlay";
+"Delete segment" = "Delete segment";
+"Delete segments" = "Delete segments";
+"Delete subtitle" = "Delete subtitle";
+"Detach audio" = "Detach audio";
+"Edit overlay props" = "Edit overlay props";
+"Edit subtitle text" = "Edit subtitle text";
+"Edit chapter style" = "Edit chapter style";
+"Flip horizontal" = "Flip horizontal";
+"Flip vertical" = "Flip vertical";
+"Generate chapter bar" = "Generate chapter bar";
+"Insert segment" = "Insert segment";
+"Manual save" = "Manual save";
+"Merge segments" = "Merge segments";
+"Restore cut" = "Restore cut";
+"Move subtitle" = "Move subtitle";
+"Reattach audio" = "Reattach audio";
+"Remove chapter bar" = "Remove chapter bar";
+"Reorder segments" = "Reorder segments";
+"Reposition Picture-in-Picture" = "Reposition Picture-in-Picture";
+"Reset effects" = "Reset effects";
+"Resize subtitle" = "Resize subtitle";
+"Restore subtitle cue" = "Restore subtitle cue";
+"Rotate segment" = "Rotate segment";
+"Split at playhead" = "Split at playhead";
+"Swap alternate take" = "Swap alternate take";
+"Toggle lock" = "Toggle lock";
+"Toggle mute" = "Toggle mute";
+"Toggle overlay mute" = "Toggle overlay mute";
+"Transform overlay" = "Transform overlay";
+"Trim segment" = "Trim segment";
+"Speakers" = "Speakers";
+"Speaker %d" = "Speaker %d";
+
+/* Analysis chat log (One-click first cut, Trim pauses, Transcript cleanup, Suggest B-roll) */
+"Starting AI analysis…" = "Starting AI analysis…";
+"Queued" = "Queued";
+"Transcribing speech" = "Transcribing speech";
+"Analyzing scenes" = "Analyzing scenes";
+"Analyzing audio" = "Analyzing audio";
+"Asking AI to plan cuts" = "Asking AI to plan cuts";
+"Local analysis complete" = "Local analysis complete";
+"⏳ This step's duration depends on the video's length and quality." = "⏳ This step's duration depends on the video's length and quality.";
+"⏳ This step's duration depends on the video's length." = "⏳ This step's duration depends on the video's length.";
+"Identifying speakers" = "Identifying speakers";
+"Downloading speaker model…" = "Downloading speaker model…";
+"Analysis failed" = "Analysis failed";
+"One-click first cut" = "One-click first cut";
+"Trim pauses only" = "Trim pauses only";
+"Transcript cleanup" = "Transcript cleanup";
+"Suggest B-roll & animations" = "Suggest B-roll & animations";
+"Please sign in from Settings." = "Please sign in from Settings.";
+"No clip ready for analysis." = "No clip ready for analysis.";
+"No clip ready to trim." = "No clip ready to trim.";
+"No clip ready for cleanup." = "No clip ready for cleanup.";
+"No clip selected." = "No clip selected.";
+"Clip not found." = "Clip not found.";
+"Clip not ready." = "Clip not ready.";
+"Clip must be ready before analysis." = "Clip must be ready before analysis.";
+"Clip must be ready before trimming." = "Clip must be ready before trimming.";
+"Missing media metadata." = "Missing media metadata.";
+"Project not configured." = "Project not configured.";
+"Analysis pipeline not configured." = "Analysis pipeline not configured.";
+"Analysis already in progress." = "Analysis already in progress.";
+"Another analysis is already in progress." = "Another analysis is already in progress.";
+"Failed to update status: %@" = "Failed to update status: %@";
+"Analysis failed: %@" = "Analysis failed: %@";
+"Trim pauses failed: %@" = "Trim pauses failed: %@";
+"Transcript cleanup failed: %@" = "Transcript cleanup failed: %@";
+"Analysis complete — kept %d segments. You can now chat to refine the cut." = "Analysis complete — kept %d segments. You can now chat to refine the cut.";
+"Analysis complete — kept %d segments across %d clips. You can now chat to refine the cut." = "Analysis complete — kept %1$d segments across %2$d clips. You can now chat to refine the cut.";
+"Analysis finished but produced no edit suggestions. The LLM call may have failed." = "Analysis finished but produced no edit suggestions. The LLM call may have failed.";
+"Analysis finished but no segments were kept." = "Analysis finished but no segments were kept.";
+"Cleanup complete — kept %d segments. Run \"Suggest B-roll & animations\" next if you want visual aids." = "Cleanup complete — kept %d segments. Run \"Suggest B-roll & animations\" next if you want visual aids.";
+"Cleanup finished but produced no edit suggestions." = "Cleanup finished but produced no edit suggestions.";
+"Transcript cleanup complete across %d clips." = "Transcript cleanup complete across %d clips.";
+"Trimmed pauses — kept %d segments. No AI credits used." = "Trimmed pauses — kept %d segments. No AI credits used.";
+"Trimmed pauses on %d clips. No AI credits used." = "Trimmed pauses on %d clips. No AI credits used.";
+"Scanning the cut for visual-aid opportunities…" = "Scanning the cut for visual-aid opportunities…";
+"Ready — %d visual-aid suggestions above the timeline." = "Ready — %d visual-aid suggestions above the timeline.";
+"No visual aids suggested for this cut." = "No visual aids suggested for this cut.";
+"Run \"Trim pauses\" or \"Transcript cleanup\" first — there's no cut for me to analyze yet." = "Run \"Trim pauses\" or \"Transcript cleanup\" first — there's no cut for me to analyze yet.";
+"Clip %d/%d: %@" = "Clip %1$d/%2$d: %3$@";
+"AI analyzing %d segments across %d clips…" = "AI analyzing %1$d segments across %2$d clips…";
+"ℹ️ All clips were already analyzed. Rebuilt the timeline from existing cuts." = "ℹ️ All clips were already analyzed. Rebuilt the timeline from existing cuts.";
+
+/* AI workflow preset menu (⚡ button in chat composer) */
+"Smart cut" = "Smart cut";
+"Speaker" = "Speaker";
+"Vision" = "Vision";
+"Subtitles" = "Subtitles";
+"Generative" = "Generative";
+"Workflow: trim pauses → transcript cleanup → suggest B-roll" = "Workflow: trim pauses → transcript cleanup → suggest B-roll";
+"Remove silent gaps. Local — no AI credits, keeps every word." = "Remove silent gaps. Local — no AI credits, keeps every word.";
+"4-pass AI review: delete restarts, rewordings, half-finished sentences." = "4-pass AI review: delete restarts, rewordings, half-finished sentences.";
+"AI marks moments where a visual, chart, or animation would help." = "AI marks moments where a visual, chart, or animation would help.";
+"Remove filler words" = "Remove filler words";
+"Delete uh / um / you know / like / so etc." = "Delete uh / um / you know / like / so etc.";
+"Detect speakers" = "Detect speakers";
+"Split the transcript by who's talking" = "Split the transcript by who's talking";
+"Mute a speaker" = "Mute a speaker";
+"Silence every cue from one person" = "Silence every cue from one person";
+"List what a speaker said" = "List what a speaker said";
+"Show every line one person said" = "Show every line one person said";
+"Find empty frames" = "Find empty frames";
+"Spans with no face on screen" = "Spans with no face on screen";
+"Find black frames" = "Find black frames";
+"Near-black or covered-lens regions" = "Near-black or covered-lens regions";
+"Auto Picture-in-Picture" = "Auto Picture-in-Picture";
+"Detect presenter-cam overlays and place them in a tidy corner" = "Detect presenter-cam overlays and place them in a tidy corner";
+"Suggest B-roll spots" = "Suggest B-roll spots";
+"AI marks places where a visual or overlay would help" = "AI marks places where a visual or overlay would help";
+"Suggest 3 titles" = "Suggest 3 titles";
+"Candidate titles from the transcript" = "Candidate titles from the transcript";
+"Generate chapter bar" = "Generate chapter bar";
+"AI splits the cut into titled chapters and burns a YouTube-style progress bar" = "AI splits the cut into titled chapters and burns a YouTube-style progress bar";
+"Suggest animated title cards" = "Suggest animated title cards";
+"AI picks moments for Remotion ChapterTitle overlays and generates them on approval" = "AI picks moments for Remotion ChapterTitle overlays and generates them on approval";
+"Pick an opening hook" = "Pick an opening hook";
+"AI scores hook candidates from the recordings; you pick which one to splice in" = "AI scores hook candidates from the recordings; you pick which one to splice in";
+"Generate AI image" = "Generate AI image";
+"Describe an image and drop it into the Media Browser" = "Describe an image and drop it into the Media Browser";
+"Summarize the video" = "Summarize the video";
+"Short paragraph describing what it's about" = "Short paragraph describing what it's about";
+"Add bilingual subtitles (中 ↔ EN)" = "Add bilingual subtitles (中 ↔ EN)";
+"Auto-translate between Chinese and English, show both lines" = "Auto-translate between Chinese and English, show both lines";
+"Add English translation line" = "Add English translation line";
+"Translate subtitles to English and render below" = "Translate subtitles to English and render below";
+"Add Chinese translation line" = "Add Chinese translation line";
+"Translate subtitles to Chinese and render below" = "Translate subtitles to Chinese and render below";
+"Translate subtitles to…" = "Translate subtitles to…";
+"Fill in the target language, then send" = "Fill in the target language, then send";
+
+/* AI workflow preset prompts (full text seeded into the chat composer). */
+"Find every filler word in the transcript (uh, um, you know, like, so, etc.) and remove them." = "Find every filler word in the transcript (uh, um, you know, like, so, etc.) and remove them.";
+"Identify every distinct voice in the video and label who says what." = "Identify every distinct voice in the video and label who says what.";
+"Identify each speaker in the video, then mute every line spoken by <fill in which speaker>." = "Identify each speaker in the video, then mute every line spoken by <fill in which speaker>.";
+"Identify each speaker in the video, then list every line spoken by <fill in which speaker>." = "Identify each speaker in the video, then list every line spoken by <fill in which speaker>.";
+"List every span in the video where no face is visible on screen." = "List every span in the video where no face is visible on screen.";
+"Find every span that is near-black or looks like the lens was covered." = "Find every span that is near-black or looks like the lens was covered.";
+"Review the current cut and mark the moments where a B-roll clip or visual overlay would strengthen the story." = "Review the current cut and mark the moments where a B-roll clip or visual overlay would strengthen the story.";
+"Suggest 3 English title candidates based on the transcript." = "Suggest 3 English title candidates based on the transcript.";
+"Review the current cut and pick 3–5 moments best suited for a ChapterTitle animated title card (chapter starts, topic shifts, emphasis sections, etc.). First list each suggestion with: composed_time (seconds), title, optional subtitle, theme (dark/light/accent), and a brief reason. After the user confirms, call the generate_overlay tool for each accepted suggestion (template_id=\"ChapterTitle\", props_json filled per the fields above, durationSeconds defaults to 2.5). After generation, remind the user they can double-click the overlay in the Inspector to fine-tune copy or theme." = "Review the current cut and pick 3–5 moments best suited for a ChapterTitle animated title card (chapter starts, topic shifts, emphasis sections, etc.). First list each suggestion with: composed_time (seconds), title, optional subtitle, theme (dark/light/accent), and a brief reason. After the user confirms, call the generate_overlay tool for each accepted suggestion (template_id=\"ChapterTitle\", props_json filled per the fields above, durationSeconds defaults to 2.5). After generation, remind the user they can double-click the overlay in the Inspector to fine-tune copy or theme.";
+"Write a 3-4 sentence English summary of the current video." = "Write a 3-4 sentence English summary of the current video.";
+"Pick the best opening hook (cold-open teaser) from the recordings. Call score_hook_candidates with top_k=5, present the candidates with their punch reasoning so I can pick one, and after I confirm a choice call add_hook_teaser with that candidate's source_video_id, source_start, and source_end. Do not pick or apply automatically — always wait for my reply." = "Pick the best opening hook (cold-open teaser) from the recordings. Call score_hook_candidates with top_k=5, present the candidates with their punch reasoning so I can pick one, and after I confirm a choice call add_hook_teaser with that candidate's source_video_id, source_start, and source_end. Do not pick or apply automatically — always wait for my reply.";
+"Add bilingual subtitles. Detect the source language of the current subtitles: if it is Chinese, translate every cue to English; otherwise translate every cue to Simplified Chinese. Then enable bilingual style with the translation rendered below the original at 75% size." = "Add bilingual subtitles. Detect the source language of the current subtitles: if it is Chinese, translate every cue to English; otherwise translate every cue to Simplified Chinese. Then enable bilingual style with the translation rendered below the original at 75% size.";
+"Translate every subtitle cue to English, then enable bilingual style with the English translation below the original at 75% size." = "Translate every subtitle cue to English, then enable bilingual style with the English translation below the original at 75% size.";
+"Translate every subtitle cue to Simplified Chinese (zh-Hans), then enable bilingual style with the Chinese translation below the original at 75% size." = "Translate every subtitle cue to Simplified Chinese (zh-Hans), then enable bilingual style with the Chinese translation below the original at 75% size.";
+"Translate every subtitle cue to <fill in target language>, then enable bilingual style with the translation below the original at 75% size." = "Translate every subtitle cue to <fill in target language>, then enable bilingual style with the translation below the original at 75% size.";
+
+/* Built-in sound-effects library */
+"Sound effects" = "Sound effects";
+"Sound effect" = "Sound effect";
+"Add sound effect…" = "Add sound effect…";
+"Inserted at the current playhead" = "Inserted at the current playhead";
+"Search (中文 / English)…" = "Search (中文 / English)…";
+"All" = "All";
+"No sound effects match your search." = "No sound effects match your search.";
+"All effects are synthesized locally — no network, no license fees." = "All effects are synthesized locally — no network, no license fees.";
+"Close" = "Close";
+"Preview" = "Preview";
+"Add" = "Add";
+"SFX %d" = "SFX %d";
+"Adding sound effect %@…" = "Adding sound effect %@…";
+"Added %@ at %.1fs" = "Added %@ at %.1fs";
+"Sound effect render produced no audio." = "Sound effect render produced no audio.";
+"Failed to add sound effect: %@" = "Failed to add sound effect: %@";
+
+/* SFX categories (podcast / interview focused) */
+"SFX Cinematic" = "Cinematic";
+"SFX Transition" = "Transition";
+"SFX Highlight" = "Highlight";
+"SFX UI" = "UI";
+"SFX Atmosphere" = "Atmosphere";
+
+/* SFX names */
+"SFX Braaam" = "Braaam";
+"SFX Sub drop" = "Sub drop";
+"SFX Impact hit" = "Impact hit";
+"SFX Riser" = "Riser";
+"SFX Whoosh" = "Whoosh";
+"SFX Swish" = "Swish";
+"SFX Glitch" = "Glitch";
+"SFX Tape stop" = "Tape stop";
+"SFX Soft chime" = "Soft chime";
+"SFX Pluck" = "Pluck";
+"SFX Shimmer" = "Shimmer";
+"SFX Pop" = "Pop";
+"SFX Typewriter" = "Typewriter";
+"SFX Clock tick" = "Clock tick";
+"SFX Notification" = "Notification";
+"SFX Censor beep" = "Censor beep";
+"SFX Vinyl crackle" = "Vinyl crackle";
+"SFX Heartbeat" = "Heartbeat";
+
+/* Settings — Account / AI Provider (BYOK) */
+"Account" = "Account";
+"Sign In" = "Sign In";
+"Sign Out" = "Sign Out";
+"Create Account" = "Create Account";
+"Verify your email" = "Verify your email";
+"Resend email" = "Resend email";
+"Cutti requires an account regardless of which AI provider you use. Create one on cutti.app, then come back here to sign in." = "Cutti requires an account regardless of which AI provider you use. Create one on cutti.app, then come back here to sign in.";
+"Sign in above to see your subscription and credits." = "Sign in above to see your subscription and credits.";
+
+"AI Provider" = "AI Provider";
+"Cutti Cloud" = "Cutti Cloud";
+"Custom (BYOK)" = "Custom (BYOK)";
+"Billed via your Cutti subscription. Includes overlay rendering and the proprietary animation skill pack." = "Billed via your Cutti subscription. Includes overlay rendering and the proprietary animation skill pack.";
+"Bring your own OpenAI-compatible API key. No subscription needed; you pay your provider directly." = "Bring your own OpenAI-compatible API key. No subscription needed; you pay your provider directly.";
+
+"Chat / LLM" = "Chat / LLM";
+"Image generation" = "Image generation";
+"Test connection" = "Test connection";
+"Use a different provider for image generation" = "Use a different provider for image generation";
+"Anything that speaks the OpenAI `/chat/completions` shape works. Examples:\n• DeepSeek — `https://api.deepseek.com/v1`, model `deepseek-chat`\n• Kimi (Moonshot) — `https://api.moonshot.cn/v1`, model `kimi-latest`\n• 智谱 GLM — `https://open.bigmodel.cn/api/paas/v4`, model `glm-4.6`\n• 通义千问 — `https://dashscope.aliyuncs.com/compatible-mode/v1`, model `qwen-max`\n• 豆包 — `https://ark.cn-beijing.volces.com/api/v3`, model `doubao-seed-1.6-thinking`\n• Ollama (local) — `http://localhost:11434/v1`, model `qwen2.5`\n• OpenAI / Azure / OpenRouter / LiteLLM proxy — same shape" = "Anything that speaks the OpenAI `/chat/completions` shape works. Examples:\n• DeepSeek — `https://api.deepseek.com/v1`, model `deepseek-chat`\n• Kimi (Moonshot) — `https://api.moonshot.cn/v1`, model `kimi-latest`\n• 智谱 GLM — `https://open.bigmodel.cn/api/paas/v4`, model `glm-4.6`\n• 通义千问 — `https://dashscope.aliyuncs.com/compatible-mode/v1`, model `qwen-max`\n• 豆包 — `https://ark.cn-beijing.volces.com/api/v3`, model `doubao-seed-1.6-thinking`\n• Ollama (local) — `http://localhost:11434/v1`, model `qwen2.5`\n• OpenAI / Azure / OpenRouter / LiteLLM proxy — same shape";
+"Image generation reuses the chat key and base URL above. Many providers don't expose an image API on the chat URL — if it fails, enable the toggle above and configure a separate image provider." = "Image generation reuses the chat key and base URL above. Many providers don't expose an image API on the chat URL — if it fails, enable the toggle above and configure a separate image provider.";
+"Only OpenAI-shape image APIs are supported. Most Chinese providers (Kimi/DeepSeek don't have one; GLM CogView returns URLs not base64; 阿里万相 is async). Recommended: 字节豆包 (compatible), or route through LiteLLM / OneAPI." = "Only OpenAI-shape image APIs are supported. Most Chinese providers (Kimi/DeepSeek don't have one; GLM CogView returns URLs not base64; 阿里万相 is async). Recommended: 字节豆包 (compatible), or route through LiteLLM / OneAPI.";
+"⚠️ Animated overlay rendering (chapter cards, animated subtitles) is only available with Cutti Cloud." = "⚠️ Animated overlay rendering (chapter cards, animated subtitles) is only available with Cutti Cloud.";
+
+"Base URL" = "Base URL";
+"API Key" = "API Key";
+"Model" = "Model";
+"Not signed in" = "Not signed in";
+"Signed in" = "Signed in";
+"Sign in to use AI features." = "Sign in to use AI features.";
+"Email verification pending." = "Email verification pending.";
+"Free plan" = "Free plan";
+"Sign in to view your plan." = "Sign in to view your plan.";
+
+/* Bug report sheet (English keys self-mapped — these were missing from en.lproj) */
+"Report a Bug" = "Report a Bug";
+"Report a Bug…" = "Report a Bug…";
+"Support" = "Support";
+"Send us a description of what went wrong. Optionally attaches app and OS version, hardware, and locale so we can reproduce the issue. Goes straight to GitHub." = "Send us a description of what went wrong. Optionally attaches app and OS version, hardware, and locale so we can reproduce the issue. Goes straight to GitHub.";
+"Tell us what went wrong. The more detail you can give, the faster we can fix it." = "Tell us what went wrong. The more detail you can give, the faster we can fix it.";
+"What happened?" = "What happened?";
+"e.g. The app froze when I dragged a 4K clip onto an empty timeline." = "e.g. The app froze when I dragged a 4K clip onto an empty timeline.";
+"Steps to reproduce (optional)" = "Steps to reproduce (optional)";
+"Reply email (optional)" = "Reply email (optional)";
+"name@example.com" = "name@example.com";
+"Only used to follow up on this report. Leave blank to submit anonymously." = "Only used to follow up on this report. Leave blank to submit anonymously.";
+"Include diagnostics" = "Include diagnostics";
+"Helps us reproduce the bug. Includes app and OS version, hardware, locale, and timezone. Does not include your email, account, or project files." = "Helps us reproduce the bug. Includes app and OS version, hardware, locale, and timezone. Does not include your email, account, or project files.";
+"Show what will be sent" = "Show what will be sent";
+"Privacy" = "Privacy";
+"Thanks — your report is in." = "Thanks — your report is in.";
+"We'll triage it and follow up if we need more info." = "We'll triage it and follow up if we need more info.";
+"View on GitHub" = "View on GitHub";
+
+/* ---------------------------------------------------------------- */
+/* Settings redesign (Obsidian-Pro dark) — added in Settings UI v2  */
+/* ---------------------------------------------------------------- */
+
+/* Account */
+"AI features need an account." = "AI features need an account.";
+"Sign in" = "Sign in";
+"Use your Cutti account to enable AI features." = "Use your Cutti account to enable AI features.";
+"Email and password are required." = "Email and password are required.";
+"Email or password is incorrect." = "Email or password is incorrect.";
+"Please enter a valid email address." = "Please enter a valid email address.";
+"verify.email.message_with_address" = "We sent a verification link to %@. Click the link to activate AI features.";
+"verify.email.message_generic" = "Check the inbox for the email you signed up with. Click the verification link to activate AI features.";
+"verify.email.sent" = "Verification email sent.";
+"verify.email.rate_limited" = "Try again in a moment.";
+"verify.email.already_verified" = "Your email is already verified.";
+
+/* Provider */
+"Compatible providers" = "Compatible providers";
+"Using Cutti Cloud" = "Using Cutti Cloud";
+"All AI features available — first cut, B-roll generation, agent chat, subtitle translation, image generation, and animated overlays." = "All AI features available — first cut, B-roll generation, agent chat, subtitle translation, image generation, and animated overlays.";
+"Idle · last test %@" = "Idle · last test %@";
+"Connected · last test %@" = "Connected · last test %@";
+"Testing…" = "Testing…";
+"Auth required" = "Auth required";
+"Auth failed (%d)" = "Auth failed (%d)";
+"Endpoint not found" = "Endpoint not found";
+"Quota exceeded" = "Quota exceeded";
+"Network: %@" = "Network: %@";
+"Non-HTTP response" = "Non-HTTP response";
+"Invalid base URL" = "Invalid base URL";
+"Could not decode response" = "Could not decode response";
+"No choices in response" = "No choices in response";
+"Email not verified" = "Email not verified";
+
+/* Quality */
+"Quality preference" = "Quality preference";
+"Smart  ·  Recommended" = "Smart  ·  Recommended";
+"High Quality" = "High Quality";
+"Economy" = "Economy";
+
+/* Subscription */
+"Free plan" = "Free plan";
+"plan_suffix" = "plan";
+"renews_on_%@" = "Renews on %@";
+"Resets today" = "Resets today";
+"Resets in 1 day" = "Resets in 1 day";
+"Resets in %d days" = "Resets in %d days";
+"Monthly credits" = "Monthly credits";
+"Pack credits" = "Pack credits";
+"One-time purchase · never expires" = "One-time purchase · never expires";
+"credits_suffix" = "credits";
+"Pick a plan to unlock AI features billed through your App Store account." = "Pick a plan to unlock AI features billed through your App Store account.";
+"Subscription products are not available on this build yet." = "Subscription products are not available on this build yet.";
+
+/* Usage */
+"Last 7 days" = "Last 7 days";
+"Last 30 days" = "Last 30 days";
+"Last 90 days" = "Last 90 days";
+"No AI calls billed in this window yet." = "No AI calls billed in this window yet.";
+"Local speech transcription runs on your Mac and is not counted." = "Local speech transcription runs on your Mac and is not counted.";
+"Total" = "Total";
+"calls_suffix" = "calls";
+"Refresh" = "Refresh";
+
+/* Editor */
+"System  ·  English" = "System  ·  English";
+"System  ·  Chinese" = "System  ·  Chinese";
+
+/* Bug report */
+"Report a bug" = "Report a bug";
+"Reports go to our public GitHub. Diagnostics are optional." = "Reports go to our public GitHub. Diagnostics are optional.";
+"Include enough detail and we'll triage quickly." = "Include enough detail and we'll triage quickly.";
+
+/* Settings v2: self-mapped English entries for keys that previously had no en.lproj row */
+"AI Quality" = "AI Quality";
+"Credit Usage" = "Credit Usage";
+"Advanced options for power users." = "Advanced options for power users.";
+"Animated overlays — chapter cards, animated subtitles — are rendered server-side and require Cutti Cloud. Your custom provider handles chat, B-roll search, image generation, and subtitle translation only." = "Animated overlays — chapter cards, animated subtitles — are rendered server-side and require Cutti Cloud. Your custom provider handles chat, B-roll search, image generation, and subtitle translation only.";
+"Changing this restarts Cutti." = "Changing this restarts Cutti.";
+"Choose where Cutti's AI runs. Cutti Cloud is fastest to start; bring your own keys for full control." = "Choose where Cutti's AI runs. Cutti Cloud is fastest to start; bring your own keys for full control.";
+"Create account" = "Create account";
+"Default behaviors, language, and the local speech model." = "Default behaviors, language, and the local speech model.";
+"Local speech model" = "Local speech model";
+"Email unverified" = "Email unverified";
+"Help us make Cutti better." = "Help us make Cutti better.";
+"How Cutti picks models for first-cut and creative tasks." = "How Cutti picks models for first-cut and creative tasks.";
+"Image Generation" = "Image Generation";
+"Limitations of BYOK mode." = "Limitations of BYOK mode.";
+"Managed · billed by credits" = "Managed · billed by credits";
+"Most chat APIs don't generate images. Configure separately." = "Most chat APIs don't generate images. Configure separately.";
+"Not tested" = "Not tested";
+"OpenAI-compatible" = "OpenAI-compatible";
+"OpenAI-compatible endpoint" = "OpenAI-compatible endpoint";
+"Pro" = "Pro";
+"Recommended" = "Recommended";
+"Report…" = "Report…";
+"Reveals a step-by-step inspector for the AI editor. Most users won't need this." = "Reveals a step-by-step inspector for the AI editor. Most users won't need this.";
+"Sign in to use AI features. Required for both Cutti Cloud and Custom (BYOK) modes." = "Sign in to use AI features. Required for both Cutti Cloud and Custom (BYOK) modes.";
+"Sign out" = "Sign out";
+"Smart" = "Smart";
+"Stored in macOS Keychain." = "Stored in macOS Keychain.";
+"Use a different provider for images" = "Use a different provider for images";
+"Verified" = "Verified";
+"When you create a new clip, the subtitle overlay is visible in preview and timeline." = "When you create a new clip, the subtitle overlay is visible in preview and timeline.";
+"Where your credits went, by feature." = "Where your credits went, by feature.";
+"Your Cutti Cloud plan and credit balance." = "Your Cutti Cloud plan and credit balance.";
+
+/* Settings — Updates */
+"Updates" = "Updates";
+"Cutti checks GitHub Releases for new versions." = "Cutti checks GitHub Releases for new versions.";
+"Check Now" = "Check Now";
+"Never checked yet." = "Never checked yet.";
+"Preferences" = "Preferences";
+"Automatically check for updates" = "Automatically check for updates";
+"Cutti checks for new versions in the background once per day." = "Cutti checks for new versions in the background once per day.";
+"Automatically install updates" = "Automatically install updates";
+"Download and install new versions on quit, without asking. Off by default." = "Download and install new versions on quit, without asking. Off by default.";
+"New speaker (Speaker %d)" = "New speaker (Speaker %d)";
+"Editing this cue" = "Editing this cue";
+"Editing all cues" = "Editing all cues";
+"Apply to all cues" = "Apply to all cues";
+"Reset to default" = "Reset to default";
+"Customized" = "Customized";

@@ -1,0 +1,20 @@
+{
+  "name": "@cuttio/daemon",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "cutti editing engine: owns project.json (single source of truth), applies transcript-driven edit actions (ported from Swift CuttiKit.AIActionExecutor), exposes a CLI + HTTP/WS surface that both the UI and an agent (Claude) drive.",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "cli": "tsx src/cli.ts",
+    "serve": "tsx src/server.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.2",
+    "vitest": "^2.1.8"
+  }
+}

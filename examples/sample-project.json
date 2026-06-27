@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "tracks": [
+    {
+      "id": "track-1",
+      "kind": "video",
+      "name": "V1 (Main)",
+      "isMuted": false,
+      "isSolo": false,
+      "isLocked": false,
+      "segments": [
+        {
+          "id": "seg-1",
+          "sourceVideoID": "src-A",
+          "startSeconds": 0,
+          "endSeconds": 6,
+          "text": "今天聊聊我怎么把视频剪辑做成 agent 驱动的",
+          "volumeLevel": 1,
+          "speedRate": 1,
+          "subtitles": [
+            { "id": "sub-1", "relativeStart": 0, "relativeDuration": 3, "text": "今天聊聊我怎么把视频剪辑" },
+            { "id": "sub-2", "relativeStart": 3, "relativeDuration": 3, "text": "做成 agent 驱动的" }
+          ]
+        },
+        {
+          "id": "seg-2",
+          "sourceVideoID": "src-A",
+          "startSeconds": 6,
+          "endSeconds": 9,
+          "text": "呃……那个……就是说",
+          "volumeLevel": 1,
+          "speedRate": 1
+        },
+        {
+          "id": "seg-3",
+          "sourceVideoID": "src-A",
+          "startSeconds": 9,
+          "endSeconds": 18,
+          "text": "核心就是把 project.json 当成唯一真相源",
+          "volumeLevel": 1,
+          "speedRate": 1
+        },
+        {
+          "id": "seg-4",
+          "sourceVideoID": "src-A",
+          "startSeconds": 18,
+          "endSeconds": 24,
+          "text": "UI 和 Claude 都通过 daemon 改它",
+          "volumeLevel": 1,
+          "speedRate": 1
+        }
+      ]
+    }
+  ]
+}

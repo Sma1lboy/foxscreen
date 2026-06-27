@@ -1,0 +1,17 @@
+{
+	"name": "@foxscreen/cli",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"description": "Headless cutti CLI / agent test harness over @foxscreen/cutti-core.",
+	"bin": {
+		"cutti": "./src/cli.ts"
+	},
+	"scripts": {
+		"cutti": "bun run src/cli.ts",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@foxscreen/cutti-core": "workspace:*"
+	}
+}

@@ -1,0 +1,8 @@
+[
+	{ "startSec": 0, "endSec": 3, "text": "今天聊聊 agent 驱动的视频剪辑" },
+	{ "startSec": 3, "endSec": 3.3, "text": "呃" },
+	{ "startSec": 3.3, "endSec": 7, "text": "核心是 project.json 当唯一真相源" },
+	{ "startSec": 7, "endSec": 7.5, "text": "um" },
+	{ "startSec": 7.5, "endSec": 7.6, "text": "ok" },
+	{ "startSec": 7.6, "endSec": 12, "text": "转写驱动 keep/cut,引擎执行真实剪辑" }
+]
