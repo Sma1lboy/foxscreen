@@ -77,26 +77,26 @@ export default function ColorPicker(props: ColorPickerProps) {
 				<Button
 					variant="outline"
 					size="sm"
-					className="w-full h-9 justify-start gap-2 bg-white/5 border-white/10 hover:bg-white/10 px-2"
+					className="w-full h-9 justify-start gap-2 bg-muted border-border hover:bg-accent px-2"
 					onClick={() => setColorMode("wheel")}
 					style={{
-						backgroundColor: colorMode === "wheel" ? "#CC785C" : "transparent",
+						backgroundColor: colorMode === "wheel" ? "hsl(var(--primary))" : "transparent",
 					}}
 				>
-					<span className="text-xs text-slate-300 truncate flex-1 text-left">
+					<span className="text-xs text-foreground/80 truncate flex-1 text-left">
 						{translations.colorWheel}
 					</span>
 				</Button>
 				<Button
 					variant="outline"
 					size="sm"
-					className="w-full h-9 justify-start gap-2 bg-white/5 border-white/10 hover:bg-white/10 px-2"
+					className="w-full h-9 justify-start gap-2 bg-muted border-border hover:bg-accent px-2"
 					onClick={() => setColorMode("palette")}
 					style={{
-						backgroundColor: colorMode === "palette" ? "#CC785C" : "transparent",
+						backgroundColor: colorMode === "palette" ? "hsl(var(--primary))" : "transparent",
 					}}
 				>
-					<span className="text-xs text-slate-300 truncate flex-1 text-left">
+					<span className="text-xs text-foreground/80 truncate flex-1 text-left">
 						{translations.colorPalette}
 					</span>
 				</Button>
@@ -104,7 +104,7 @@ export default function ColorPicker(props: ColorPickerProps) {
 			{colorMode === "wheel" && (
 				<>
 					<div
-						className={`w-full h-20 flex items-center justify-center border border-white/10 rounded-lg`}
+						className={`w-full h-20 flex items-center justify-center border border-border rounded-lg`}
 						style={{ backgroundColor: selectedColor }}
 					>
 						<span style={{ color: getTextColor(selectedColor) }}>{selectedColor}</span>
@@ -122,7 +122,7 @@ export default function ColorPicker(props: ColorPickerProps) {
 					<Input
 						type="text"
 						value={hexInput}
-						className="w-full h-9 rounded-md border border-white/10 bg-white/5 px-2 text-xs text-slate-200 outline-none focus:border-[#CC785C]/50 focus:ring-1 focus:ring-[#CC785C]/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+						className="w-full h-9 rounded-md border border-border bg-muted px-2 text-xs text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
 						onChange={handleColorInputChange}
 					/>
 				</>
@@ -144,7 +144,7 @@ export default function ColorPicker(props: ColorPickerProps) {
 				<Button
 					variant="ghost"
 					size="sm"
-					className="w-full mt-2 text-xs h-7 hover:bg-white/5 text-slate-400"
+					className="w-full mt-2 text-xs h-7 hover:bg-accent text-muted-foreground"
 					onClick={() => {
 						const hsva = toTransparent(selectedColor);
 						if (hsva) setTransparentColorHSVA(hsva);

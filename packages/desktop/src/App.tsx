@@ -75,9 +75,9 @@ export default function App() {
 					<ShortcutsProvider>
 						<Suspense
 							fallback={
-								<div className="flex flex-col items-center justify-center gap-3 h-screen bg-[#09090b]">
+								<div className="flex flex-col items-center justify-center gap-3 h-screen bg-card">
 									<svg
-										className="animate-spin text-[#CC785C]"
+										className="animate-spin text-primary"
 										xmlns="http://www.w3.org/2000/svg"
 										fill="none"
 										viewBox="0 0 24 24"
@@ -98,7 +98,7 @@ export default function App() {
 											d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
 										/>
 									</svg>
-									<span className="text-white/50 text-sm">{tEditor("loadingEditor")}</span>
+									<span className="text-muted-foreground text-sm">{tEditor("loadingEditor")}</span>
 								</div>
 							}
 						>
