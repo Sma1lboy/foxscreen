@@ -79,5 +79,8 @@
 			"couldNotOpenTitle": "无法打开文件",
 			"couldNotOpenMessage": "无法打开项目文件。它引用的视频可能已被移动或删除。"
 		}
+	},
+	"grid": {
+		"dragBlock": "拖动以重新排列区块"
 	}
 }

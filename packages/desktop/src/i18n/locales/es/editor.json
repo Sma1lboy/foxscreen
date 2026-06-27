@@ -79,5 +79,8 @@
 			"couldNotOpenTitle": "No se pudo abrir el archivo",
 			"couldNotOpenMessage": "No se pudo abrir el archivo de proyecto. El video al que hace referencia puede haber sido movido o eliminado."
 		}
+	},
+	"grid": {
+		"dragBlock": "Arrastra para reorganizar el bloque"
 	}
 }

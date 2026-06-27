@@ -79,5 +79,8 @@
 			"couldNotOpenTitle": "Could Not Open File",
 			"couldNotOpenMessage": "The project file could not be opened. The video it references may have been moved or deleted."
 		}
+	},
+	"grid": {
+		"dragBlock": "Drag to rearrange block"
 	}
 }
