@@ -6,6 +6,10 @@ export {
 	type Mp4ExportSettings,
 } from "./mp4ExportSettings";
 export { VideoMuxer } from "./muxer";
+export {
+	SequenceVideoExporter,
+	type SequenceVideoExporterConfig,
+} from "./sequenceExporter";
 export { StreamingVideoDecoder } from "./streamingDecoder";
 export type {
 	ExportConfig,
