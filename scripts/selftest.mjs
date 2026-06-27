@@ -10,16 +10,17 @@ import { homedir } from "node:os";
 const cargoBin = `${homedir()}/.cargo/bin`;
 const withCargo = { ...process.env, PATH: `${cargoBin}:${process.env.PATH ?? ""}` };
 const tauriEnv = { ...process.env, CUTTIO_SHELL: "tauri" };
+const desktop = "packages/desktop";
 
 const steps = [
-	{ name: "typecheck (tsc — renderer + shim)", cmd: "bun", args: ["x", "tsc", "--noEmit"] },
+	{ name: "typecheck (desktop — renderer + shim)", cmd: "bun", args: ["x", "tsc", "--noEmit"], opts: { cwd: desktop } },
 	{ name: "typecheck (@foxscreen/cutti-core)", cmd: "bun", args: ["x", "tsc", "--noEmit", "-p", "packages/cutti-core/tsconfig.json"] },
 	{ name: "typecheck (@foxscreen/cli)", cmd: "bun", args: ["x", "tsc", "--noEmit", "-p", "packages/cli/tsconfig.json"] },
-	{ name: "lint (biome — core + cli + bridge + shim)", cmd: "bun", args: ["x", "biome", "check", "packages/cutti-core/src", "packages/cli/src", "src/lib/cutti", "src/lib/tauri"] },
-	{ name: "unit tests (cutti engine + shim)", cmd: "bun", args: ["x", "vitest", "run", "src/lib"] },
+	{ name: "lint (biome — core + cli + bridge + shim)", cmd: "bun", args: ["x", "biome", "check", "packages/cutti-core/src", "packages/cli/src", "packages/desktop/src/lib/cutti", "packages/desktop/src/lib/tauri"] },
+	{ name: "unit tests (cutti engine + shim)", cmd: "bun", args: ["x", "vitest", "run", "src/lib"], opts: { cwd: desktop } },
 	{ name: "cli harness smoke (firstcut → project)", cmd: "bun", args: ["run", "packages/cli/src/cli.ts", "firstcut", "packages/cli/fixtures/sample-transcript.json", "--out", "/tmp/foxscreen-selftest.foxscreen"] },
-	{ name: "rust build (src-tauri — Tauri shell)", cmd: "cargo", args: ["build"], opts: { cwd: "src-tauri", env: withCargo } },
-	{ name: "frontend build (CUTTIO_SHELL=tauri vite build)", cmd: "bun", args: ["x", "vite", "build"], opts: { env: tauriEnv } },
+	{ name: "rust build (src-tauri — Tauri shell)", cmd: "cargo", args: ["build"], opts: { cwd: `${desktop}/src-tauri`, env: withCargo } },
+	{ name: "frontend build (CUTTIO_SHELL=tauri vite build)", cmd: "bun", args: ["x", "vite", "build"], opts: { cwd: desktop, env: tauriEnv } },
 ];
 
 const results = [];

@@ -99,6 +99,13 @@
       "name": "@foxscreen/cutti-core",
       "version": "0.1.0",
     },
+    "packages/desktop": {
+      "name": "@foxscreen/desktop",
+      "version": "1.5.0",
+      "dependencies": {
+        "@foxscreen/cutti-core": "workspace:*",
+      },
+    },
   },
   "packages": {
     "7zip-bin": ["7zip-bin@5.2.0", "", {}, "sha512-ukTPVhqG4jNzMro2qA9HSCSSVJN3aN7tlb+hfqYCt3ER0yWroeA2VR38MNrOHLQ/cVj+DaIMad0kFCtWWowh/A=="],
@@ -282,6 +289,8 @@
     "@foxscreen/cli": ["@foxscreen/cli@workspace:packages/cli"],
 
     "@foxscreen/cutti-core": ["@foxscreen/cutti-core@workspace:packages/cutti-core"],
+
+    "@foxscreen/desktop": ["@foxscreen/desktop@workspace:packages/desktop"],
 
     "@huggingface/jinja": ["@huggingface/jinja@0.2.2", "", {}, "sha512-/KPde26khDUIPkTGU82jdtTW9UAuvUTumCAbFs/7giR0SxsvZC4hru51PBvpijH6BVkHcROcvZM/lpy5h1jRRA=="],
 
