@@ -224,6 +224,7 @@ export default function VideoEditor() {
 		pushState,
 		updateState,
 		commitState,
+		replacePresent,
 		undo,
 		redo,
 		resetState,
@@ -251,6 +252,10 @@ export default function VideoEditor() {
 		webcamReactiveZoom,
 		webcamSizePreset,
 		webcamPosition,
+		// Standard-NLE timeline clips/tracks now live in the unified undo stack so
+		// every clip + track edit participates in Cmd+Z / Cmd+Y.
+		timelineClips: clips,
+		tracks,
 	} = editorState;
 
 	// Non-undoable state
@@ -272,13 +277,10 @@ export default function VideoEditor() {
 					],
 		);
 	}, []);
-	// Clip-based multi-track timeline (standard-NLE foundation). Clips are seeded
-	// from library assets and edited in <ClipTimeline/>; the active clip drives
-	// the single-source preview (multi-clip compositing is a later phase).
-	const [clips, setClips] = useState<TimelineClip[]>([]);
-	// Explicit per-track lane state (mute/solo/lock) — see ./timeline/trackModel.
-	// Seeds the standard V1/V2/A3 layout; restored from / derived for a project.
-	const [tracks, setTracks] = useState<TimelineTrack[]>(DEFAULT_TRACKS);
+	// `clips` (timelineClips) and `tracks` are read from the undo-stack present
+	// above; every mutation routes through pushState/updateState/replacePresent so
+	// clip + track edits are undoable. Clips are seeded from library assets and
+	// edited in <ClipTimeline/>; the active clip drives the single-source preview.
 	const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
 	// Copy/paste buffer for the standard-NLE clip shortcuts (Cmd/Ctrl+C / +V).
 	const [clipboard, setClipboard] = useState<TimelineClip[]>([]);
@@ -335,36 +337,75 @@ export default function VideoEditor() {
 	);
 	const handleClipChange = useCallback(
 		(patch: Partial<TimelineClip>) => {
-			setClips((prev) => prev.map((c) => (c.id === selectedClipId ? { ...c, ...patch } : c)));
+			pushState((prev) => ({
+				timelineClips: prev.timelineClips.map((c) =>
+					c.id === selectedClipId ? { ...c, ...patch } : c,
+				),
+			}));
 		},
-		[selectedClipId],
+		[selectedClipId, pushState],
 	);
+
+	// ClipTimeline edit channels. Toolbar split/ripple/delete are discrete edits →
+	// one undo step each. A move/trim drag streams through the preview channel
+	// (checkpoint-once-then-mutate) and seals into a single step on commit.
+	const handleClipsChange = useCallback(
+		(next: TimelineClip[]) => {
+			pushState({ timelineClips: next });
+		},
+		[pushState],
+	);
+	const handleClipsDragPreview = useCallback(
+		(next: TimelineClip[]) => {
+			updateState({ timelineClips: next });
+		},
+		[updateState],
+	);
+	const handleClipsDragCommit = useCallback(() => {
+		commitState();
+	}, [commitState]);
 
 	// Per-track lane controls (mute / solo / lock + add / remove). Pure helpers in
 	// ./timeline/trackModel; removing a lane also drops its clips and re-indexes
 	// the lanes/clips above it so the two arrays stay in lockstep.
-	const handleToggleTrackMuted = useCallback((index: number) => {
-		setTracks((prev) => toggleMuted(prev, index));
-	}, []);
-	const handleToggleTrackSolo = useCallback((index: number) => {
-		setTracks((prev) => toggleSolo(prev, index));
-	}, []);
-	const handleToggleTrackLocked = useCallback((index: number) => {
-		setTracks((prev) => toggleLocked(prev, index));
-	}, []);
+	const handleToggleTrackMuted = useCallback(
+		(index: number) => {
+			pushState((prev) => ({ tracks: toggleMuted(prev.tracks, index) }));
+		},
+		[pushState],
+	);
+	const handleToggleTrackSolo = useCallback(
+		(index: number) => {
+			pushState((prev) => ({ tracks: toggleSolo(prev.tracks, index) }));
+		},
+		[pushState],
+	);
+	const handleToggleTrackLocked = useCallback(
+		(index: number) => {
+			pushState((prev) => ({ tracks: toggleLocked(prev.tracks, index) }));
+		},
+		[pushState],
+	);
 	const handleAddTrack = useCallback(() => {
-		setTracks((prev) => addTrack(prev));
-	}, []);
-	const handleRemoveTrack = useCallback((index: number) => {
-		setTracks((prev) => removeTrack(prev, index));
-		setClips((prev) => reindexClipsForRemovedTrack(prev, index));
-		// Drop the selection if it lived on (or above) the removed lane.
-		setSelectedClipId((prev) => {
-			if (!prev) return prev;
-			const sel = clipsRef.current.find((c) => c.id === prev);
-			return sel && sel.trackIndex === index ? null : prev;
-		});
-	}, []);
+		pushState((prev) => ({ tracks: addTrack(prev.tracks) }));
+	}, [pushState]);
+	const handleRemoveTrack = useCallback(
+		(index: number) => {
+			// Removing a lane drops its clips and re-indexes the lanes/clips above it
+			// — one atomic undo entry covering BOTH arrays.
+			pushState((prev) => ({
+				tracks: removeTrack(prev.tracks, index),
+				timelineClips: reindexClipsForRemovedTrack(prev.timelineClips, index),
+			}));
+			// Drop the selection if it lived on the removed lane (non-undoable).
+			setSelectedClipId((prev) => {
+				if (!prev) return prev;
+				const sel = clipsRef.current.find((c) => c.id === prev);
+				return sel && sel.trackIndex === index ? null : prev;
+			});
+		},
+		[pushState],
+	);
 	const [selectedZoomId, setSelectedZoomId] = useState<string | null>(null);
 	const [isPreviewingZoom, setIsPreviewingZoom] = useState(false);
 	const [selectedTrimId, setSelectedTrimId] = useState<string | null>(null);
@@ -540,6 +581,20 @@ export default function VideoEditor() {
 			// over it (even if it has zero zooms because the user deleted them all).
 			autoProcessedSourceRef.current = sourcePath;
 
+			// Restore the clip timeline + lanes into the SAME history checkpoint as the
+			// regions, so loading a project resets the undo stack to one clean baseline
+			// (you can't Cmd+Z back into the prior project's clips). Falls back to an
+			// empty timeline / default lanes when the project carries none.
+			const restoredClips: TimelineClip[] = Array.isArray(project.timelineClips)
+				? project.timelineClips
+				: [];
+			const restoredTracks: TimelineTrack[] =
+				Array.isArray(project.tracks) && project.tracks.length > 0
+					? project.tracks
+					: Array.isArray(project.timelineClips)
+						? defaultTracksForClips(project.timelineClips)
+						: DEFAULT_TRACKS;
+
 			pushState({
 				wallpaper: normalizedEditor.wallpaper,
 				shadowIntensity: normalizedEditor.shadowIntensity,
@@ -562,6 +617,8 @@ export default function VideoEditor() {
 				webcamReactiveZoom: normalizedEditor.webcamReactiveZoom,
 				webcamSizePreset: normalizedEditor.webcamSizePreset,
 				webcamPosition: normalizedEditor.webcamPosition,
+				timelineClips: restoredClips,
+				tracks: restoredTracks,
 			});
 			setExportQuality(normalizedEditor.exportQuality);
 			setExportFormat(normalizedEditor.exportFormat);
@@ -613,21 +670,12 @@ export default function VideoEditor() {
 					: null,
 			);
 
-			// Restore an explicit media library + clip timeline if the project carries
-			// them (newer projects / hand-authored debug projects). Falls back to the
-			// auto-seed (one clip per source) when absent.
+			// Restore an explicit media library if the project carries one (newer
+			// projects / hand-authored debug projects). Falls back to the auto-seed
+			// (one clip per source) when absent. The clip timeline + lanes were already
+			// restored above inside the same pushState checkpoint.
 			if (Array.isArray(project.mediaLibrary) && project.mediaLibrary.length > 0) {
 				setMediaAssets(project.mediaLibrary);
-			}
-			if (Array.isArray(project.timelineClips)) {
-				setClips(project.timelineClips);
-				// Restore explicit lane state when present; otherwise derive lanes from
-				// the clips (one per used index) so mute/solo/lock have a home.
-				setTracks(
-					Array.isArray(project.tracks) && project.tracks.length > 0
-						? project.tracks
-						: defaultTracksForClips(project.timelineClips),
-				);
 			}
 			return true;
 		},
@@ -837,75 +885,73 @@ export default function VideoEditor() {
 				inSec: 0,
 				outSec: out,
 			};
-			setClips((prev) => [...prev, clip]);
+			pushState((prev) => ({ timelineClips: [...prev.timelineClips, clip] }));
 		},
-		[videoSourcePath, duration],
+		[videoSourcePath, duration, pushState],
 	);
 
 	// Seed: every library asset gets at least one clip, appended to the end of
 	// video track 0. Real duration may not be known yet (loads async) — fall back
 	// to a placeholder and refine it once the active source reports its duration.
+	// This is DERIVED state (reactive seeding), not a user gesture, so it goes
+	// through replacePresent — a silent present mutation that creates no undo step.
 	useEffect(() => {
-		setClips((prev) => {
-			const seen = new Set(prev.map((c) => c.assetId));
-			let working = prev;
-			let added = false;
-			for (const asset of mediaAssets) {
-				if (seen.has(asset.id)) continue;
-				const out =
-					asset.path === videoSourcePath && duration > 0 ? duration : FALLBACK_CLIP_SECONDS;
-				working = [
-					...working,
-					{
-						id: genClipId(),
-						assetId: asset.id,
-						name: asset.name,
-						sourcePath: asset.path,
-						trackIndex: 0,
-						startSec: trackEndSec(working, 0),
-						inSec: 0,
-						outSec: out,
-					},
-				];
-				added = true;
-			}
-			return added ? working : prev;
-		});
-	}, [mediaAssets, videoSourcePath, duration]);
+		const prev = clipsRef.current;
+		const seen = new Set(prev.map((c) => c.assetId));
+		let working = prev;
+		let added = false;
+		for (const asset of mediaAssets) {
+			if (seen.has(asset.id)) continue;
+			const out = asset.path === videoSourcePath && duration > 0 ? duration : FALLBACK_CLIP_SECONDS;
+			working = [
+				...working,
+				{
+					id: genClipId(),
+					assetId: asset.id,
+					name: asset.name,
+					sourcePath: asset.path,
+					trackIndex: 0,
+					startSec: trackEndSec(working, 0),
+					inSec: 0,
+					outSec: out,
+				},
+			];
+			added = true;
+		}
+		if (added) replacePresent({ timelineClips: working });
+	}, [mediaAssets, videoSourcePath, duration, replacePresent]);
 
 	// Refine a placeholder-length seeded clip once its source's real duration loads.
+	// Also derived (non-undoable) — routed through replacePresent.
 	useEffect(() => {
 		if (duration <= 0 || !videoSourcePath) return;
-		setClips((prev) => {
-			let changed = false;
-			const next = prev.map((c) => {
-				if (
-					c.sourcePath === videoSourcePath &&
-					c.inSec === 0 &&
-					c.outSec === FALLBACK_CLIP_SECONDS
-				) {
-					changed = true;
-					return { ...c, outSec: duration };
-				}
-				return c;
-			});
-			return changed ? next : prev;
+		const prev = clipsRef.current;
+		let changed = false;
+		const next = prev.map((c) => {
+			if (c.sourcePath === videoSourcePath && c.inSec === 0 && c.outSec === FALLBACK_CLIP_SECONDS) {
+				changed = true;
+				return { ...c, outSec: duration };
+			}
+			return c;
 		});
-	}, [duration, videoSourcePath]);
+		if (changed) replacePresent({ timelineClips: next });
+	}, [duration, videoSourcePath, replacePresent]);
 
 	// Remove an asset from the library; drop its clips and, if it was the active
 	// source, clear the preview.
 	const removeMediaAsset = useCallback(
 		(asset: MediaAsset) => {
 			setMediaAssets((prev) => prev.filter((a) => a.id !== asset.id));
-			setClips((prev) => prev.filter((c) => c.assetId !== asset.id));
+			pushState((prev) => ({
+				timelineClips: prev.timelineClips.filter((c) => c.assetId !== asset.id),
+			}));
 			if (videoSourcePath === asset.path) {
 				setVideoSourcePath(null);
 				setVideoPath(null);
 				setError(null);
 			}
 		},
-		[videoSourcePath],
+		[videoSourcePath, pushState],
 	);
 
 	// Import video files dropped onto the bin: add all, load the first into the preview.
@@ -2348,7 +2394,7 @@ export default function VideoEditor() {
 						e.preventDefault();
 						e.stopPropagation();
 						const pasted = pasteClipsAt(buffer, currentTimeRef.current, genClipId);
-						setClips((prev) => [...prev, ...pasted]);
+						pushState((prev) => ({ timelineClips: [...prev.timelineClips, ...pasted] }));
 						if (pasted[0]) void handleSelectClipRef.current(pasted[0]);
 					}
 					return;
@@ -2358,7 +2404,7 @@ export default function VideoEditor() {
 						e.preventDefault();
 						e.stopPropagation();
 						const dup = duplicateClip(selected, genClipId);
-						setClips((prev) => [...prev, dup]);
+						pushState((prev) => ({ timelineClips: [...prev.timelineClips, dup] }));
 						void handleSelectClipRef.current(dup);
 					}
 					return;
@@ -2370,9 +2416,13 @@ export default function VideoEditor() {
 						e.preventDefault();
 						e.stopPropagation();
 						if (e.shiftKey) {
-							setClips((prev) => rippleDeleteClip(prev, selected.id));
+							pushState((prev) => ({
+								timelineClips: rippleDeleteClip(prev.timelineClips, selected.id),
+							}));
 						} else {
-							setClips((prev) => prev.filter((c) => c.id !== selected.id));
+							pushState((prev) => ({
+								timelineClips: prev.timelineClips.filter((c) => c.id !== selected.id),
+							}));
 						}
 						setSelectedClipId(null);
 						return;
@@ -2382,7 +2432,11 @@ export default function VideoEditor() {
 						e.stopPropagation();
 						const halves = splitClipAt(selected, currentTimeRef.current, genClipId);
 						if (halves) {
-							setClips((prev) => prev.flatMap((c) => (c.id === selected.id ? halves : [c])));
+							pushState((prev) => ({
+								timelineClips: prev.timelineClips.flatMap((c) =>
+									c.id === selected.id ? halves : [c],
+								),
+							}));
 							setSelectedClipId(halves[0].id);
 						}
 						return;
@@ -2392,7 +2446,11 @@ export default function VideoEditor() {
 						e.stopPropagation();
 						const step = e.shiftKey ? CLIP_NUDGE_STEP_LARGE_SEC : CLIP_NUDGE_STEP_SEC;
 						const delta = e.key === "ArrowLeft" ? -step : step;
-						setClips((prev) => prev.map((c) => (c.id === selected.id ? nudgeClip(c, delta) : c)));
+						pushState((prev) => ({
+							timelineClips: prev.timelineClips.map((c) =>
+								c.id === selected.id ? nudgeClip(c, delta) : c,
+							),
+						}));
 						return;
 					}
 				}
@@ -2460,7 +2518,7 @@ export default function VideoEditor() {
 
 		window.addEventListener("keydown", handleKeyDown, { capture: true });
 		return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
-	}, [undo, redo, shortcuts, isMac]);
+	}, [undo, redo, shortcuts, isMac, pushState]);
 
 	useEffect(() => {
 		if (selectedZoomId && !zoomRegions.some((region) => region.id === selectedZoomId)) {
@@ -3717,7 +3775,9 @@ export default function VideoEditor() {
 							<div className="editor-timeline-panel h-full overflow-hidden flex flex-col">
 								<ClipTimeline
 									clips={clips}
-									onClipsChange={setClips}
+									onClipsChange={handleClipsChange}
+									onClipsDragPreview={handleClipsDragPreview}
+									onClipsDragCommit={handleClipsDragCommit}
 									tracks={tracks}
 									onToggleTrackMuted={handleToggleTrackMuted}
 									onToggleTrackSolo={handleToggleTrackSolo}

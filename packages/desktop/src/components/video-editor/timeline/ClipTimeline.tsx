@@ -50,7 +50,16 @@ const TRACK_HEADER_WIDTH = 124; // sticky left lane-header column (label + contr
 
 interface ClipTimelineProps {
 	clips: TimelineClip[];
+	/**
+	 * Commit a discrete clip edit (toolbar split / ripple / delete) as ONE undo
+	 * step. Drag gestures use {@link onClipsDragPreview}/{@link onClipsDragCommit}
+	 * instead so a whole move/trim collapses into a single history entry.
+	 */
 	onClipsChange: (clips: TimelineClip[]) => void;
+	/** Live, per-frame drag update — checkpoints once then mutates the present in place. */
+	onClipsDragPreview: (clips: TimelineClip[]) => void;
+	/** Seal a drag gesture so the next edit starts a fresh undo step. */
+	onClipsDragCommit: () => void;
 	/** Explicit per-track lane state (mute/solo/lock). Falls back to deriving from clips. */
 	tracks?: TimelineTrack[];
 	onToggleTrackMuted?: (index: number) => void;
@@ -154,6 +163,8 @@ function waveformPoints(peaks: number[]): string {
 export function ClipTimeline({
 	clips,
 	onClipsChange,
+	onClipsDragPreview,
+	onClipsDragCommit,
 	tracks: tracksProp,
 	onToggleTrackMuted,
 	onToggleTrackSolo,
@@ -182,8 +193,15 @@ export function ClipTimeline({
 	clipsRef.current = clips;
 	const currentTimeRef = useRef(currentTime);
 	currentTimeRef.current = currentTime;
-	const onClipsChangeRef = useRef(onClipsChange);
-	onClipsChangeRef.current = onClipsChange;
+	// Live drag updates route to the preview channel (a silent-checkpoint present
+	// mutation) so a whole move/trim collapses into ONE undo step on commit.
+	const onClipsDragPreviewRef = useRef(onClipsDragPreview);
+	onClipsDragPreviewRef.current = onClipsDragPreview;
+	const onClipsDragCommitRef = useRef(onClipsDragCommit);
+	onClipsDragCommitRef.current = onClipsDragCommit;
+	// True once a drag actually moved the clip — gates the commit so a click that
+	// never moved pushes nothing onto the undo stack.
+	const dragMovedRef = useRef(false);
 
 	const setPxPerSec = useCallback((next: number) => {
 		setPxPerSecState(Math.min(MAX_PX_PER_SEC, Math.max(MIN_PX_PER_SEC, next)));
@@ -311,13 +329,30 @@ export function ClipTimeline({
 				);
 				return { ...c, outSec: newOut };
 			});
-			onClipsChangeRef.current(next);
+			// Only emit a preview when the dragged clip actually moved/trimmed, so a
+			// click without movement never opens (and later commits) an undo step.
+			const moved = next.find((c) => c.id === drag.clipId);
+			if (
+				moved &&
+				(moved.startSec !== orig.startSec ||
+					moved.trackIndex !== orig.trackIndex ||
+					moved.inSec !== orig.inSec ||
+					moved.outSec !== orig.outSec)
+			) {
+				dragMovedRef.current = true;
+				onClipsDragPreviewRef.current(next);
+			}
 		},
 		[laneIndexFromY],
 	);
 
 	const endDrag = useCallback(() => {
 		dragRef.current = null;
+		// Seal the gesture into a single undo entry — but only if it actually moved.
+		if (dragMovedRef.current) {
+			dragMovedRef.current = false;
+			onClipsDragCommitRef.current();
+		}
 		window.removeEventListener("pointermove", handlePointerMove);
 		window.removeEventListener("pointerup", endDrag);
 		window.removeEventListener("pointercancel", endDrag);
