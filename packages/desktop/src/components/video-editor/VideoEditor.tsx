@@ -181,6 +181,11 @@ function buildSaveDiagnosticMessage(formatLabel: "GIF" | "Video", reason?: strin
 
 const CAPTION_WORD_CHOICES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
 
+// The cutti actions (字幕 / 初剪 / AI 剪) are tucked from the topbar for now — they
+// belong at a more contextual moment (e.g. once a source is loaded / transcribed).
+// The handlers stay wired; flip this to surface the toolbar buttons again.
+const SHOW_CUTTI_TOOLBAR = false;
+
 export default function VideoEditor() {
 	const {
 		state: editorState,
@@ -2850,31 +2855,35 @@ export default function VideoEditor() {
 						<Save size={14} />
 						{ts("project.save")}
 					</button>
-					{/* dev affordance — TODO i18n if productized */}
-					<button
-						type="button"
-						onClick={handleLoadCuttiDemo}
-						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
-					>
-						<Captions size={14} />
-						cutti 字幕
-					</button>
-					<button
-						type="button"
-						onClick={handleCuttiFirstCut}
-						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
-					>
-						<Scissors size={14} />
-						cutti 初剪
-					</button>
-					<button
-						type="button"
-						onClick={handleCuttiAiCut}
-						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
-					>
-						<Sparkles size={14} />
-						cutti AI 剪
-					</button>
+					{/* cutti actions tucked from the topbar for now; flip SHOW_CUTTI_TOOLBAR to re-enter. */}
+					{SHOW_CUTTI_TOOLBAR && (
+						<>
+							<button
+								type="button"
+								onClick={handleLoadCuttiDemo}
+								className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
+							>
+								<Captions size={14} />
+								cutti 字幕
+							</button>
+							<button
+								type="button"
+								onClick={handleCuttiFirstCut}
+								className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
+							>
+								<Scissors size={14} />
+								cutti 初剪
+							</button>
+							<button
+								type="button"
+								onClick={handleCuttiAiCut}
+								className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
+							>
+								<Sparkles size={14} />
+								cutti AI 剪
+							</button>
+						</>
+					)}
 				</div>
 			</div>
 
