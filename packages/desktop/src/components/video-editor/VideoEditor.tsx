@@ -197,7 +197,9 @@ const GridLayout = WidthProvider(Responsive);
 const GRID_COLS = 12;
 const GRID_ROWS = 12;
 const GRID_MARGIN = 10;
-const GRID_LAYOUT_STORAGE_KEY = "foxscreen.gridLayout";
+// Bump this key to discard older saved layouts (e.g. ones dragged into a gappy /
+// non-filling arrangement) and fall back to the clean, width-filling default.
+const GRID_LAYOUT_STORAGE_KEY = "foxscreen.gridLayout.v2";
 const DEFAULT_GRID_LAYOUT: Layout[] = [
 	{ i: "preview", x: 0, y: 0, w: 9, h: GRID_ROWS, minW: 4, minH: 4 },
 	{ i: "settings", x: 9, y: 0, w: 3, h: GRID_ROWS, minW: 2, minH: 3 },

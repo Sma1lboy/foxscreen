@@ -166,6 +166,17 @@
 		overflow: hidden;
 	}
 
+	/* The grid block owns ALL chrome (bg / border / radius / shadow). Inner panels
+	   fill it edge-to-edge so a rounded card is never nested inside another rounded
+	   card — the systematic fix for double-radius, scoped to grid blocks so the
+	   standalone timeline panel keeps its own chrome. */
+	.editor-grid-block-body > * {
+		border-radius: 0 !important;
+		border-width: 0 !important;
+		box-shadow: none !important;
+		background: transparent !important;
+	}
+
 	.editor-grid-deck .react-grid-item.react-grid-placeholder {
 		background: rgba(204, 120, 92, 0.28);
 		border: 1px dashed rgba(204, 120, 92, 0.65);
