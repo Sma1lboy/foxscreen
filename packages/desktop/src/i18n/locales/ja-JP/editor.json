@@ -110,7 +110,9 @@
 		"lockTrack": "トラックをロック",
 		"unlockTrack": "ロック解除",
 		"addTrack": "トラックを追加",
-		"removeTrack": "トラックを削除"
+		"removeTrack": "トラックを削除",
+		"addCrossfade": "クロスフェードを追加",
+		"removeCrossfade": "クロスフェードを削除"
 	},
 	"clipInspector": {
 		"title": "クリップ",

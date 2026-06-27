@@ -110,7 +110,9 @@
 		"lockTrack": "트랙 잠금",
 		"unlockTrack": "잠금 해제",
 		"addTrack": "트랙 추가",
-		"removeTrack": "트랙 삭제"
+		"removeTrack": "트랙 삭제",
+		"addCrossfade": "크로스페이드 추가",
+		"removeCrossfade": "크로스페이드 제거"
 	},
 	"clipInspector": {
 		"title": "클립",

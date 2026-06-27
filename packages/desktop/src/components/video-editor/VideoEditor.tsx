@@ -119,6 +119,7 @@ import {
 	toggleSolo,
 	trackAtIndex,
 } from "./timeline/trackModel";
+import { genTransitionId, type Transition } from "./timeline/transitionModel";
 import { buildAutoZoomSuggestions } from "./timeline/zoomSuggestionUtils";
 import {
 	type AnnotationRegion,
@@ -256,6 +257,7 @@ export default function VideoEditor() {
 		// every clip + track edit participates in Cmd+Z / Cmd+Y.
 		timelineClips: clips,
 		tracks,
+		transitions,
 	} = editorState;
 
 	// Non-undoable state
@@ -441,6 +443,35 @@ export default function VideoEditor() {
 		},
 		[pushState],
 	);
+
+	// Crossfade transitions. Adding marks an existing same-track overlap as a
+	// crossfade; removing drops it. Each is one undo step. Transitions never move a
+	// clip — the blend window is derived from the clips' live positions, so a
+	// transition auto-drops (via activeTransitions) once its clips stop overlapping.
+	const handleAddTransition = useCallback(
+		(fromClipId: string, toClipId: string) => {
+			pushState((prev) => {
+				// Don't double-mark the same overlap pair.
+				const exists = prev.transitions.some(
+					(t) =>
+						(t.fromClipId === fromClipId && t.toClipId === toClipId) ||
+						(t.fromClipId === toClipId && t.toClipId === fromClipId),
+				);
+				if (exists) return {};
+				return {
+					transitions: [...prev.transitions, { id: genTransitionId(), fromClipId, toClipId }],
+				};
+			});
+		},
+		[pushState],
+	);
+	const handleRemoveTransition = useCallback(
+		(id: string) => {
+			pushState((prev) => ({ transitions: prev.transitions.filter((t) => t.id !== id) }));
+		},
+		[pushState],
+	);
+
 	const [selectedZoomId, setSelectedZoomId] = useState<string | null>(null);
 	const [isPreviewingZoom, setIsPreviewingZoom] = useState(false);
 	const [selectedTrimId, setSelectedTrimId] = useState<string | null>(null);
@@ -629,6 +660,9 @@ export default function VideoEditor() {
 					: Array.isArray(project.timelineClips)
 						? defaultTracksForClips(project.timelineClips)
 						: DEFAULT_TRACKS;
+			const restoredTransitions: Transition[] = Array.isArray(project.transitions)
+				? project.transitions
+				: [];
 
 			pushState({
 				wallpaper: normalizedEditor.wallpaper,
@@ -654,6 +688,7 @@ export default function VideoEditor() {
 				webcamPosition: normalizedEditor.webcamPosition,
 				timelineClips: restoredClips,
 				tracks: restoredTracks,
+				transitions: restoredTransitions,
 			});
 			setExportQuality(normalizedEditor.exportQuality);
 			setExportFormat(normalizedEditor.exportFormat);
@@ -2864,6 +2899,7 @@ export default function VideoEditor() {
 							? (new SequenceVideoExporter({
 									clips,
 									tracks,
+									transitions,
 									resolveSourceUrl: (clip) => toFileUrl(clip.sourcePath),
 									width: exportWidth,
 									height: exportHeight,
@@ -3024,6 +3060,7 @@ export default function VideoEditor() {
 			t,
 			clips,
 			tracks,
+			transitions,
 		],
 	);
 
@@ -3854,6 +3891,9 @@ export default function VideoEditor() {
 							<div className="editor-timeline-panel h-full overflow-hidden flex flex-col">
 								<ClipTimeline
 									clips={clips}
+									transitions={transitions}
+									onAddTransition={handleAddTransition}
+									onRemoveTransition={handleRemoveTransition}
 									onClipsChange={handleClipsChange}
 									onClipsDragPreview={handleClipsDragPreview}
 									onClipsDragCommit={handleClipsDragCommit}

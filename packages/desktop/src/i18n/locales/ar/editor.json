@@ -110,7 +110,9 @@
 		"lockTrack": "قفل المسار",
 		"unlockTrack": "فتح قفل المسار",
 		"addTrack": "إضافة مسار",
-		"removeTrack": "إزالة المسار"
+		"removeTrack": "إزالة المسار",
+		"addCrossfade": "إضافة تلاشٍ متقاطع",
+		"removeCrossfade": "إزالة التلاشي المتقاطع"
 	},
 	"clipInspector": {
 		"title": "مقطع",

@@ -6,6 +6,7 @@ import {
 } from "@/components/video-editor/editorDefaults";
 import type { TimelineClip } from "@/components/video-editor/timeline/clipModel";
 import { DEFAULT_TRACKS, type TimelineTrack } from "@/components/video-editor/timeline/trackModel";
+import type { Transition } from "@/components/video-editor/timeline/transitionModel";
 import type {
 	AnnotationRegion,
 	CropRegion,
@@ -55,6 +56,8 @@ export interface EditorState {
 	timelineClips: TimelineClip[];
 	/** Explicit timeline lanes (mute/solo/lock). Undoable. */
 	tracks: TimelineTrack[];
+	/** Crossfade transitions marking same-track clip overlaps. Undoable. */
+	transitions: Transition[];
 }
 
 export const INITIAL_EDITOR_STATE: EditorState = {
@@ -81,6 +84,7 @@ export const INITIAL_EDITOR_STATE: EditorState = {
 	webcamPosition: DEFAULT_WEBCAM_SETTINGS.position,
 	timelineClips: [],
 	tracks: DEFAULT_TRACKS,
+	transitions: [],
 };
 
 type StateUpdate = Partial<EditorState> | ((prev: EditorState) => Partial<EditorState>);

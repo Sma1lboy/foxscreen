@@ -110,7 +110,9 @@
 		"lockTrack": "锁定轨道",
 		"unlockTrack": "解锁轨道",
 		"addTrack": "添加轨道",
-		"removeTrack": "删除轨道"
+		"removeTrack": "删除轨道",
+		"addCrossfade": "添加交叉淡化",
+		"removeCrossfade": "移除交叉淡化"
 	},
 	"clipInspector": {
 		"title": "片段",

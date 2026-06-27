@@ -110,7 +110,9 @@
 		"lockTrack": "Parçayı kilitle",
 		"unlockTrack": "Kilidi aç",
 		"addTrack": "Parça ekle",
-		"removeTrack": "Parçayı kaldır"
+		"removeTrack": "Parçayı kaldır",
+		"addCrossfade": "Çapraz geçiş ekle",
+		"removeCrossfade": "Çapraz geçişi kaldır"
 	},
 	"clipInspector": {
 		"title": "Klip",

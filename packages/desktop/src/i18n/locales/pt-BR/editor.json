@@ -91,7 +91,9 @@
 		"lockTrack": "Bloquear faixa",
 		"unlockTrack": "Desbloquear faixa",
 		"addTrack": "Adicionar faixa",
-		"removeTrack": "Remover faixa"
+		"removeTrack": "Remover faixa",
+		"addCrossfade": "Adicionar fusão cruzada",
+		"removeCrossfade": "Remover fusão cruzada"
 	},
 	"clipInspector": {
 		"title": "Clipe",

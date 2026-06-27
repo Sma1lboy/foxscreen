@@ -92,7 +92,9 @@
 		"lockTrack": "Blocca traccia",
 		"unlockTrack": "Sblocca traccia",
 		"addTrack": "Aggiungi traccia",
-		"removeTrack": "Rimuovi traccia"
+		"removeTrack": "Rimuovi traccia",
+		"addCrossfade": "Aggiungi dissolvenza incrociata",
+		"removeCrossfade": "Rimuovi dissolvenza incrociata"
 	},
 	"clipInspector": {
 		"title": "Clip",
