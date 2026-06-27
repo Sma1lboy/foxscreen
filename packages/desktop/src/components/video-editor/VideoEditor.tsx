@@ -51,6 +51,7 @@ import {
 	GifExporter,
 	type GifFrameRate,
 	type GifSizePreset,
+	SequenceVideoExporter,
 	VideoExporter,
 } from "@/lib/exporter";
 import { computeFrameStepTime } from "@/lib/frameStep";
@@ -2565,47 +2566,64 @@ export default function VideoEditor() {
 						aspectRatioValue,
 					});
 
-					const exporter = new VideoExporter({
-						videoUrl: videoPath,
-						webcamVideoUrl: webcamVideoPath || undefined,
-						width: exportWidth,
-						height: exportHeight,
-						frameRate: 60,
-						bitrate,
-						codec: "avc1.640033",
-						wallpaper,
-						zoomRegions,
-						trimRegions,
-						speedRegions,
-						showShadow: shadowIntensity > 0,
-						shadowIntensity,
-						showBlur,
-						motionBlurAmount,
-						borderRadius,
-						padding,
-						cropRegion,
-						cursorRecordingData,
-						cursorScale: effectiveShowCursor ? cursorSize : 0,
-						cursorSmoothing,
-						cursorMotionBlur,
-						cursorClickBounce,
-						cursorClipToBounds,
-						cursorTheme,
-						annotationRegions,
-						webcamLayoutPreset,
-						webcamMaskShape,
-						webcamMirrored,
-						webcamReactiveZoom,
-						webcamSizePreset,
-						webcamPosition,
-						previewWidth,
-						previewHeight,
-						cursorTelemetry,
-						cursorClickTimestamps,
-						onProgress: (progress: ExportProgress) => {
-							setExportProgress(progress);
-						},
-					});
+					// When the clip timeline has clips, render the sequence (top video track
+					// clips, in order, with their trims + per-clip audio gain). With zero
+					// clips, keep the legacy single-source export path unchanged.
+					const exporter =
+						clips.length > 0
+							? (new SequenceVideoExporter({
+									clips,
+									resolveSourceUrl: (clip) => toFileUrl(clip.sourcePath),
+									width: exportWidth,
+									height: exportHeight,
+									frameRate: 60,
+									bitrate,
+									codec: "avc1.640033",
+									onProgress: (progress: ExportProgress) => {
+										setExportProgress(progress);
+									},
+								}) as unknown as VideoExporter)
+							: new VideoExporter({
+									videoUrl: videoPath,
+									webcamVideoUrl: webcamVideoPath || undefined,
+									width: exportWidth,
+									height: exportHeight,
+									frameRate: 60,
+									bitrate,
+									codec: "avc1.640033",
+									wallpaper,
+									zoomRegions,
+									trimRegions,
+									speedRegions,
+									showShadow: shadowIntensity > 0,
+									shadowIntensity,
+									showBlur,
+									motionBlurAmount,
+									borderRadius,
+									padding,
+									cropRegion,
+									cursorRecordingData,
+									cursorScale: effectiveShowCursor ? cursorSize : 0,
+									cursorSmoothing,
+									cursorMotionBlur,
+									cursorClickBounce,
+									cursorClipToBounds,
+									cursorTheme,
+									annotationRegions,
+									webcamLayoutPreset,
+									webcamMaskShape,
+									webcamMirrored,
+									webcamReactiveZoom,
+									webcamSizePreset,
+									webcamPosition,
+									previewWidth,
+									previewHeight,
+									cursorTelemetry,
+									cursorClickTimestamps,
+									onProgress: (progress: ExportProgress) => {
+										setExportProgress(progress);
+									},
+								});
 
 					exporterRef.current = exporter;
 					const result = await exporter.export();
@@ -2713,6 +2731,7 @@ export default function VideoEditor() {
 			cursorClipToBounds,
 			cursorTheme,
 			t,
+			clips,
 		],
 	);
 
