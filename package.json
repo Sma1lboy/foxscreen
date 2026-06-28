@@ -80,7 +80,6 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.12",
-		"@electron/rebuild": "^4.0.4",
 		"@playwright/test": "^1.59.1",
 		"@tauri-apps/cli": "^2.11.3",
 		"@testing-library/jest-dom": "^6.9.1",
@@ -94,8 +93,6 @@
 		"@vitest/browser": "^4.1.4",
 		"@vitest/browser-playwright": "^4.1.4",
 		"autoprefixer": "^10.5.0",
-		"electron": "^41.2.1",
-		"electron-builder": "^26.8.1",
 		"esbuild": "^0.27.0",
 		"fast-check": "^4.7.0",
 		"husky": "^9.1.7",
@@ -106,8 +103,6 @@
 		"terser": "^5.46.1",
 		"typescript": "^5.9.3",
 		"vite": "^7.3.2",
-		"vite-plugin-electron": "^0.29.1",
-		"vite-plugin-electron-renderer": "^0.14.6",
 		"vitest": "^4.1.4"
 	},
 	"lint-staged": {

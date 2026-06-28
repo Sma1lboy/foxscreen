@@ -32,7 +32,21 @@
 		}
 	},
 	"bundle": {
-		"active": false,
-		"targets": "all"
+		"active": true,
+		"targets": "all",
+		"icon": [
+			"icons/32x32.png",
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.icns",
+			"icons/icon.ico"
+		],
+		"shortDescription": "AI video editor — import, transcript-driven cut, timeline, export",
+		"longDescription": "foxscreen — a cross-platform AI video editor: import any video, transcript-driven keep/cut, a standard multi-track timeline, and export.",
+		"windows": {
+			"nsis": {
+				"installMode": "currentUser"
+			}
+		}
 	}
 }

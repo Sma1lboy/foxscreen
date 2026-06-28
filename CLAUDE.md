@@ -27,7 +27,6 @@ Whisper 端上字幕 + 导出**),迁到 **Tauri**(Rust 壳 + 系统 WebView),在
 │   └── desktop/                @foxscreen/desktop —— Tauri app(openscreen 真身)
 │         src/                  renderer(React/TS)+ src/lib/cutti(desktop 桥,接 core)
 │         src-tauri/            Tauri main/lib/conf/capabilities(Rust 壳)
-│         electron/             旧 Electron main/preload(迁移期保留)
 ├── examples/                   sample cutti project.json
 ├── scripts/selftest.mjs        自测 harness(8 步)
 ├── docs/                       计划 / 决策记录(含 tauri-migration.md)
@@ -89,9 +88,19 @@ clip/轨道)。拖动/trim 一次手势 = 一条 undo(手势末提交);split/dup
 vitest 全绿(含 clipModel/trackModel/useEditorHistory 纯函数)、cli firstcut 冒烟、cargo build、tauri-mode vite build。
 clip 编辑 / 轨道控制 / 载入经 `?seed=demo` headless 实测无回归(Cmd+D 复制、mute 高亮、+加轨)。
 
+**纯 Tauri(Electron 已移除)**:`packages/desktop/electron/`、`electron-builder.json5`、vite-plugin-electron、
+electron 系依赖、openscreen 旧 Electron CI(build.yml/winget/nix/homebrew/discord)全部删除。`window.electronAPI`
+类型搬到 `src/native/electron-api.d.ts`(ambient 全局,运行时由 `electronApiShim` 提供)。原 Electron 原生录屏后端
+(ScreenCaptureKit Swift / wgc-capture C++)随之删除——录屏在 Tauri 下仍 stubbed(`RECORDING_DEFERRED`),将来 Rust 侧重写。
+
+**发版 / Windows 测试**:`tauri.conf.json` `bundle.active:true` + 全套图标(`icons/icon.ico` 等,`tauri icon` 生成)。
+本机 `bun run --cwd packages/desktop tauri:build` 出 mac `.dmg`(已验)。**Windows 不能在 mac 交叉编译** →
+`.github/workflows/release.yml`(tauri-action,windows+mac,手动 dispatch 或 `v*` tag)在 CI 出 `.msi`/`.exe` 上传为 artifact;
+需先把仓库 push 到 GitHub remote(当前无 remote)。`ci.yml` 改成 bun `selftest` 门禁。
+
 **待打磨(非阻塞)**:`mediaAssets` 仍非 undoable(撤销某 asset 最后一条 clip 会被 seed effect 重新补一条占位 —
 沿用既有 seed 语义)。trim-skip 用 timeupdate(~4x/s),进 cut 可能过冲 ~250ms。LLM key 走 localStorage(无设置 UI)。
-「cutti *」+ ThemeToggle 文案硬编码(dev,待 i18n)。录屏在 Tauri 壳下 stubbed(`RECORDING_DEFERRED`)。
+「cutti *」+ ThemeToggle 文案硬编码(dev,待 i18n)。
 
 ## 硬规矩
 
@@ -109,6 +118,10 @@ bun install                      # 装依赖(workspace,bun.lock;依赖 hoist 在
 # desktop 真身(默认 = Tauri;端口 17420)—— 导入/编辑/预览/导出
 bun run dev                      # 根脚本 → cd packages/desktop && tauri dev;见 docs/tauri-migration.md
 bun run selftest                 # 8 步自测:desktop/core/cli tsc + biome + vitest + cli 冒烟 + cargo + vite build
+
+# 发版构建(安装包)
+bun run --cwd packages/desktop tauri:build   # 本机平台安装包(mac=.dmg);bundle.active 已开
+# Windows 安装包:push 到 GitHub 后,Actions → "Release build"(release.yml,tauri-action)手动跑,下 artifact
 
 # cutti 引擎 / agent 无 GUI 测试入口(@foxscreen/cli)
 bun run packages/cli/src/cli.ts firstcut packages/cli/fixtures/sample-transcript.json --out /tmp/p.foxscreen

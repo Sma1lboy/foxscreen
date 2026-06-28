@@ -1,5 +1,12 @@
-import type { Rectangle } from "electron";
 import type { CursorCaptureMode } from "./recordingSession";
+
+/** Pixel rectangle (was imported from Electron; inlined after the Tauri migration). */
+interface Rectangle {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+}
 
 export type NativeMacSourceType = "display" | "window";
 

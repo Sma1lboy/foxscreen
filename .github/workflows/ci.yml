@@ -1,5 +1,8 @@
 name: CI
 
+# Single source of truth: the repo's `bun run selftest` (tsc ×3 + biome + vitest +
+# cli smoke + cargo build + tauri-mode vite build). Runs on every push/PR to main.
+
 on:
   pull_request:
     branches: [main]
@@ -7,52 +10,33 @@ on:
     branches: [main]
 
 jobs:
-  lint:
-    name: Lint
+  selftest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run lint
 
-  typecheck:
-    name: Type Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npx tsc --noEmit
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
 
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run test
-      - run: npm run test:browser:install
-      - run: npm run test:browser
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
 
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Cache Rust (src-tauri)
+        uses: swatinem/rust-cache@v2
         with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npx vite build
+          workspaces: packages/desktop/src-tauri -> target
+
+      # Tauri 2 Linux build dependencies (for the cargo-build step of selftest).
+      - name: Install Tauri system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev libgtk-3-dev \
+            libayatana-appindicator3-dev librsvg2-dev \
+            libxdo-dev libssl-dev
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Selftest (typecheck + lint + tests + cargo + vite build)
+        run: bun run selftest

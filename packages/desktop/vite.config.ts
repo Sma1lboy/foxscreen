@@ -1,33 +1,6 @@
 import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
-import electron from "vite-plugin-electron/simple";
-
-// When building for the Tauri shell, skip the Electron plugin (don't launch
-// Electron); Tauri serves this Vite dev server instead.
-const isTauri = process.env.CUTTIO_SHELL === "tauri";
-
-const electronPlugins = isTauri
-	? []
-	: [
-			electron({
-				main: {
-					entry: "electron/main.ts",
-					onstart({ startup }) {
-						const env = { ...process.env };
-						delete env.ELECTRON_RUN_AS_NODE;
-						return startup(["."], { env });
-					},
-					vite: {
-						build: {},
-					},
-				},
-				preload: {
-					input: path.join(__dirname, "electron/preload.ts"),
-				},
-				renderer: process.env.NODE_ENV === "test" ? undefined : {},
-			}),
-		];
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -39,7 +12,7 @@ export default defineConfig({
 		host: process.env.TAURI_DEV_HOST || undefined,
 		watch: { ignored: ["**/src-tauri/**"] },
 	},
-	plugins: [react(), ...electronPlugins],
+	plugins: [react()],
 	resolve: {
 		alias: {
 			"@foxscreen/cutti-core": path.resolve(__dirname, "../cutti-core/src/index.ts"),
