@@ -1,13 +1,23 @@
 import { describe, expect, it } from "vitest";
 import {
+	buildClipCanvasFilter,
 	clipAtTime,
+	clipBlendMode,
+	clipColor,
+	clipCompositeOperation,
 	clipDuration,
 	clipEndSec,
+	clipOpacity,
+	clipRotationDeg,
+	clipScale,
 	clipsInMarquee,
 	clipsTotalDuration,
+	clipTransform,
 	duplicateClip,
 	gainAt,
+	MAX_CLIP_SCALE,
 	MIN_CLIP_LENGTH,
+	MIN_CLIP_SCALE,
 	nextClipStart,
 	nudgeClip,
 	offsetClips,
@@ -372,5 +382,90 @@ describe("clipsInMarquee", () => {
 
 	it("returns [] for no clips", () => {
 		expect(clipsInMarquee([], 0, 10, 0, 2)).toEqual([]);
+	});
+});
+
+describe("v2 visual adjustment defaults & clamps", () => {
+	it("opacity defaults to 1 and clamps to [0,1]", () => {
+		expect(clipOpacity(clip())).toBe(1);
+		expect(clipOpacity(clip({ opacity: 0.4 }))).toBe(0.4);
+		expect(clipOpacity(clip({ opacity: -2 }))).toBe(0);
+		expect(clipOpacity(clip({ opacity: 9 }))).toBe(1);
+		expect(clipOpacity(clip({ opacity: Number.NaN }))).toBe(1);
+	});
+
+	it("scale defaults to 1 and clamps to the allowed range", () => {
+		expect(clipScale(clip())).toBe(1);
+		expect(clipScale(clip({ scale: 1.5 }))).toBe(1.5);
+		expect(clipScale(clip({ scale: 0 }))).toBe(MIN_CLIP_SCALE);
+		expect(clipScale(clip({ scale: 99 }))).toBe(MAX_CLIP_SCALE);
+	});
+
+	it("rotation defaults to 0 and clamps to ±180", () => {
+		expect(clipRotationDeg(clip())).toBe(0);
+		expect(clipRotationDeg(clip({ rotationDeg: 45 }))).toBe(45);
+		expect(clipRotationDeg(clip({ rotationDeg: 400 }))).toBe(180);
+		expect(clipRotationDeg(clip({ rotationDeg: -400 }))).toBe(-180);
+	});
+
+	it("blend mode falls back to normal for missing/unknown values", () => {
+		expect(clipBlendMode(clip())).toBe("normal");
+		expect(clipBlendMode(clip({ blendMode: "screen" }))).toBe("screen");
+		// @ts-expect-error invalid mode is coerced back to normal at runtime.
+		expect(clipBlendMode(clip({ blendMode: "bogus" }))).toBe("normal");
+	});
+
+	it("composite operation maps normal→source-over, passes others through", () => {
+		expect(clipCompositeOperation(clip())).toBe("source-over");
+		expect(clipCompositeOperation(clip({ blendMode: "multiply" }))).toBe("multiply");
+	});
+
+	it("clipColor defaults to 0 and clamps to ±100", () => {
+		expect(clipColor(clip())).toEqual({
+			exposure: 0,
+			contrast: 0,
+			saturation: 0,
+			temperature: 0,
+		});
+		expect(clipColor(clip({ exposure: 250, temperature: -250 }))).toEqual({
+			exposure: 100,
+			contrast: 0,
+			saturation: 0,
+			temperature: -100,
+		});
+	});
+});
+
+describe("buildClipCanvasFilter", () => {
+	it("returns 'none' when every amount is the default", () => {
+		expect(buildClipCanvasFilter(clipColor(clip()))).toBe("none");
+	});
+
+	it("maps exposure/contrast/saturation to 1±amount/100 multipliers", () => {
+		const f = buildClipCanvasFilter(
+			clipColor(clip({ exposure: 20, contrast: 12, saturation: -50 })),
+		);
+		expect(f).toContain("brightness(1.200)");
+		expect(f).toContain("contrast(1.120)");
+		expect(f).toContain("saturate(0.500)");
+	});
+
+	it("warm temperature emits sepia, cool emits hue-rotate", () => {
+		expect(buildClipCanvasFilter(clipColor(clip({ temperature: 50 })))).toBe("sepia(0.500)");
+		expect(buildClipCanvasFilter(clipColor(clip({ temperature: -50 })))).toBe("hue-rotate(-30deg)");
+	});
+});
+
+describe("clipTransform", () => {
+	it("defaults to identity (no offset, scale 1, no rotation)", () => {
+		expect(clipTransform(clip())).toEqual({ tx: 0, ty: 0, scale: 1, rotateRad: 0 });
+	});
+
+	it("carries pixel offsets, clamps scale, converts degrees to radians", () => {
+		const t = clipTransform(clip({ posX: 30, posY: -12, scale: 5, rotationDeg: 90 }));
+		expect(t.tx).toBe(30);
+		expect(t.ty).toBe(-12);
+		expect(t.scale).toBe(MAX_CLIP_SCALE);
+		expect(t.rotateRad).toBeCloseTo(Math.PI / 2, 6);
 	});
 });

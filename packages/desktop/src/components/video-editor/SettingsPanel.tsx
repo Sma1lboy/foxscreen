@@ -358,6 +358,10 @@ interface SettingsPanelProps {
 	onMediaImportPaths?: (paths: string[]) => void;
 	selectedClip?: TimelineClip | null;
 	onClipChange?: (patch: Partial<TimelineClip>) => void;
+	/** Live clip edit during a slider/number-input drag (one undo step per gesture). */
+	onClipChangePreview?: (patch: Partial<TimelineClip>) => void;
+	/** Seal an in-progress clip-edit gesture into a single undo step. */
+	onClipCommit?: () => void;
 	/** How many timeline clips are selected (drives the single vs. bulk inspector). */
 	selectedClipCount?: number;
 	/** Apply a patch to every selected (unlocked) clip — bulk inspector affordances. */
@@ -515,6 +519,8 @@ export function SettingsPanel({
 	onMediaImportPaths,
 	selectedClip,
 	onClipChange,
+	onClipChangePreview,
+	onClipCommit,
 	selectedClipCount = 0,
 	onSelectedClipsChange,
 	onSelectedClipsDelete,
@@ -836,7 +842,13 @@ export function SettingsPanel({
 		return (
 			<div className="editor-inspector-shell flex min-w-0 flex-col h-full overflow-hidden">
 				<div className="min-h-0 flex-1 overflow-hidden">
-					<ClipInspector clip={selectedClip} onChange={onClipChange} t={tEditor} />
+					<ClipInspector
+						clip={selectedClip}
+						onChange={onClipChange}
+						onPreview={onClipChangePreview}
+						onCommit={onClipCommit}
+						t={tEditor}
+					/>
 				</div>
 				<div className="flex-shrink-0 p-3 border-t border-border bg-black/25">
 					{commonFooterLinks}

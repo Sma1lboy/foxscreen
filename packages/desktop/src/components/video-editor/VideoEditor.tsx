@@ -429,6 +429,19 @@ export default function VideoEditor() {
 		},
 		[selectedClipId, pushState],
 	);
+	// Live inspector edit (slider/number drag): stream through the preview channel
+	// (checkpoint-once-then-mutate) so the whole gesture seals into one undo step
+	// on commit — same pattern as a timeline move/trim drag.
+	const handleClipChangePreview = useCallback(
+		(patch: Partial<TimelineClip>) => {
+			updateState((prev) => ({
+				timelineClips: prev.timelineClips.map((c) =>
+					c.id === selectedClipId ? { ...c, ...patch } : c,
+				),
+			}));
+		},
+		[selectedClipId, updateState],
+	);
 	// Bulk inspector edit (>1 selected): apply a patch to every selected clip on
 	// an UNLOCKED lane — one undo step. Locked-lane clips stay part of the visual
 	// selection but skip the edit (mirrors the keyboard/drag lock guards).
@@ -4009,6 +4022,8 @@ export default function VideoEditor() {
 											showCursorSettings={showCursorSettings}
 											selectedClip={selectedClip}
 											onClipChange={handleClipChange}
+											onClipChangePreview={handleClipChangePreview}
+											onClipCommit={handleClipsDragCommit}
 											selectedClipCount={selectedClipIds.length}
 											onSelectedClipsChange={handleSelectedClipsChange}
 											onSelectedClipsDelete={handleDeleteSelectedClips}

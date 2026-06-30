@@ -34,9 +34,155 @@ export interface TimelineClip {
 	fadeInSec?: number;
 	/** Fade-out ramp length at the clip tail, in timeline seconds (default 0). */
 	fadeOutSec?: number;
+
+	// --- v2 visual adjustments (Properties / Color inspector tabs) ---
+	// All optional + defaulted so older projects load unchanged. Applied in the
+	// canvas EXPORT (sequenceExporter); the live Pixi preview catches up later
+	// (deferred, mirroring crossfade transitions).
+	/** Horizontal offset from canvas center, in output pixels (default 0). */
+	posX?: number;
+	/** Vertical offset from canvas center, in output pixels (default 0). */
+	posY?: number;
+	/** Uniform scale multiplier (default 1; clamped to {@link MIN_CLIP_SCALE}…{@link MAX_CLIP_SCALE}). */
+	scale?: number;
+	/** Clockwise rotation in degrees (default 0; clamped to ±180). */
+	rotationDeg?: number;
+	/** Layer opacity 0–1 (default 1). */
+	opacity?: number;
+	/** Canvas blend mode (default "normal"). */
+	blendMode?: ClipBlendMode;
+	/** Exposure adjustment −100…100 (default 0) → CSS `brightness`. */
+	exposure?: number;
+	/** Contrast adjustment −100…100 (default 0) → CSS `contrast`. */
+	contrast?: number;
+	/** Saturation adjustment −100…100 (default 0) → CSS `saturate`. */
+	saturation?: number;
+	/** Colour temperature −100 (cool) … 100 (warm), default 0. */
+	temperature?: number;
 }
 
 export type TrackKind = "video" | "audio";
+
+/** Blend modes offered in the Composite inspector (subset of canvas modes). */
+export const CLIP_BLEND_MODES = [
+	"normal",
+	"multiply",
+	"screen",
+	"overlay",
+	"darken",
+	"lighten",
+	"difference",
+] as const;
+export type ClipBlendMode = (typeof CLIP_BLEND_MODES)[number];
+
+/** Scale clamp bounds (also the Transform slider range, expressed as ×). */
+export const MIN_CLIP_SCALE = 0.1;
+export const MAX_CLIP_SCALE = 2;
+/** Colour-adjustment slider range (exposure/contrast/saturation/temperature). */
+export const CLIP_COLOR_MIN = -100;
+export const CLIP_COLOR_MAX = 100;
+
+/** Defaulted + clamped opacity (0–1). */
+export function clipOpacity(clip: Pick<TimelineClip, "opacity">): number {
+	const o = clip.opacity ?? 1;
+	return Number.isFinite(o) ? Math.max(0, Math.min(1, o)) : 1;
+}
+
+/** Defaulted + clamped uniform scale. */
+export function clipScale(clip: Pick<TimelineClip, "scale">): number {
+	const s = clip.scale ?? 1;
+	return Number.isFinite(s) ? Math.max(MIN_CLIP_SCALE, Math.min(MAX_CLIP_SCALE, s)) : 1;
+}
+
+/** Defaulted + clamped rotation, in degrees (±180). */
+export function clipRotationDeg(clip: Pick<TimelineClip, "rotationDeg">): number {
+	const r = clip.rotationDeg ?? 0;
+	return Number.isFinite(r) ? Math.max(-180, Math.min(180, r)) : 0;
+}
+
+/** The clip's blend mode, falling back to "normal" for unknown/missing values. */
+export function clipBlendMode(clip: Pick<TimelineClip, "blendMode">): ClipBlendMode {
+	const b = clip.blendMode;
+	return b && (CLIP_BLEND_MODES as readonly string[]).includes(b) ? b : "normal";
+}
+
+/** Canvas `globalCompositeOperation` for the clip ("normal" → "source-over"). */
+export function clipCompositeOperation(
+	clip: Pick<TimelineClip, "blendMode">,
+): GlobalCompositeOperation {
+	const b = clipBlendMode(clip);
+	return b === "normal" ? "source-over" : (b as GlobalCompositeOperation);
+}
+
+/** The four colour-grade amounts, defaulted to 0 and clamped to ±100. */
+export interface ClipColor {
+	exposure: number;
+	contrast: number;
+	saturation: number;
+	temperature: number;
+}
+
+function clampColorAmount(v: number | undefined): number {
+	const n = v ?? 0;
+	return Number.isFinite(n) ? Math.max(CLIP_COLOR_MIN, Math.min(CLIP_COLOR_MAX, n)) : 0;
+}
+
+/** Extract a defaulted/clamped {@link ClipColor} from a clip. */
+export function clipColor(
+	clip: Pick<TimelineClip, "exposure" | "contrast" | "saturation" | "temperature">,
+): ClipColor {
+	return {
+		exposure: clampColorAmount(clip.exposure),
+		contrast: clampColorAmount(clip.contrast),
+		saturation: clampColorAmount(clip.saturation),
+		temperature: clampColorAmount(clip.temperature),
+	};
+}
+
+/**
+ * A CSS/canvas `filter` string from a {@link ClipColor}: exposure→`brightness`,
+ * contrast→`contrast`, saturation→`saturate`, and temperature→a warm `sepia`
+ * (positive) or cool `hue-rotate` (negative) tint. Each amount is `±100` mapped
+ * to a `1 ± amount/100` multiplier; only non-default terms are emitted, so an
+ * untouched clip yields `"none"` (a no-op). Pure — the single source of truth
+ * for "how is this clip colour-graded" (export today, preview later).
+ */
+export function buildClipCanvasFilter(color: ClipColor): string {
+	const parts: string[] = [];
+	if (color.exposure !== 0) parts.push(`brightness(${(1 + color.exposure / 100).toFixed(3)})`);
+	if (color.contrast !== 0) parts.push(`contrast(${(1 + color.contrast / 100).toFixed(3)})`);
+	if (color.saturation !== 0) parts.push(`saturate(${(1 + color.saturation / 100).toFixed(3)})`);
+	if (color.temperature > 0) parts.push(`sepia(${(color.temperature / 100).toFixed(3)})`);
+	else if (color.temperature < 0)
+		parts.push(`hue-rotate(${Math.round(color.temperature * 0.6)}deg)`);
+	return parts.length > 0 ? parts.join(" ") : "none";
+}
+
+/** A clip's geometric transform: pixel offset, scale, and rotation in radians. */
+export interface ClipTransform {
+	tx: number;
+	ty: number;
+	scale: number;
+	rotateRad: number;
+}
+
+/**
+ * Defaulted/clamped {@link ClipTransform} for a clip — `posX`/`posY` pixel
+ * offsets, {@link clipScale}, and `rotationDeg` converted to radians. Pure — the
+ * compositor multiplies these about the canvas centre.
+ */
+export function clipTransform(
+	clip: Pick<TimelineClip, "posX" | "posY" | "scale" | "rotationDeg">,
+): ClipTransform {
+	const px = clip.posX ?? 0;
+	const py = clip.posY ?? 0;
+	return {
+		tx: Number.isFinite(px) ? px : 0,
+		ty: Number.isFinite(py) ? py : 0,
+		scale: clipScale(clip),
+		rotateRad: (clipRotationDeg(clip) * Math.PI) / 180,
+	};
+}
 
 /**
  * Per-track lane state ({@link TimelineTrack}, mute/solo/lock) lives in the

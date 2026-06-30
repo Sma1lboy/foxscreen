@@ -23,7 +23,14 @@
  * outright, no V2-over-V1) and no per-clip openscreen effects
  * (zoom/padding/wallpaper/cursor) — those remain on the legacy single-source path.
  */
-import type { TimelineClip } from "@/components/video-editor/timeline/clipModel";
+import {
+	buildClipCanvasFilter,
+	clipColor,
+	clipCompositeOperation,
+	clipOpacity,
+	clipTransform,
+	type TimelineClip,
+} from "@/components/video-editor/timeline/clipModel";
 import type { TimelineTrack } from "@/components/video-editor/timeline/trackModel";
 import {
 	type ActiveTransition,
@@ -86,23 +93,42 @@ function clearToBlack(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingCo
 	ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 }
 
-/** "contain"-fit a source frame into the output canvas, centered, on black. */
-function drawContain(
+/**
+ * "contain"-fit a clip's source frame, then apply its v2 visual adjustments
+ * (Properties/Color inspector tabs): transform (translate + scale + rotate about
+ * the canvas centre), layer `opacity`, `blendMode`, and the colour-grade `filter`.
+ * The black background is cleared first and is UNAFFECTED by the clip's
+ * alpha/filter/composite — those shape only the drawn frame. Defaults are no-ops,
+ * so an untouched clip renders as a plain centered "contain" fit on black.
+ *
+ * NOTE: The live Pixi preview (VideoPlayback) does NOT yet apply these — that is
+ * deferred to a later slice (S4), mirroring how crossfade transitions are
+ * export-only today (headless cannot verify the WebGL preview anyway).
+ */
+function drawClipFrame(
 	ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
 	frame: VideoFrame,
 	outWidth: number,
 	outHeight: number,
+	clip: TimelineClip,
 ) {
 	clearToBlack(ctx);
 	const srcW = frame.displayWidth || frame.codedWidth;
 	const srcH = frame.displayHeight || frame.codedHeight;
 	if (srcW <= 0 || srcH <= 0) return;
-	const scale = Math.min(outWidth / srcW, outHeight / srcH);
-	const drawW = srcW * scale;
-	const drawH = srcH * scale;
-	const dx = (outWidth - drawW) / 2;
-	const dy = (outHeight - drawH) / 2;
-	ctx.drawImage(frame, dx, dy, drawW, drawH);
+	const baseScale = Math.min(outWidth / srcW, outHeight / srcH);
+	const drawW = srcW * baseScale;
+	const drawH = srcH * baseScale;
+	const { tx, ty, scale, rotateRad } = clipTransform(clip);
+	ctx.save();
+	ctx.globalAlpha = clipOpacity(clip);
+	ctx.globalCompositeOperation = clipCompositeOperation(clip);
+	ctx.filter = buildClipCanvasFilter(clipColor(clip));
+	ctx.translate(outWidth / 2 + tx, outHeight / 2 + ty);
+	ctx.rotate(rotateRad);
+	ctx.scale(scale, scale);
+	ctx.drawImage(frame, -drawW / 2, -drawH / 2, drawW, drawH);
+	ctx.restore();
 }
 
 /**
@@ -265,6 +291,7 @@ export class SequenceVideoExporter {
 						onWarning,
 					);
 				} else if (segment.clip) {
+					const segmentClip = segment.clip;
 					await this.decodeSegment(
 						segment,
 						async (frame) => {
@@ -273,7 +300,9 @@ export class SequenceVideoExporter {
 								return;
 							}
 							try {
-								drawContain(ctx, frame, this.config.width, this.config.height);
+								// Apply the clip's v2 transform/composite/colour (no-op at defaults).
+								// Crossfade segments keep their own dual-clip alpha blend above.
+								drawClipFrame(ctx, frame, this.config.width, this.config.height, segmentClip);
 								await encodeCanvasFrame();
 								emitted++;
 							} finally {
