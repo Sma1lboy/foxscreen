@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0d0e10;overflow:hidden;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:rgba(255,255,255,.12);accent-color:#ea7a52;cursor:pointer;margin:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:13px;height:13px;border-radius:50%;background:#ea7a52;box-shadow:0 0 0 3px rgba(234,122,82,.18);cursor:pointer}
+input[type=number]{font-family:'IBM Plex Mono',monospace}
+@keyframes phpulse{0%,100%{opacity:.85}50%{opacity:1}}
+</style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;height:100vh;width:100vw;background:#0d0e10;color:#eceef0;font-family:'Plus Jakarta Sans',system-ui,sans-serif">
+
+  <div style="display:flex;align-items:center;gap:14px;height:48px;padding:0 14px;background:#111316;border-bottom:1px solid rgba(255,255,255,.07);flex:none">
+    <div style="display:flex;gap:8px"><span style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></span><span style="width:12px;height:12px;border-radius:50%;background:#febc2e"></span><span style="width:12px;height:12px;border-radius:50%;background:#28c840"></span></div>
+    <span style="font-weight:800;font-size:13.5px;letter-spacing:.2px;margin-left:6px">foxscreen</span>
+    <span style="width:1px;height:18px;background:rgba(255,255,255,.1)"></span>
+    <nav style="display:flex;gap:16px;font-size:12.5px;color:#8b9097">File Edit View Window Help</nav>
+    <span style="width:1px;height:18px;background:rgba(255,255,255,.1)"></span>
+    <span style="font:500 12px 'Plus Jakarta Sans';color:#8b9097">Untitled Project <span style="color:#5f656c">· 已自动保存</span></span>
+    <span style="flex:1"></span>
+    <div style="display:flex;gap:2px;margin-right:4px">
+      <button title="撤销" style="width:31px;height:31px;border-radius:8px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);color:#c5c9ce;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8H13a4 4 0 010 8H8"/><path d="M7 8l3-3M7 8l3 3"/></svg></button>
+      <button title="重做" style="width:31px;height:31px;border-radius:8px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);color:#c5c9ce;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8H7a4 4 0 000 8h5"/><path d="M13 8l-3-3M13 8l-3 3"/></svg></button>
+    </div>
+    <button style="display:inline-flex;align-items:center;gap:7px;height:31px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);color:#c5c9ce;font:600 12px 'Plus Jakarta Sans';white-space:nowrap;cursor:pointer"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="5" width="11" height="10" rx="2"/><path d="M14 8l4-2v8l-4-2"/></svg>Return to Recorder</button>
+    <button style="display:inline-flex;align-items:center;gap:7px;height:31px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);color:#c5c9ce;font:600 12px 'Plus Jakarta Sans';white-space:nowrap;cursor:pointer"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6a1 1 0 011-1h4l2 2h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg>Load</button>
+    <button style="display:inline-flex;align-items:center;gap:7px;height:31px;padding:0 13px;border-radius:8px;border:1px solid rgba(234,122,82,.5);background:rgba(234,122,82,.16);color:#f4a583;font:700 12px 'Plus Jakarta Sans';white-space:nowrap;cursor:pointer"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 4h8l3 3v9a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M7 4v4h6"/></svg>Save</button>
+    <button style="display:inline-flex;align-items:center;gap:7px;height:31px;padding:0 14px;border-radius:8px;border:none;background:#ea7a52;color:#fff;font:700 12px 'Plus Jakarta Sans';white-space:nowrap;cursor:pointer;box-shadow:0 6px 16px -8px rgba(234,122,82,.7)"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v9m0 0l-3-3m3 3l3-3M4 15h12"/></svg>导出</button>
+  </div>
+
+  <div style="display:flex;flex:1;min-height:0">
+
+    <div style="width:56px;flex:none;background:#0f1113;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:4px">
+      <div style="position:relative;width:38px;height:38px;border-radius:10px;background:rgba(234,122,82,.16);color:#ea7a52;display:flex;align-items:center;justify-content:center"><span style="position:absolute;left:-12px;top:9px;width:3px;height:20px;border-radius:2px;background:#ea7a52"></span><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="12" rx="2"/><line x1="3" y1="8" x2="17" y2="8"/><line x1="7" y1="4" x2="7" y2="16"/></svg></div>
+      <div style="width:38px;height:38px;border-radius:10px;color:#6f757c;display:flex;align-items:center;justify-content:center" style-hover="background:rgba(255,255,255,.05)"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 6h10M10 6v9"/></svg></div>
+      <div style="width:38px;height:38px;border-radius:10px;color:#6f757c;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="5" y1="7" x2="5" y2="13"/><line x1="8" y1="4" x2="8" y2="16"/><line x1="11" y1="6" x2="11" y2="14"/><line x1="14" y1="8" x2="14" y2="12"/></svg></div>
+      <div style="width:38px;height:38px;border-radius:10px;color:#6f757c;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M10 3l1.7 4L16 8.5l-3.4 2.6L13 16l-3-2.4L7 16l.4-4.9L4 8.5 8.3 7z"/></svg></div>
+      <div style="width:38px;height:38px;border-radius:10px;color:#6f757c;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="12" rx="2"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="10" y1="4" x2="10" y2="16"/></svg></div>
+      <span style="flex:1"></span>
+      <div style="width:38px;height:38px;border-radius:10px;color:#6f757c;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="3"/><path d="M10 3v2M10 15v2M3 10h2M15 10h2M5 5l1.5 1.5M13.5 13.5L15 15M15 5l-1.5 1.5M6.5 13.5L5 15"/></svg></div>
+    </div>
+
+    <div style="width:288px;flex:none;background:#121417;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;align-items:center;height:46px;padding:0 16px;flex:none">
+        <span style="font-weight:700;font-size:13px">媒体库</span>
+        <span style="margin-left:8px;font:500 11px 'IBM Plex Mono';color:#5f656c">4</span>
+        <span style="flex:1"></span>
+        <button style="width:28px;height:28px;border-radius:7px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);color:#c5c9ce;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="10" y1="5" x2="10" y2="15"/><line x1="5" y1="10" x2="15" y2="10"/></svg></button>
+      </div>
+      <div style="padding:0 16px 10px;flex:none">
+        <div style="display:flex;align-items:center;gap:8px;height:34px;padding:0 11px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)">
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="#6f757c" stroke-width="1.6"><circle cx="9" cy="9" r="5.5"/><line x1="13.5" y1="13.5" x2="17" y2="17" stroke-linecap="round"/></svg>
+          <span style="font-size:12px;color:#5f656c">搜索素材…</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;padding:0 16px 12px;flex:none">
+        <span style="font:600 11.5px 'Plus Jakarta Sans';padding:5px 12px;border-radius:7px;background:rgba(234,122,82,.16);color:#ea7a52">全部</span>
+        <span style="font:600 11.5px 'Plus Jakarta Sans';padding:5px 12px;border-radius:7px;color:#8b9097">视频</span>
+        <span style="font:600 11.5px 'Plus Jakarta Sans';padding:5px 12px;border-radius:7px;color:#8b9097">音频</span>
+        <span style="font:600 11.5px 'Plus Jakarta Sans';padding:5px 12px;border-radius:7px;color:#8b9097">图片</span>
+      </div>
+      <div style="flex:1;min-height:0;overflow-y:auto;padding:0 16px 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start">
+        <div style="border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#1a1d21;cursor:pointer"><div style="height:74px;position:relative;background:linear-gradient(135deg,#2a3340,#1b2128)"><span style="position:absolute;right:5px;bottom:4px;font:500 9px 'IBM Plex Mono';color:#cfd2d6;background:rgba(0,0,0,.55);padding:1px 4px;border-radius:3px">0:12</span></div><div style="padding:7px 9px;font-size:11px;font-weight:600;color:#c9cdd2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">intro_take3.mp4</div></div>
+        <div style="border-radius:10px;overflow:hidden;border:1.5px solid #ea7a52;box-shadow:0 0 0 3px rgba(234,122,82,.16);background:#1a1d21;cursor:pointer"><div style="height:74px;position:relative;background:linear-gradient(135deg,#3a2f3a,#241c24)"><span style="position:absolute;right:5px;bottom:4px;font:500 9px 'IBM Plex Mono';color:#cfd2d6;background:rgba(0,0,0,.55);padding:1px 4px;border-radius:3px">0:48</span></div><div style="padding:7px 9px;font-size:11px;font-weight:600;color:#f4a583;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">screen_demo.mov</div></div>
+        <div style="border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#1a1d21;cursor:pointer"><div style="height:74px;position:relative;background:linear-gradient(135deg,#2e3a33,#1c241f)"><span style="position:absolute;right:5px;bottom:4px;font:500 9px 'IBM Plex Mono';color:#cfd2d6;background:rgba(0,0,0,.55);padding:1px 4px;border-radius:3px">0:06</span></div><div style="padding:7px 9px;font-size:11px;font-weight:600;color:#c9cdd2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">logo_anim.mp4</div></div>
+        <div style="border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#1a1d21;cursor:pointer"><div style="height:74px;position:relative;background:#191c22;display:flex;align-items:center;justify-content:center;gap:2px">
+          <sc-for list="{{ wave }}" as="h" hint-placeholder-count="22"><div style="width:2px;border-radius:1px;background:rgba(234,122,82,.7);height:{{ h }}px"></div></sc-for>
+        </div><div style="padding:7px 9px;font-size:11px;font-weight:600;color:#c9cdd2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">vo_master.wav</div></div>
+      </div>
+      <div style="height:40px;flex:none;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;padding:0 16px;font:500 11px 'IBM Plex Mono';color:#5f656c;gap:6px"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="12" rx="2"/></svg>共 4 个素材 · 1.2 GB</div>
+    </div>
+
+    <div style="flex:1;min-width:0;background:#0b0c0e;display:flex;flex-direction:column;min-height:0">
+      <div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:28px;position:relative">
+        <div style="width:100%;max-width:860px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;position:relative;background:repeating-linear-gradient(45deg,#15181c 0 14px,#121519 14px 28px);box-shadow:0 14px 44px -12px rgba(0,0,0,.7)">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+            <div style="{{ previewInner }}"><span style="font:500 12px 'IBM Plex Mono';color:#565c63;letter-spacing:1px">1920 × 1080 · PREVIEW</span></div>
+          </div>
+          <div style="position:absolute;left:14px;top:12px;display:flex;gap:7px"><span style="font:600 11px 'Plus Jakarta Sans';background:rgba(0,0,0,.5);color:#dfe2e6;padding:3px 9px;border-radius:6px">screen_demo.mov</span></div>
+          <div style="position:absolute;right:14px;top:12px;display:flex;gap:6px"><span style="font:600 10px 'IBM Plex Mono';background:rgba(0,0,0,.5);color:#9aa0a7;padding:3px 8px;border-radius:6px">16:9</span><span style="font:600 10px 'IBM Plex Mono';background:rgba(0,0,0,.5);color:#9aa0a7;padding:3px 8px;border-radius:6px">100%</span></div>
+        </div>
+      </div>
+      <div style="height:56px;flex:none;display:flex;align-items:center;gap:14px;padding:0 24px;border-top:1px solid rgba(255,255,255,.05)">
+        <button style="width:30px;height:30px;border-radius:7px;border:none;background:transparent;color:#9aa0a7;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M14 5l-7 5 7 5zM5 5h2v10H5z"/></svg></button>
+        <button onClick="{{ togglePlay }}" style="width:38px;height:38px;border-radius:50%;border:none;background:#fff;color:#0b0c0e;cursor:pointer;display:inline-flex;align-items:center;justify-content:center">
+          <sc-if value="{{ playing }}"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><rect x="5" y="4" width="3.5" height="12" rx="1"/><rect x="11.5" y="4" width="3.5" height="12" rx="1"/></svg></sc-if>
+          <sc-if value="{{ paused }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M7 5l9 5-9 5z"/></svg></sc-if>
+        </button>
+        <button style="width:30px;height:30px;border-radius:7px;border:none;background:transparent;color:#9aa0a7;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M6 5l7 5-7 5zM13 5h2v10h-2z"/></svg></button>
+        <span style="font:500 12px 'IBM Plex Mono';color:#9aa0a7;min-width:78px">{{ time }} <span style="color:#5f656c">/ 0:48</span></span>
+        <div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.1);position:relative"><div style="{{ progFill }}"></div><div style="{{ progThumb }}"></div></div>
+        <div style="display:flex;align-items:center;gap:8px;width:120px"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#9aa0a7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l4-3v10l-4-3H4z"/><path d="M14 8a3 3 0 010 4"/></svg><input type="range" min="0" max="100" value="{{ vol }}" onChange="{{ setVol }}" style="flex:1"></div>
+        <button style="width:30px;height:30px;border-radius:7px;border:1px solid rgba(255,255,255,.09);background:transparent;color:#9aa0a7;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7V4h3M16 7V4h-3M4 13v3h3M16 13v3h-3"/></svg></button>
+      </div>
+    </div>
+
+    <div style="width:300px;flex:none;background:#121417;border-left:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;align-items:center;gap:11px;padding:14px 16px;flex:none;border-bottom:1px solid rgba(255,255,255,.05)">
+        <div style="width:52px;height:34px;border-radius:7px;background:linear-gradient(135deg,#3a2f3a,#241c24);flex:none;border:1px solid rgba(255,255,255,.08)"></div>
+        <div style="min-width:0;flex:1"><div style="font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">screen_demo.mov</div><div style="font:500 10.5px 'IBM Plex Mono';color:#5f656c;margin-top:2px">V1 · 00:00 → 00:09</div></div>
+      </div>
+      <div style="display:flex;gap:2px;padding:8px 12px;flex:none">
+        <button onClick="{{ setProps }}" style="{{ tabProps }}">属性</button>
+        <button onClick="{{ setColor }}" style="{{ tabColor }}">颜色</button>
+        <button onClick="{{ setAudio }}" style="{{ tabAudio }}">音频</button>
+      </div>
+      <div style="flex:1;min-height:0;overflow-y:auto;padding:6px 16px 18px">
+
+        <sc-if value="{{ isProps }}" hint-placeholder-val="{{ true }}">
+        <div style="font:700 11px 'Plus Jakarta Sans';letter-spacing:.6px;text-transform:uppercase;color:#6f757c;margin:10px 0 12px">变换 Transform</div>
+        <div style="display:flex;gap:10px;margin-bottom:14px">
+          <div style="flex:1"><div style="font-size:11px;color:#8b9097;margin-bottom:6px">位置 X</div><input type="number" value="0" style="width:100%;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);color:#eceef0;font-size:12px;padding:0 10px;outline:none"></div>
+          <div style="flex:1"><div style="font-size:11px;color:#8b9097;margin-bottom:6px">位置 Y</div><input type="number" value="0" style="width:100%;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);color:#eceef0;font-size:12px;padding:0 10px;outline:none"></div>
+        </div>
+        <div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11.5px;color:#c9cdd2">缩放</span><span style="font:500 11px 'IBM Plex Mono';color:#ea7a52">{{ scaleLabel }}</span></div><input type="range" min="10" max="200" value="{{ scale }}" onChange="{{ setScale }}"></div>
+        <div style="margin-bottom:18px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11.5px;color:#c9cdd2">旋转</span><span style="font:500 11px 'IBM Plex Mono';color:#9aa0a7">{{ rotLabel }}</span></div><input type="range" min="-180" max="180" value="{{ rot }}" onChange="{{ setRot }}"></div>
+        <div style="height:1px;background:rgba(255,255,255,.06);margin:0 -16px 16px"></div>
+        <div style="font:700 11px 'Plus Jakarta Sans';letter-spacing:.6px;text-transform:uppercase;color:#6f757c;margin:0 0 12px">合成 Composite</div>
+        <div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11.5px;color:#c9cdd2">不透明度</span><span style="font:500 11px 'IBM Plex Mono';color:#ea7a52">{{ opacityLabel }}</span></div><input type="range" min="0" max="100" value="{{ opacity }}" onChange="{{ setOpacity }}"></div>
+        <div style="margin-bottom:18px"><div style="font-size:11.5px;color:#c9cdd2;margin-bottom:7px">混合模式</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 11px;border-radius:8px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);font-size:12px;color:#c9cdd2;cursor:pointer">正常 Normal<svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="#6f757c" stroke-width="1.8" stroke-linecap="round"><path d="M6 8l4 4 4-4"/></svg></div>
+        </div>
+        <button style="width:100%;height:36px;border-radius:9px;border:1px dashed rgba(255,255,255,.14);background:transparent;color:#8b9097;font:600 12px 'Plus Jakarta Sans';cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="10" y1="5" x2="10" y2="15"/><line x1="5" y1="10" x2="15" y2="10"/></svg>添加效果</button>
+        </sc-if>
+
+        <sc-if value="{{ isColor }}">
+        <div style="font:700 11px 'Plus Jakarta Sans';letter-spacing:.6px;text-transform:uppercase;color:#6f757c;margin:10px 0 14px">基础校色</div>
+        <div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11.5px;color:#c9cdd2">曝光</span><span style="font:500 11px 'IBM Plex Mono';color:#9aa0a7">+0.2</span></div><input type="range" min="-100" max="100" value="20"></div>
+        <div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11.5px;color:#c9cdd2">对比度</span><span style="font:500 11px 'IBM Plex Mono';color:#9aa0a7">12</span></div><input type="range" min="-100" max="100" value="12"></div>
+        <div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11.5px;color:#c9cdd2">饱和度</span><span style="font:500 11px 'IBM Plex Mono';color:#9aa0a7">5</span></div><input type="range" min="-100" max="100" value="5"></div>
+        <div style="margin-bottom:18px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11.5px;color:#c9cdd2">色温</span><span style="font:500 11px 'IBM Plex Mono';color:#9aa0a7">-8</span></div><input type="range" min="-100" max="100" value="-8"></div>
+        <div style="height:1px;background:rgba(255,255,255,.06);margin:0 -16px 16px"></div>
+        <div style="font:700 11px 'Plus Jakarta Sans';letter-spacing:.6px;text-transform:uppercase;color:#6f757c;margin:0 0 12px">直方图</div>
+        <div style="height:72px;border-radius:9px;background:#0e1013;border:1px solid rgba(255,255,255,.07);display:flex;align-items:flex-end;gap:1px;padding:8px;overflow:hidden">
+          <sc-for list="{{ wave }}" as="h" hint-placeholder-count="40"><div style="flex:1;border-radius:1px;background:linear-gradient(180deg,rgba(234,122,82,.7),rgba(234,122,82,.15));height:{{ h }}px"></div></sc-for>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isAudio }}">
+        <div style="font:700 11px 'Plus Jakarta Sans';letter-spacing:.6px;text-transform:uppercase;color:#6f757c;margin:10px 0 14px">音量</div>
+        <div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:7px"><span style="font-size:11.5px;color:#c9cdd2">增益</span><span style="font:500 11px 'IBM Plex Mono';color:#ea7a52">{{ volLabel }}</span></div><input type="range" min="0" max="100" value="{{ vol }}" onChange="{{ setVol }}"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;height:38px;padding:0 4px;margin-bottom:8px"><span style="font-size:12px;color:#c9cdd2">静音</span>
+          <div onClick="{{ toggleMute }}" style="{{ muteTrack }}"><div style="{{ muteKnob }}"></div></div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,.06);margin:8px -16px 16px"></div>
+        <div style="font:700 11px 'Plus Jakarta Sans';letter-spacing:.6px;text-transform:uppercase;color:#6f757c;margin:0 0 12px">淡入 / 淡出</div>
+        <div style="display:flex;gap:10px;margin-bottom:16px">
+          <div style="flex:1"><div style="font-size:11px;color:#8b9097;margin-bottom:6px">淡入</div><div style="height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);display:flex;align-items:center;padding:0 10px;font:500 11.5px 'IBM Plex Mono';color:#c9cdd2">0.5s</div></div>
+          <div style="flex:1"><div style="font-size:11px;color:#8b9097;margin-bottom:6px">淡出</div><div style="height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);display:flex;align-items:center;padding:0 10px;font:500 11.5px 'IBM Plex Mono';color:#c9cdd2">0.8s</div></div>
+        </div>
+        <div style="height:54px;border-radius:9px;background:#0e1013;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:2px;padding:0 10px;overflow:hidden">
+          <sc-for list="{{ wave }}" as="h" hint-placeholder-count="40"><div style="width:2px;border-radius:1px;background:rgba(234,122,82,.55);height:{{ h }}px"></div></sc-for>
+        </div>
+        </sc-if>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div style="height:288px;flex:none;background:#0f1113;border-top:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;min-height:0">
+    <div style="height:46px;flex:none;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.06)">
+      <button title="分割" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#c5c9ce;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="14" r="2"/><line x1="8" y1="7" x2="16" y2="14"/><line x1="8" y1="13" x2="16" y2="6"/></svg></button>
+      <button title="删除" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#c5c9ce;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 6h10M8 6V4h4v2M6 6l1 10h6l1-10"/></svg></button>
+      <button title="复制" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#c5c9ce;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="9" height="9" rx="2"/><path d="M7 13v2a1 1 0 001 1h7a1 1 0 001-1V8a1 1 0 00-1-1h-2"/></svg></button>
+      <span style="width:1px;height:18px;background:rgba(255,255,255,.09);margin:0 2px"></span>
+      <button title="添加轨道" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#c5c9ce;cursor:pointer;font:600 12px 'Plus Jakarta Sans'"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="10" y1="5" x2="10" y2="15"/><line x1="5" y1="10" x2="15" y2="10"/></svg>轨道</button>
+      <span style="flex:1"></span>
+      <span style="font:500 11px 'IBM Plex Mono';color:#5f656c;margin-right:4px">{{ time }} · 30fps</span>
+      <span style="width:1px;height:18px;background:rgba(255,255,255,.09);margin:0 4px"></span>
+      <button style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#c5c9ce;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="9" r="5"/><line x1="13" y1="13" x2="17" y2="17"/><line x1="6" y1="9" x2="12" y2="9"/></svg></button>
+      <span style="font:500 11px 'IBM Plex Mono';color:#8b9097;width:42px;text-align:center">100%</span>
+      <button style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#c5c9ce;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="9" r="5"/><line x1="13" y1="13" x2="17" y2="17"/><line x1="6" y1="9" x2="12" y2="9"/><line x1="9" y1="6" x2="9" y2="12"/></svg></button>
+      <span style="width:1px;height:18px;background:rgba(255,255,255,.09);margin:0 2px"></span>
+      <button title="吸附" style="width:32px;height:32px;border-radius:8px;border:1px solid rgba(234,122,82,.5);background:rgba(234,122,82,.16);color:#ea7a52;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 12a3 3 0 010-4l2-2M12 8a3 3 0 010 4l-2 2"/></svg></button>
+    </div>
+
+    <div style="flex:1;min-height:0;display:flex">
+      <div style="width:150px;flex:none;border-right:1px solid rgba(255,255,255,.06)">
+        <div style="height:30px;border-bottom:1px solid rgba(255,255,255,.06)"></div>
+        <div style="height:70px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:7px;padding:0 12px"><span style="font:700 11px 'IBM Plex Mono';color:#c9cdd2">V1</span><span style="flex:1"></span><span style="font:600 9px 'IBM Plex Mono';color:#6f757c;border:1px solid rgba(255,255,255,.12);width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center">M</span><span style="font:600 9px 'IBM Plex Mono';color:#6f757c;border:1px solid rgba(255,255,255,.12);width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center">S</span><span style="font:600 9px 'IBM Plex Mono';color:#6f757c;border:1px solid rgba(255,255,255,.12);width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center">L</span></div>
+        <div style="height:70px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:7px;padding:0 12px"><span style="font:700 11px 'IBM Plex Mono';color:#c9cdd2">V2</span><span style="flex:1"></span><span style="font:600 9px 'IBM Plex Mono';color:#6f757c;border:1px solid rgba(255,255,255,.12);width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center">M</span><span style="font:600 9px 'IBM Plex Mono';color:#6f757c;border:1px solid rgba(255,255,255,.12);width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center">S</span><span style="font:600 9px 'IBM Plex Mono';color:#6f757c;border:1px solid rgba(255,255,255,.12);width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center">L</span></div>
+        <div style="height:64px;display:flex;align-items:center;gap:7px;padding:0 12px"><span style="font:700 11px 'IBM Plex Mono';color:#c9cdd2">A1</span><span style="flex:1"></span><span style="font:600 9px 'IBM Plex Mono';color:#6f757c;border:1px solid rgba(255,255,255,.12);width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center">M</span><span style="font:600 9px 'IBM Plex Mono';color:#6f757c;border:1px solid rgba(255,255,255,.12);width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center">S</span><span style="font:600 9px 'IBM Plex Mono';color:#6f757c;border:1px solid rgba(255,255,255,.12);width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center">L</span></div>
+      </div>
+
+      <div style="flex:1;min-width:0;position:relative;overflow:hidden">
+        <div style="height:30px;display:flex;border-bottom:1px solid rgba(255,255,255,.06)">
+          <div style="width:128px;flex:none;border-left:1px solid rgba(255,255,255,.07);padding:5px 0 0 7px;font:500 10px 'IBM Plex Mono';color:#5f656c">0:00</div>
+          <div style="width:128px;flex:none;border-left:1px solid rgba(255,255,255,.07);padding:5px 0 0 7px;font:500 10px 'IBM Plex Mono';color:#5f656c">0:04</div>
+          <div style="width:128px;flex:none;border-left:1px solid rgba(255,255,255,.07);padding:5px 0 0 7px;font:500 10px 'IBM Plex Mono';color:#5f656c">0:08</div>
+          <div style="width:128px;flex:none;border-left:1px solid rgba(255,255,255,.07);padding:5px 0 0 7px;font:500 10px 'IBM Plex Mono';color:#5f656c">0:12</div>
+          <div style="width:128px;flex:none;border-left:1px solid rgba(255,255,255,.07);padding:5px 0 0 7px;font:500 10px 'IBM Plex Mono';color:#5f656c">0:16</div>
+          <div style="width:128px;flex:none;border-left:1px solid rgba(255,255,255,.07);padding:5px 0 0 7px;font:500 10px 'IBM Plex Mono';color:#5f656c">0:20</div>
+        </div>
+        <div style="position:relative">
+          <div style="height:70px;border-bottom:1px solid rgba(255,255,255,.04);position:relative">
+            <div style="position:absolute;top:7px;height:56px;left:6px;width:300px;border-radius:8px;overflow:hidden;border:1.5px solid #ea7a52;box-shadow:0 0 0 3px rgba(234,122,82,.18)"><div style="height:100%;background:linear-gradient(135deg,#2a3340,#1b2128);display:flex;align-items:flex-end;position:relative"><div style="position:absolute;top:5px;left:7px;display:flex;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:#ea7a52;transform:rotate(45deg);border-radius:1px"></span><span style="font:600 8.5px 'IBM Plex Mono';color:#f4a583">fx</span></div><span style="font:600 10px 'Plus Jakarta Sans';color:#dfe2e6;background:rgba(0,0,0,.4);padding:2px 7px;margin:0 0 5px 6px;border-radius:5px">screen_demo.mov</span></div></div>
+            <div style="position:absolute;top:23px;left:300px;width:20px;height:24px;display:flex;align-items:center;justify-content:center;z-index:3"><div style="width:20px;height:20px;border-radius:4px;background:#15171a;border:1px solid rgba(234,122,82,.5);display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="#ea7a52" stroke-width="1.6"><path d="M7 5L3 10l4 5M13 5l4 5-4 5"/></svg></div></div>
+            <div style="position:absolute;top:7px;height:56px;left:314px;width:170px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.12)"><div style="height:100%;background:linear-gradient(135deg,#2e3a33,#1c241f);display:flex;align-items:flex-end"><span style="font:600 10px 'Plus Jakarta Sans';color:#dfe2e6;background:rgba(0,0,0,.4);padding:2px 7px;margin:0 0 5px 6px;border-radius:5px">logo_anim</span></div></div>
+          </div>
+          <div style="height:70px;border-bottom:1px solid rgba(255,255,255,.04);position:relative">
+            <div style="position:absolute;top:7px;height:56px;left:120px;width:230px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.12)"><div style="height:100%;background:linear-gradient(135deg,#3a2f3a,#241c24);display:flex;align-items:flex-end"><span style="font:600 10px 'Plus Jakarta Sans';color:#dfe2e6;background:rgba(0,0,0,.4);padding:2px 7px;margin:0 0 5px 6px;border-radius:5px">intro_take3</span></div></div>
+          </div>
+          <div style="height:64px;position:relative">
+            <div style="position:absolute;top:7px;height:50px;left:6px;width:478px;border-radius:8px;overflow:hidden;border:1px solid rgba(234,122,82,.35);background:rgba(234,122,82,.1);display:flex;align-items:center;gap:2px;padding:0 10px">
+              <sc-for list="{{ wave }}" as="h" hint-placeholder-count="40"><div style="width:3px;border-radius:1px;background:rgba(234,122,82,.6);height:{{ h }}px"></div></sc-for>
+              <sc-for list="{{ wave }}" as="h" hint-placeholder-count="40"><div style="width:3px;border-radius:1px;background:rgba(234,122,82,.6);height:{{ h }}px"></div></sc-for>
+            </div>
+          </div>
+        </div>
+        <div style="{{ ph }}"><div style="position:absolute;top:-1px;left:-5px;width:12px;height:9px;background:#ea7a52;clip-path:polygon(0 0,100% 0,50% 100%);border-radius:2px"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:28px;flex:none;background:#0d0e10;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:14px;padding:0 16px;font:500 11px 'IBM Plex Mono';color:#5f656c">
+    <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#28c840"></span>就绪</span>
+    <span>3 轨道 · 4 片段</span>
+    <span style="flex:1"></span>
+    <span>1920 × 1080</span><span style="color:#3a3f45">·</span><span>30 fps</span><span style="color:#3a3f45">·</span><span>H.264</span><span style="color:#3a3f45">·</span><span style="color:#8b9097">时长 0:48</span>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { playing: false, t: 6.4, tab: 'props', opacity: 100, scale: 100, rot: 0, vol: 78, mute: false };
+  componentDidMount() {
+    this._iv = setInterval(() => {
+      if (this.state.playing) {
+        this.setState(s => { let t = s.t + 0.1; return t >= 48 ? { t: 48, playing: false } : { t }; });
+      }
+    }, 100);
+  }
+  componentWillUnmount() { clearInterval(this._iv); }
+  wave() { const r = []; let s = 99; for (let i = 0; i < 48; i++) { s = (s * 1103515245 + 12345) & 0x7fffffff; r.push(5 + (s % 22)); } return r; }
+  fmt(t) { const m = Math.floor(t / 60); const s = Math.floor(t % 60); return m + ':' + String(s).padStart(2, '0'); }
+  tabStyle(on) {
+    const base = { flex: 1, height: '30px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 600, fontFamily: "'Plus Jakarta Sans',sans-serif" };
+    return on ? { ...base, background: 'rgba(234,122,82,.16)', color: '#ea7a52' } : { ...base, background: 'transparent', color: '#8b9097' };
+  }
+  renderVals() {
+    const PX = 32, st = this.state;
+    const num = (k) => (e) => this.setState({ [k]: +e.target.value });
+    const setTab = (t) => () => this.setState({ tab: t });
+    const pct = st.t / 48 * 100;
+    return {
+      wave: this.wave(),
+      playing: st.playing, paused: !st.playing,
+      togglePlay: () => this.setState(s => ({ playing: !s.playing })),
+      time: this.fmt(st.t),
+      ph: { position: 'absolute', top: 0, bottom: 0, left: (st.t * PX) + 'px', width: '2px', background: '#ea7a52', animation: 'phpulse 2s ease-in-out infinite', zIndex: 5 },
+      progFill: { position: 'absolute', left: 0, top: 0, bottom: 0, width: pct + '%', background: '#ea7a52', borderRadius: '2px' },
+      progThumb: { position: 'absolute', left: pct + '%', top: '50%', transform: 'translate(-50%,-50%)', width: '12px', height: '12px', borderRadius: '50%', background: '#fff' },
+      previewInner: { transform: `scale(${st.scale / 100}) rotate(${st.rot}deg)`, opacity: st.opacity / 100, transition: 'transform .08s, opacity .08s', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+      isProps: st.tab === 'props', isColor: st.tab === 'color', isAudio: st.tab === 'audio',
+      setProps: setTab('props'), setColor: setTab('color'), setAudio: setTab('audio'),
+      tabProps: this.tabStyle(st.tab === 'props'), tabColor: this.tabStyle(st.tab === 'color'), tabAudio: this.tabStyle(st.tab === 'audio'),
+      opacity: st.opacity, scale: st.scale, rot: st.rot, vol: st.vol,
+      setOpacity: num('opacity'), setScale: num('scale'), setRot: num('rot'), setVol: num('vol'),
+      opacityLabel: st.opacity + '%', scaleLabel: st.scale + '%', rotLabel: st.rot + '°', volLabel: (st.mute ? '静音' : st.vol + '%'),
+      toggleMute: () => this.setState(s => ({ mute: !s.mute })),
+      muteTrack: { width: '40px', height: '22px', borderRadius: '11px', background: st.mute ? '#ea7a52' : 'rgba(255,255,255,.14)', position: 'relative', cursor: 'pointer', transition: 'background .15s', flex: 'none' },
+      muteKnob: { position: 'absolute', top: '2px', left: st.mute ? '20px' : '2px', width: '18px', height: '18px', borderRadius: '50%', background: '#fff', transition: 'left .15s' },
+    };
+  }
+}
+</script>
+</body>
+</html>
