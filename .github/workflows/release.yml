@@ -1,9 +1,8 @@
 name: Release build
 
-# Builds the Tauri desktop app (foxscreen) on Windows + macOS and uploads the
-# installers as run artifacts. Trigger it from the Actions tab ("Run workflow")
-# or by pushing a `v*` tag. Download the artifact (e.g. the Windows .msi/.exe)
-# from the finished run to install and test — no GitHub Release required.
+# Builds the Tauri desktop app (foxscreen) on Windows + macOS.
+#   - Push a `v*` tag  → publishes a GitHub Release with the installers attached.
+#   - Manual dispatch  → just uploads the installers as run artifacts (no release).
 
 on:
   workflow_dispatch:
@@ -48,8 +47,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: packages/desktop
+          # On a tag push, create/append to a GitHub Release and attach the
+          # installers as assets. Empty on manual dispatch → build only, no release.
+          tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+          releaseName: ${{ github.ref_type == 'tag' && format('foxscreen {0}', github.ref_name) || '' }}
+          releaseBody: |
+            Desktop installers for foxscreen — download the file for your platform below.
+            - **Windows**: `.msi` or the NSIS `.exe`
+            - **macOS**: `.dmg` (Apple Silicon)
+
+            The editor path works (import a video → timeline / clips / tracks / multi-select / undo / transitions → export). Screen recording is deferred.
+          releaseDraft: false
+          prerelease: false
 
       - name: Upload installers
+        if: github.ref_type != 'tag'
         uses: actions/upload-artifact@v4
         with:
           name: foxscreen-${{ matrix.platform }}
