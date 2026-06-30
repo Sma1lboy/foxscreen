@@ -91,7 +91,16 @@
 		"import": "Importer un média",
 		"empty": "Importez une vidéo pour commencer",
 		"remove": "Retirer",
-		"drop": "Déposez des vidéos pour importer"
+		"drop": "Déposez des vidéos pour importer",
+		"search": "Rechercher des médias…",
+		"clearSearch": "Effacer la recherche",
+		"filterAll": "Tous",
+		"filterVideo": "Vidéo",
+		"filterAudio": "Audio",
+		"filterImage": "Image",
+		"noResults": "Aucun média correspondant",
+		"footer": "{{count}} éléments · {{size}}",
+		"footerNoSize": "{{count}} éléments"
 	},
 	"clipTimeline": {
 		"empty": "La timeline est vide — ajoutez des clips depuis la médiathèque",

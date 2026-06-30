@@ -91,7 +91,16 @@
 		"import": "Nhập phương tiện",
 		"empty": "Nhập video để bắt đầu",
 		"remove": "Xóa",
-		"drop": "Thả video để nhập"
+		"drop": "Thả video để nhập",
+		"search": "Tìm phương tiện…",
+		"clearSearch": "Xóa tìm kiếm",
+		"filterAll": "Tất cả",
+		"filterVideo": "Video",
+		"filterAudio": "Âm thanh",
+		"filterImage": "Hình ảnh",
+		"noResults": "Không có phương tiện phù hợp",
+		"footer": "{{count}} mục · {{size}}",
+		"footerNoSize": "{{count}} mục"
 	},
 	"clipTimeline": {
 		"empty": "Dòng thời gian trống — thêm clip từ thư viện",

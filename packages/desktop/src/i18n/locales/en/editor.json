@@ -91,7 +91,16 @@
 		"import": "Import media",
 		"empty": "Import a video to start",
 		"remove": "Remove",
-		"drop": "Drop videos to import"
+		"drop": "Drop videos to import",
+		"search": "Search media…",
+		"clearSearch": "Clear search",
+		"filterAll": "All",
+		"filterVideo": "Video",
+		"filterAudio": "Audio",
+		"filterImage": "Image",
+		"noResults": "No matching media",
+		"footer": "{{count}} assets · {{size}}",
+		"footerNoSize": "{{count}} assets"
 	},
 	"clipTimeline": {
 		"empty": "Timeline is empty — add clips from the media bin",

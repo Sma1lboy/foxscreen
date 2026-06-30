@@ -91,7 +91,16 @@
 		"import": "استيراد وسائط",
 		"empty": "استورد فيديو للبدء",
 		"remove": "إزالة",
-		"drop": "أفلت مقاطع الفيديو للاستيراد"
+		"drop": "أفلت مقاطع الفيديو للاستيراد",
+		"search": "بحث في الوسائط…",
+		"clearSearch": "مسح البحث",
+		"filterAll": "الكل",
+		"filterVideo": "فيديو",
+		"filterAudio": "صوت",
+		"filterImage": "صورة",
+		"noResults": "لا توجد وسائط مطابقة",
+		"footer": "{{count}} عنصرًا · {{size}}",
+		"footerNoSize": "{{count}} عنصرًا"
 	},
 	"clipTimeline": {
 		"empty": "المخطط الزمني فارغ، أضف مقاطع من المكتبة",

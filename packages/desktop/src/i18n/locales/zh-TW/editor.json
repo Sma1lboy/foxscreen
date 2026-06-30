@@ -91,7 +91,16 @@
 		"import": "匯入素材",
 		"empty": "匯入影片開始",
 		"remove": "移除",
-		"drop": "拖放影片到此匯入"
+		"drop": "拖放影片到此匯入",
+		"search": "搜尋素材…",
+		"clearSearch": "清除搜尋",
+		"filterAll": "全部",
+		"filterVideo": "影片",
+		"filterAudio": "音訊",
+		"filterImage": "圖片",
+		"noResults": "無相符素材",
+		"footer": "共 {{count}} 個素材 · {{size}}",
+		"footerNoSize": "共 {{count}} 個素材"
 	},
 	"clipTimeline": {
 		"empty": "時間軸為空，從素材庫加入片段",

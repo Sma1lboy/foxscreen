@@ -91,7 +91,16 @@
 		"import": "미디어 가져오기",
 		"empty": "비디오를 가져와 시작",
 		"remove": "제거",
-		"drop": "비디오를 놓아 가져오기"
+		"drop": "비디오를 놓아 가져오기",
+		"search": "미디어 검색…",
+		"clearSearch": "검색 지우기",
+		"filterAll": "전체",
+		"filterVideo": "비디오",
+		"filterAudio": "오디오",
+		"filterImage": "이미지",
+		"noResults": "일치하는 미디어 없음",
+		"footer": "{{count}}개 항목 · {{size}}",
+		"footerNoSize": "{{count}}개 항목"
 	},
 	"clipTimeline": {
 		"empty": "타임라인이 비어 있습니다. 미디어 보관함에서 클립을 추가하세요",

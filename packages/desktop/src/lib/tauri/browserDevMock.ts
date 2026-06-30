@@ -22,10 +22,30 @@ const DEMO_PROJECT = {
 	media: { screenVideoPath: `${TEST_MEDIA}/sample-10s.mp4` },
 	editor: {},
 	mediaLibrary: [
-		{ id: "a1", path: `${TEST_MEDIA}/w3-bbb.mp4`, name: "w3-bbb.mp4" },
-		{ id: "a2", path: `${TEST_MEDIA}/bbb-10s.mp4`, name: "bbb-10s.mp4" },
-		{ id: "a3", path: `${TEST_MEDIA}/sample-5s.mp4`, name: "sample-5s.mp4" },
-		{ id: "a4", path: `${TEST_MEDIA}/sample-10s.mp4`, name: "sample-10s.mp4" },
+		// a1 is an audio source (unused by clips) so the media bin shows the
+		// audio filter chip + waveform card in headless QA (?seed=demo).
+		{ id: "a1", path: `${TEST_MEDIA}/vo_master.wav`, name: "vo_master.wav", size: 18_400_000 },
+		{
+			id: "a2",
+			path: `${TEST_MEDIA}/bbb-10s.mp4`,
+			name: "bbb-10s.mp4",
+			duration: 10,
+			size: 42_000_000,
+		},
+		{
+			id: "a3",
+			path: `${TEST_MEDIA}/sample-5s.mp4`,
+			name: "sample-5s.mp4",
+			duration: 5,
+			size: 11_500_000,
+		},
+		{
+			id: "a4",
+			path: `${TEST_MEDIA}/sample-10s.mp4`,
+			name: "sample-10s.mp4",
+			duration: 10,
+			size: 23_000_000,
+		},
 	],
 	timelineClips: [
 		{

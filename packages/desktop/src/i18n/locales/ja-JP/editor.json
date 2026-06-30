@@ -91,7 +91,16 @@
 		"import": "メディアを読み込む",
 		"empty": "動画を読み込んで開始",
 		"remove": "削除",
-		"drop": "動画をドロップして読み込む"
+		"drop": "動画をドロップして読み込む",
+		"search": "メディアを検索…",
+		"clearSearch": "検索をクリア",
+		"filterAll": "すべて",
+		"filterVideo": "動画",
+		"filterAudio": "音声",
+		"filterImage": "画像",
+		"noResults": "一致するメディアがありません",
+		"footer": "{{count}} 個の素材 · {{size}}",
+		"footerNoSize": "{{count}} 個の素材"
 	},
 	"clipTimeline": {
 		"empty": "タイムラインが空です。メディアビンからクリップを追加してください",
