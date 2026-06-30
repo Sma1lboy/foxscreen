@@ -4,6 +4,17 @@ module.exports = {
 	content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
 	theme: {
 		extend: {
+			fontFamily: {
+				sans: [
+					"Plus Jakarta Sans",
+					"system-ui",
+					"-apple-system",
+					"BlinkMacSystemFont",
+					"Segoe UI",
+					"sans-serif",
+				],
+				mono: ["IBM Plex Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+			},
 			keyframes: {
 				"accordion-down": {
 					from: { height: "0" },
@@ -71,6 +82,8 @@ module.exports = {
 				border: "hsl(var(--border))",
 				input: "hsl(var(--input))",
 				ring: "hsl(var(--ring))",
+				chrome: "hsl(var(--chrome))",
+				panel: "hsl(var(--panel))",
 				chart: {
 					1: "hsl(var(--chart-1))",
 					2: "hsl(var(--chart-2))",

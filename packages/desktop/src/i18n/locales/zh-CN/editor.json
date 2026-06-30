@@ -129,5 +129,36 @@
 		"selectedCount": "已选中 {{count}} 个片段",
 		"muteAll": "全部静音",
 		"deleteSelected": "删除所选"
+	},
+	"menubar": {
+		"file": "文件",
+		"edit": "编辑",
+		"view": "视图",
+		"help": "帮助",
+		"newProject": "新建项目",
+		"open": "打开…",
+		"save": "保存",
+		"saveAs": "另存为…",
+		"export": "导出…",
+		"undo": "撤销",
+		"redo": "重做",
+		"split": "分割",
+		"duplicate": "创建副本",
+		"delete": "删除",
+		"zoomIn": "放大",
+		"zoomOut": "缩小",
+		"fit": "适应窗口",
+		"toggleSnapping": "切换吸附",
+		"keyboardShortcuts": "键盘快捷键",
+		"tutorial": "教程",
+		"untitledProject": "未命名项目",
+		"autosaved": "已自动保存",
+		"unsaved": "未保存",
+		"exportButton": "导出"
+	},
+	"statusBar": {
+		"ready": "就绪",
+		"tracksClips": "{{tracks}} 轨道 · {{clips}} 片段",
+		"duration": "时长 {{time}}"
 	}
 }

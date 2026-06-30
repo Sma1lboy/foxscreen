@@ -129,5 +129,36 @@
 		"selectedCount": "已選取 {{count}} 個片段",
 		"muteAll": "全部靜音",
 		"deleteSelected": "刪除所選"
+	},
+	"menubar": {
+		"file": "檔案",
+		"edit": "編輯",
+		"view": "檢視",
+		"help": "說明",
+		"newProject": "新增專案",
+		"open": "開啟…",
+		"save": "儲存",
+		"saveAs": "另存新檔…",
+		"export": "匯出…",
+		"undo": "復原",
+		"redo": "重做",
+		"split": "分割",
+		"duplicate": "建立副本",
+		"delete": "刪除",
+		"zoomIn": "放大",
+		"zoomOut": "縮小",
+		"fit": "符合視窗",
+		"toggleSnapping": "切換吸附",
+		"keyboardShortcuts": "鍵盤快速鍵",
+		"tutorial": "教學",
+		"untitledProject": "未命名專案",
+		"autosaved": "已自動儲存",
+		"unsaved": "未儲存",
+		"exportButton": "匯出"
+	},
+	"statusBar": {
+		"ready": "就緒",
+		"tracksClips": "{{tracks}} 軌道 · {{clips}} 片段",
+		"duration": "時長 {{time}}"
 	}
 }

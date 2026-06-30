@@ -129,5 +129,36 @@
 		"selectedCount": "{{count}}개 클립 선택됨",
 		"muteAll": "모두 음소거",
 		"deleteSelected": "선택 항목 삭제"
+	},
+	"menubar": {
+		"file": "파일",
+		"edit": "편집",
+		"view": "보기",
+		"help": "도움말",
+		"newProject": "새 프로젝트",
+		"open": "열기…",
+		"save": "저장",
+		"saveAs": "다른 이름으로 저장…",
+		"export": "내보내기…",
+		"undo": "실행 취소",
+		"redo": "다시 실행",
+		"split": "분할",
+		"duplicate": "복제",
+		"delete": "삭제",
+		"zoomIn": "확대",
+		"zoomOut": "축소",
+		"fit": "창에 맞추기",
+		"toggleSnapping": "스냅 전환",
+		"keyboardShortcuts": "키보드 단축키",
+		"tutorial": "튜토리얼",
+		"untitledProject": "제목 없는 프로젝트",
+		"autosaved": "자동 저장됨",
+		"unsaved": "저장 안 됨",
+		"exportButton": "내보내기"
+	},
+	"statusBar": {
+		"ready": "준비됨",
+		"tracksClips": "{{tracks}} 트랙 · {{clips}} 클립",
+		"duration": "길이 {{time}}"
 	}
 }

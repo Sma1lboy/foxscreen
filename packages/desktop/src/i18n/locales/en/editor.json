@@ -129,5 +129,36 @@
 		"selectedCount": "{{count}} clips selected",
 		"muteAll": "Mute all",
 		"deleteSelected": "Delete selected"
+	},
+	"menubar": {
+		"file": "File",
+		"edit": "Edit",
+		"view": "View",
+		"help": "Help",
+		"newProject": "New Project",
+		"open": "Open…",
+		"save": "Save",
+		"saveAs": "Save As…",
+		"export": "Export…",
+		"undo": "Undo",
+		"redo": "Redo",
+		"split": "Split",
+		"duplicate": "Duplicate",
+		"delete": "Delete",
+		"zoomIn": "Zoom In",
+		"zoomOut": "Zoom Out",
+		"fit": "Fit to Window",
+		"toggleSnapping": "Toggle Snapping",
+		"keyboardShortcuts": "Keyboard Shortcuts",
+		"tutorial": "Tutorial",
+		"untitledProject": "Untitled Project",
+		"autosaved": "Autosaved",
+		"unsaved": "Unsaved",
+		"exportButton": "Export"
+	},
+	"statusBar": {
+		"ready": "Ready",
+		"tracksClips": "{{tracks}} tracks · {{clips}} clips",
+		"duration": "Duration {{time}}"
 	}
 }

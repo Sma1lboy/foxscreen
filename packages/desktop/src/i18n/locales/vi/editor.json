@@ -129,5 +129,36 @@
 		"selectedCount": "Đã chọn {{count}} clip",
 		"muteAll": "Tắt tiếng tất cả",
 		"deleteSelected": "Xóa mục đã chọn"
+	},
+	"menubar": {
+		"file": "Tệp",
+		"edit": "Chỉnh sửa",
+		"view": "Xem",
+		"help": "Trợ giúp",
+		"newProject": "Dự án mới",
+		"open": "Mở…",
+		"save": "Lưu",
+		"saveAs": "Lưu thành…",
+		"export": "Xuất…",
+		"undo": "Hoàn tác",
+		"redo": "Làm lại",
+		"split": "Tách",
+		"duplicate": "Nhân bản",
+		"delete": "Xóa",
+		"zoomIn": "Phóng to",
+		"zoomOut": "Thu nhỏ",
+		"fit": "Vừa cửa sổ",
+		"toggleSnapping": "Bật/tắt hút dính",
+		"keyboardShortcuts": "Phím tắt",
+		"tutorial": "Hướng dẫn",
+		"untitledProject": "Dự án chưa đặt tên",
+		"autosaved": "Đã tự động lưu",
+		"unsaved": "Chưa lưu",
+		"exportButton": "Xuất"
+	},
+	"statusBar": {
+		"ready": "Sẵn sàng",
+		"tracksClips": "{{tracks}} bản nhạc · {{clips}} đoạn",
+		"duration": "Thời lượng {{time}}"
 	}
 }

@@ -129,5 +129,36 @@
 		"selectedCount": "{{count}} 個のクリップを選択中",
 		"muteAll": "すべてミュート",
 		"deleteSelected": "選択を削除"
+	},
+	"menubar": {
+		"file": "ファイル",
+		"edit": "編集",
+		"view": "表示",
+		"help": "ヘルプ",
+		"newProject": "新規プロジェクト",
+		"open": "開く…",
+		"save": "保存",
+		"saveAs": "名前を付けて保存…",
+		"export": "書き出し…",
+		"undo": "取り消し",
+		"redo": "やり直し",
+		"split": "分割",
+		"duplicate": "複製",
+		"delete": "削除",
+		"zoomIn": "拡大",
+		"zoomOut": "縮小",
+		"fit": "ウィンドウに合わせる",
+		"toggleSnapping": "スナップ切替",
+		"keyboardShortcuts": "キーボードショートカット",
+		"tutorial": "チュートリアル",
+		"untitledProject": "無題のプロジェクト",
+		"autosaved": "自動保存済み",
+		"unsaved": "未保存",
+		"exportButton": "書き出し"
+	},
+	"statusBar": {
+		"ready": "準備完了",
+		"tracksClips": "{{tracks}} トラック · {{clips}} クリップ",
+		"duration": "長さ {{time}}"
 	}
 }

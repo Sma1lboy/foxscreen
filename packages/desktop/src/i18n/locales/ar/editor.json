@@ -129,5 +129,36 @@
 		"selectedCount": "{{count}} مقاطع محددة",
 		"muteAll": "كتم الكل",
 		"deleteSelected": "حذف المحدد"
+	},
+	"menubar": {
+		"file": "ملف",
+		"edit": "تحرير",
+		"view": "عرض",
+		"help": "مساعدة",
+		"newProject": "مشروع جديد",
+		"open": "فتح…",
+		"save": "حفظ",
+		"saveAs": "حفظ باسم…",
+		"export": "تصدير…",
+		"undo": "تراجع",
+		"redo": "إعادة",
+		"split": "تقسيم",
+		"duplicate": "تكرار",
+		"delete": "حذف",
+		"zoomIn": "تكبير",
+		"zoomOut": "تصغير",
+		"fit": "ملاءمة النافذة",
+		"toggleSnapping": "تبديل المحاذاة",
+		"keyboardShortcuts": "اختصارات لوحة المفاتيح",
+		"tutorial": "دليل تعليمي",
+		"untitledProject": "مشروع بدون عنوان",
+		"autosaved": "تم الحفظ تلقائيًا",
+		"unsaved": "غير محفوظ",
+		"exportButton": "تصدير"
+	},
+	"statusBar": {
+		"ready": "جاهز",
+		"tracksClips": "{{tracks}} مسارات · {{clips}} مقاطع",
+		"duration": "المدة {{time}}"
 	}
 }

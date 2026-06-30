@@ -57,7 +57,7 @@ export default function PlaybackControls({
 				)}
 			</Button>
 
-			<span className="text-[9px] font-medium text-foreground/80 tabular-nums w-[30px] text-right">
+			<span className="font-mono text-[9px] font-medium text-foreground/80 tabular-nums w-[30px] text-right">
 				{formatTime(currentTime)}
 			</span>
 
@@ -88,7 +88,7 @@ export default function PlaybackControls({
 				/>
 			</div>
 
-			<span className="text-[9px] font-medium text-muted-foreground tabular-nums w-[30px]">
+			<span className="font-mono text-[9px] font-medium text-muted-foreground tabular-nums w-[30px]">
 				{formatTime(duration)}
 			</span>
 

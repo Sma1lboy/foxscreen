@@ -10,20 +10,31 @@ import {
 } from "@/components/ui/dialog";
 import { useScopedT } from "@/contexts/I18nContext";
 
-export function TutorialHelp() {
+interface TutorialHelpProps {
+	/** Controlled open state (e.g. the Help menu). Omit for the standalone trigger button. */
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
+}
+
+export function TutorialHelp({ open, onOpenChange }: TutorialHelpProps = {}) {
 	const t = useScopedT("dialogs");
+	// Controlled when an owner passes open/onOpenChange (menu-driven); otherwise it
+	// renders its own ghost trigger button (legacy standalone usage).
+	const controlled = open !== undefined || onOpenChange !== undefined;
 	return (
-		<Dialog>
-			<DialogTrigger asChild>
-				<Button
-					variant="ghost"
-					size="sm"
-					className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-all gap-1.5"
-				>
-					<HelpCircle className="w-3.5 h-3.5" />
-					<span className="font-medium">{t("tutorial.triggerLabel")}</span>
-				</Button>
-			</DialogTrigger>
+		<Dialog {...(controlled ? { open, onOpenChange } : {})}>
+			{!controlled && (
+				<DialogTrigger asChild>
+					<Button
+						variant="ghost"
+						size="sm"
+						className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-all gap-1.5"
+					>
+						<HelpCircle className="w-3.5 h-3.5" />
+						<span className="font-medium">{t("tutorial.triggerLabel")}</span>
+					</Button>
+				</DialogTrigger>
+			)}
 			<DialogContent className="max-w-2xl bg-card border-border [&>button]:text-muted-foreground [&>button:hover]:text-foreground">
 				<DialogHeader>
 					<DialogTitle className="text-xl font-semibold text-foreground flex items-center gap-2">

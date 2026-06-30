@@ -111,5 +111,36 @@
 		"selectedCount": "{{count}} clip selezionati",
 		"muteAll": "Disattiva audio per tutti",
 		"deleteSelected": "Elimina selezione"
+	},
+	"menubar": {
+		"file": "File",
+		"edit": "Modifica",
+		"view": "Vista",
+		"help": "Aiuto",
+		"newProject": "Nuovo progetto",
+		"open": "Apri…",
+		"save": "Salva",
+		"saveAs": "Salva con nome…",
+		"export": "Esporta…",
+		"undo": "Annulla",
+		"redo": "Ripeti",
+		"split": "Dividi",
+		"duplicate": "Duplica",
+		"delete": "Elimina",
+		"zoomIn": "Ingrandisci",
+		"zoomOut": "Riduci",
+		"fit": "Adatta alla finestra",
+		"toggleSnapping": "Attiva/disattiva aggancio",
+		"keyboardShortcuts": "Scorciatoie da tastiera",
+		"tutorial": "Tutorial",
+		"untitledProject": "Progetto senza titolo",
+		"autosaved": "Salvato automaticamente",
+		"unsaved": "Non salvato",
+		"exportButton": "Esporta"
+	},
+	"statusBar": {
+		"ready": "Pronto",
+		"tracksClips": "{{tracks}} tracce · {{clips}} clip",
+		"duration": "Durata {{time}}"
 	}
 }

@@ -129,5 +129,36 @@
 		"selectedCount": "Выбрано клипов: {{count}}",
 		"muteAll": "Заглушить все",
 		"deleteSelected": "Удалить выбранное"
+	},
+	"menubar": {
+		"file": "Файл",
+		"edit": "Правка",
+		"view": "Вид",
+		"help": "Справка",
+		"newProject": "Новый проект",
+		"open": "Открыть…",
+		"save": "Сохранить",
+		"saveAs": "Сохранить как…",
+		"export": "Экспорт…",
+		"undo": "Отменить",
+		"redo": "Повторить",
+		"split": "Разделить",
+		"duplicate": "Дублировать",
+		"delete": "Удалить",
+		"zoomIn": "Увеличить",
+		"zoomOut": "Уменьшить",
+		"fit": "По размеру окна",
+		"toggleSnapping": "Переключить привязку",
+		"keyboardShortcuts": "Сочетания клавиш",
+		"tutorial": "Обучение",
+		"untitledProject": "Безымянный проект",
+		"autosaved": "Автосохранено",
+		"unsaved": "Не сохранено",
+		"exportButton": "Экспорт"
+	},
+	"statusBar": {
+		"ready": "Готово",
+		"tracksClips": "{{tracks}} дорожек · {{clips}} клипов",
+		"duration": "Длительность {{time}}"
 	}
 }

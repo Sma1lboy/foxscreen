@@ -129,5 +129,36 @@
 		"selectedCount": "{{count}} klip seçildi",
 		"muteAll": "Tümünü sustur",
 		"deleteSelected": "Seçimi sil"
+	},
+	"menubar": {
+		"file": "Dosya",
+		"edit": "Düzen",
+		"view": "Görünüm",
+		"help": "Yardım",
+		"newProject": "Yeni Proje",
+		"open": "Aç…",
+		"save": "Kaydet",
+		"saveAs": "Farklı Kaydet…",
+		"export": "Dışa Aktar…",
+		"undo": "Geri Al",
+		"redo": "Yinele",
+		"split": "Böl",
+		"duplicate": "Çoğalt",
+		"delete": "Sil",
+		"zoomIn": "Yakınlaştır",
+		"zoomOut": "Uzaklaştır",
+		"fit": "Pencereye Sığdır",
+		"toggleSnapping": "Yapışmayı Aç/Kapat",
+		"keyboardShortcuts": "Klavye Kısayolları",
+		"tutorial": "Eğitim",
+		"untitledProject": "Adsız Proje",
+		"autosaved": "Otomatik kaydedildi",
+		"unsaved": "Kaydedilmedi",
+		"exportButton": "Dışa Aktar"
+	},
+	"statusBar": {
+		"ready": "Hazır",
+		"tracksClips": "{{tracks}} parça · {{clips}} klip",
+		"duration": "Süre {{time}}"
 	}
 }

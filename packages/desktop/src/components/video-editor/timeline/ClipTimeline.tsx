@@ -15,11 +15,13 @@ import {
 	ZoomOut,
 } from "lucide-react";
 import {
+	forwardRef,
 	type DragEvent as ReactDragEvent,
 	type ReactNode,
 	type PointerEvent as ReactPointerEvent,
 	useCallback,
 	useEffect,
+	useImperativeHandle,
 	useMemo,
 	useRef,
 	useState,
@@ -94,6 +96,24 @@ interface ClipTimelineProps {
 	onAddTransition?: (fromClipId: string, toClipId: string) => void;
 	/** Drop a crossfade transition by id. */
 	onRemoveTransition?: (id: string) => void;
+	/**
+	 * Edge/playhead snapping, lifted to the owner so the View menu's "Toggle
+	 * Snapping" item and the timeline magnet button share one source of truth.
+	 */
+	snapEnabled: boolean;
+	/** Flip snapping (magnet button + View → Toggle Snapping). */
+	onToggleSnap: () => void;
+}
+
+/**
+ * Imperative timeline controls the host menu bar drives (View → Zoom In / Out /
+ * Fit). Horizontal zoom + fit-to-window own viewport-relative math that only the
+ * timeline can compute, so they're exposed here rather than lifted as state.
+ */
+export interface ClipTimelineHandle {
+	zoomIn: () => void;
+	zoomOut: () => void;
+	zoomFit: () => void;
 }
 
 /** Where a bin-asset drop would land — drives the insertion indicator. */
@@ -200,34 +220,39 @@ function waveformPoints(peaks: number[]): string {
  * trim. The toolbar adds blade/split, ripple-delete and plain delete acting on
  * the selected clip, plus horizontal zoom.
  */
-export function ClipTimeline({
-	clips,
-	onClipsChange,
-	onClipsDragPreview,
-	onClipsDragCommit,
-	tracks: tracksProp,
-	onToggleTrackMuted,
-	onToggleTrackSolo,
-	onToggleTrackLocked,
-	onAddTrack,
-	onRemoveTrack,
-	currentTime,
-	videoDuration,
-	onSeek,
-	selectedClipIds,
-	onSelectClip,
-	onToggleClip,
-	onMarqueeSelect,
-	onAddClip,
-	transitions,
-	onAddTransition,
-	onRemoveTransition,
-}: ClipTimelineProps) {
+export const ClipTimeline = forwardRef<ClipTimelineHandle, ClipTimelineProps>(function ClipTimeline(
+	{
+		clips,
+		onClipsChange,
+		onClipsDragPreview,
+		onClipsDragCommit,
+		tracks: tracksProp,
+		onToggleTrackMuted,
+		onToggleTrackSolo,
+		onToggleTrackLocked,
+		onAddTrack,
+		onRemoveTrack,
+		currentTime,
+		videoDuration,
+		onSeek,
+		selectedClipIds,
+		onSelectClip,
+		onToggleClip,
+		onMarqueeSelect,
+		onAddClip,
+		transitions,
+		onAddTransition,
+		onRemoveTransition,
+		snapEnabled,
+		onToggleSnap,
+	},
+	ref,
+) {
 	const t = useScopedT("editor");
 	const [pxPerSec, setPxPerSecState] = useState(DEFAULT_PX_PER_SEC);
-	// Edge/playhead snapping during move & drop. Toggled from the toolbar magnet;
-	// when off, move/drop land exactly where the pointer is.
-	const [snapEnabled, setSnapEnabled] = useState(true);
+	// Snapping is owned by the host (VideoEditor) so the View menu and the magnet
+	// button stay in lockstep; mirror it into a ref for the document-level pointer
+	// handlers (bound once per drag) to read the latest value without re-binding.
 	const snapEnabledRef = useRef(snapEnabled);
 	snapEnabledRef.current = snapEnabled;
 	// Mirror props/state into refs so the document-level pointer handlers
@@ -258,6 +283,9 @@ export function ClipTimeline({
 	const setPxPerSec = useCallback((next: number) => {
 		setPxPerSecState(Math.min(MAX_PX_PER_SEC, Math.max(MIN_PX_PER_SEC, next)));
 	}, []);
+	// The horizontal scroll viewport — fit-to-window measures its width to pick a
+	// px/sec that lands the whole sequence on screen.
+	const scrollRef = useRef<HTMLDivElement | null>(null);
 
 	// Lanes come from the owner (VideoEditor) so mute/solo/lock are shared state;
 	// fall back to deriving from the clips when no tracks prop is supplied, and
@@ -288,6 +316,25 @@ export function ClipTimeline({
 	// The lane-header gutter is pinned at the left; everything time-positioned is
 	// shifted right by its width so clips/ticks/playhead never sit under the header.
 	const contentWidth = TRACK_HEADER_WIDTH + contentSeconds * pxPerSec;
+	const contentSecondsRef = useRef(contentSeconds);
+	contentSecondsRef.current = contentSeconds;
+
+	// View-menu zoom controls (host-driven). Zoom in/out mirror the toolbar steps;
+	// fit picks a px/sec that lands the whole sequence inside the scroll viewport.
+	useImperativeHandle(
+		ref,
+		() => ({
+			zoomIn: () => setPxPerSec(pxPerSecRef.current * 1.5),
+			zoomOut: () => setPxPerSec(pxPerSecRef.current / 1.5),
+			zoomFit: () => {
+				const avail = (scrollRef.current?.clientWidth ?? 0) - TRACK_HEADER_WIDTH;
+				const secs = contentSecondsRef.current;
+				if (avail <= 0 || secs <= 0) return;
+				setPxPerSec(avail / secs);
+			},
+		}),
+		[setPxPerSec],
+	);
 
 	// Lazy, cached media previews keyed by source path: a poster frame for video
 	// clips, downsampled peaks for audio clips. Decoding is best-effort and may
@@ -771,13 +818,13 @@ export function ClipTimeline({
 				<ToolButton
 					icon={<Magnet className="h-4 w-4" />}
 					label={t("clipTimeline.snapping")}
-					onClick={() => setSnapEnabled((s) => !s)}
+					onClick={onToggleSnap}
 					active={snapEnabled}
 				/>
 			</div>
 
 			{/* Scroll viewport: ruler + lanes share one horizontal scroll. */}
-			<div className="relative flex min-h-0 flex-1 overflow-auto custom-scrollbar">
+			<div ref={scrollRef} className="relative flex min-h-0 flex-1 overflow-auto custom-scrollbar">
 				<div className="relative" style={{ width: contentWidth, minWidth: "100%" }}>
 					{/* Ruler */}
 					<div
@@ -794,7 +841,7 @@ export function ClipTimeline({
 								className="absolute top-0 h-full border-l border-border"
 								style={{ left: TRACK_HEADER_WIDTH + tick.sec * pxPerSec }}
 							>
-								<span className="ml-1 select-none text-[10px] leading-[24px] text-muted-foreground">
+								<span className="ml-1 select-none font-mono text-[10px] leading-[24px] text-muted-foreground">
 									{tick.label}
 								</span>
 							</div>
@@ -1014,7 +1061,7 @@ export function ClipTimeline({
 			</div>
 		</div>
 	);
-}
+});
 
 interface ToolButtonProps {
 	icon: ReactNode;

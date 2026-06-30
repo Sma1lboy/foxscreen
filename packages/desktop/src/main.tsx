@@ -1,5 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+// Self-hosted fonts (offline — this is a packaged desktop app, NO Google Fonts
+// CDN at runtime). Plus Jakarta Sans = UI; IBM Plex Mono = numbers / timecode.
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/500.css";
+import "@fontsource/plus-jakarta-sans/600.css";
+import "@fontsource/plus-jakarta-sans/700.css";
+import "@fontsource/plus-jakarta-sans/800.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
+import "@fontsource/ibm-plex-mono/600.css";
 import App from "./App.tsx";
 import { I18nProvider } from "./contexts/I18nContext";
 import { ThemeProvider } from "./contexts/ThemeContext";

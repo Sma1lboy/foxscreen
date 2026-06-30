@@ -1,6 +1,17 @@
 import { loadLlmConfig } from "@foxscreen/cutti-core";
 import type { Span } from "dnd-timeline";
-import { Captions, FolderOpen, Languages, Save, Scissors, Sparkles, Video } from "lucide-react";
+import {
+	Captions,
+	Download,
+	FolderOpen,
+	Languages,
+	Redo2,
+	Save,
+	Scissors,
+	Sparkles,
+	Undo2,
+	Video,
+} from "lucide-react";
 import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { toast } from "sonner";
@@ -14,6 +25,15 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import {
+	DropdownMenu,
+	DropdownMenuCheckboxItem,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuShortcut,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -90,7 +110,8 @@ import {
 	validateProjectData,
 } from "./projectPersistence";
 import { SettingsPanel } from "./SettingsPanel";
-import ClipTimeline from "./timeline/ClipTimeline";
+import { TutorialHelp } from "./TutorialHelp";
+import ClipTimeline, { type ClipTimelineHandle } from "./timeline/ClipTimeline";
 import {
 	clipAtTime,
 	clipEndSec,
@@ -145,6 +166,62 @@ import {
 } from "./types";
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
 import VideoPlayback, { VideoPlaybackRef } from "./VideoPlayback";
+
+/** m:ss timecode for the status bar's total-duration readout. */
+function formatTimecode(totalSec: number): string {
+	const total = Math.max(0, Math.round(totalSec));
+	const m = Math.floor(total / 60);
+	const s = total % 60;
+	return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+/**
+ * A single top-bar dropdown (File / Edit / View / Help). Items map 1:1 to real
+ * editor handlers; the menu is purely a surfacing layer over existing behaviour.
+ */
+type MenuEntry =
+	| { kind: "item"; label: string; onSelect: () => void; disabled?: boolean; shortcut?: string }
+	| { kind: "separator" }
+	| { kind: "checkbox"; label: string; checked: boolean; onSelect: () => void };
+
+function TopMenu({ label, items }: { label: string; items: MenuEntry[] }) {
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<button
+					type="button"
+					className="rounded-md px-2 py-1 text-[12.5px] font-medium text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground"
+				>
+					{label}
+				</button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="start" sideOffset={4} className="min-w-[208px]">
+				{items.map((entry, i) => {
+					if (entry.kind === "separator") {
+						return <DropdownMenuSeparator key={`sep-${i}`} />;
+					}
+					if (entry.kind === "checkbox") {
+						return (
+							<DropdownMenuCheckboxItem
+								key={entry.label}
+								checked={entry.checked}
+								onCheckedChange={entry.onSelect}
+							>
+								{entry.label}
+							</DropdownMenuCheckboxItem>
+						);
+					}
+					return (
+						<DropdownMenuItem key={entry.label} disabled={entry.disabled} onSelect={entry.onSelect}>
+							{entry.label}
+							{entry.shortcut && <DropdownMenuShortcut>{entry.shortcut}</DropdownMenuShortcut>}
+						</DropdownMenuItem>
+					);
+				})}
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+}
 
 /** Single Sonner slot so auto-caption phases update in place instead of stacking. */
 const AUTO_CAPTION_PROGRESS_TOAST_ID = "auto-caption-progress";
@@ -483,6 +560,14 @@ export default function VideoEditor() {
 	const [exportError, setExportError] = useState<string | null>(null);
 	const [showExportDialog, setShowExportDialog] = useState(false);
 	const [showNewRecordingDialog, setShowNewRecordingDialog] = useState(false);
+	// Help → Tutorial opens the existing <TutorialHelp> dialog (now controllable).
+	const [showTutorial, setShowTutorial] = useState(false);
+	// Edge/playhead snapping lives here so the View → Toggle Snapping menu item and
+	// the timeline magnet button share one source of truth.
+	const [snapEnabled, setSnapEnabled] = useState(true);
+	const toggleSnapEnabled = useCallback(() => setSnapEnabled((s) => !s), []);
+	// Imperative timeline controls for the View menu (zoom in / out / fit).
+	const clipTimelineRef = useRef<ClipTimelineHandle>(null);
 	const [exportQuality, setExportQuality] = useState<ExportQuality>(
 		DEFAULT_EXPORT_SETTINGS.quality,
 	);
@@ -548,7 +633,7 @@ export default function VideoEditor() {
 	const nextTrimIdRef = useRef(1);
 	const nextSpeedIdRef = useRef(1);
 
-	const { shortcuts, isMac } = useShortcuts();
+	const { shortcuts, isMac, openConfig } = useShortcuts();
 	// Windows recordings include captured cursor assets. macOS hides the system
 	// cursor in ScreenCaptureKit and renders telemetry samples with OpenScreen's
 	// default arrow asset for the editable overlay.
@@ -821,6 +906,53 @@ export default function VideoEditor() {
 	}, []);
 	const selectClipsRef = useRef(selectClips);
 	selectClipsRef.current = selectClips;
+
+	// Edit-menu clip ops. These mirror the keyboard handlers (split S/B, Cmd+D
+	// duplicate, Delete) but are reachable from the top menu bar. Each acts on the
+	// editable subset of the current selection (locked-lane clips are skipped) and
+	// commits exactly one undo step — identical semantics to the shortcuts.
+	const editableSelectedClips = useMemo(
+		() =>
+			clips.filter((c) => selectedClipIds.includes(c.id) && !isTrackLocked(tracks, c.trackIndex)),
+		[clips, selectedClipIds, tracks],
+	);
+	const hasEditableSelection = editableSelectedClips.length > 0;
+	const menuSplitClips = useCallback(() => {
+		if (editableSelectedClips.length === 0) return;
+		const at = currentTimeRef.current;
+		const editableIds = new Set(editableSelectedClips.map((c) => c.id));
+		const newSel: string[] = [];
+		let changed = false;
+		const next = clipsRef.current.flatMap((c) => {
+			if (!editableIds.has(c.id)) return [c];
+			const halves = splitClipAt(c, at, genClipId);
+			if (!halves) {
+				newSel.push(c.id);
+				return [c];
+			}
+			changed = true;
+			newSel.push(halves[0].id, halves[1].id);
+			return halves;
+		});
+		if (changed) {
+			pushState({ timelineClips: next });
+			setSelectedClipIds(newSel);
+		}
+	}, [editableSelectedClips, pushState]);
+	const menuDuplicateClips = useCallback(() => {
+		if (editableSelectedClips.length === 0) return;
+		const dups = editableSelectedClips.map((c) => duplicateClip(c, genClipId));
+		pushState((prev) => ({ timelineClips: [...prev.timelineClips, ...dups] }));
+		selectClipsRef.current(dups);
+	}, [editableSelectedClips, pushState]);
+	const menuDeleteClips = useCallback(() => {
+		if (editableSelectedClips.length === 0) return;
+		const ids = new Set(editableSelectedClips.map((c) => c.id));
+		pushState((prev) => ({
+			timelineClips: prev.timelineClips.filter((c) => !ids.has(c.id)),
+		}));
+		setSelectedClipIds([]);
+	}, [editableSelectedClips, pushState]);
 
 	// Point the single <video> at a different source. Switching `videoPath` remounts
 	// <VideoPlayback> (its `key` includes the path), so any follow-up seek/resume is
@@ -3334,8 +3466,84 @@ export default function VideoEditor() {
 		);
 	}
 
+	// --- Top menu bar + status bar derived display values --------------------
+	const tm = (key: string, vars?: Record<string, string>) => t(`menubar.${key}`, vars);
+	const sbT = (key: string, vars?: Record<string, string>) => t(`statusBar.${key}`, vars);
+	const modKey = isMac ? "⌘" : "Ctrl+";
+	const projectName = currentProjectPath
+		? (currentProjectPath
+				.split(/[\\/]/)
+				.pop()
+				?.replace(/\.[^.]+$/, "") ?? tm("untitledProject"))
+		: tm("untitledProject");
+	// Output resolution from the (real) aspect-ratio setting, 1080 short side.
+	const aspectValue = getAspectRatioValue(aspectRatio) || 16 / 9;
+	const outputHeight = aspectValue >= 1 ? 1080 : Math.round(1080 * aspectValue);
+	const outputWidth = aspectValue >= 1 ? Math.round(1080 * aspectValue) : 1080;
+	// fps / codec follow the real export format (mp4 encodes at 60fps H.264).
+	const statusFps = exportFormat === "gif" ? gifFrameRate : 60;
+	const statusCodec = exportFormat === "gif" ? "GIF" : "H.264";
+
+	const fileMenu: MenuEntry[] = [
+		{ kind: "item", label: tm("newProject"), onSelect: handleNewProject },
+		{ kind: "item", label: tm("open"), onSelect: handleLoadProject, shortcut: `${modKey}O` },
+		{ kind: "separator" },
+		{ kind: "item", label: tm("save"), onSelect: handleSaveProject, shortcut: `${modKey}S` },
+		{
+			kind: "item",
+			label: tm("saveAs"),
+			onSelect: handleSaveProjectAs,
+			shortcut: `⇧${modKey}S`,
+		},
+		{ kind: "separator" },
+		{ kind: "item", label: tm("export"), onSelect: handleOpenExportDialog },
+	];
+	const editMenu: MenuEntry[] = [
+		{ kind: "item", label: tm("undo"), onSelect: undo, shortcut: `${modKey}Z` },
+		{ kind: "item", label: tm("redo"), onSelect: redo, shortcut: `⇧${modKey}Z` },
+		{ kind: "separator" },
+		{
+			kind: "item",
+			label: tm("split"),
+			onSelect: menuSplitClips,
+			disabled: !hasEditableSelection,
+			shortcut: "S",
+		},
+		{
+			kind: "item",
+			label: tm("duplicate"),
+			onSelect: menuDuplicateClips,
+			disabled: !hasEditableSelection,
+			shortcut: `${modKey}D`,
+		},
+		{
+			kind: "item",
+			label: tm("delete"),
+			onSelect: menuDeleteClips,
+			disabled: !hasEditableSelection,
+			shortcut: "⌫",
+		},
+	];
+	const viewMenu: MenuEntry[] = [
+		{ kind: "item", label: tm("zoomIn"), onSelect: () => clipTimelineRef.current?.zoomIn() },
+		{ kind: "item", label: tm("zoomOut"), onSelect: () => clipTimelineRef.current?.zoomOut() },
+		{ kind: "item", label: tm("fit"), onSelect: () => clipTimelineRef.current?.zoomFit() },
+		{ kind: "separator" },
+		{
+			kind: "checkbox",
+			label: tm("toggleSnapping"),
+			checked: snapEnabled,
+			onSelect: toggleSnapEnabled,
+		},
+	];
+	const helpMenu: MenuEntry[] = [
+		{ kind: "item", label: tm("keyboardShortcuts"), onSelect: openConfig },
+		{ kind: "item", label: tm("tutorial"), onSelect: () => setShowTutorial(true) },
+	];
+
 	return (
 		<div className="flex flex-col h-screen bg-card text-foreground overflow-hidden selection:bg-primary/30">
+			<TutorialHelp open={showTutorial} onOpenChange={setShowTutorial} />
 			<Dialog open={showNewRecordingDialog} onOpenChange={setShowNewRecordingDialog}>
 				<DialogContent
 					className="sm:max-w-[425px]"
@@ -3445,16 +3653,43 @@ export default function VideoEditor() {
 
 			<div
 				data-tauri-drag-region
-				className="h-11 flex-shrink-0 bg-background/85 backdrop-blur-xl border-b border-border flex items-center justify-between px-5 z-50 shadow-[0_1px_0_rgba(255,255,255,0.03)]"
+				className="h-12 flex-shrink-0 bg-panel/95 backdrop-blur-xl border-b border-border flex items-center gap-3 px-3 z-50"
 				style={{ WebkitAppRegion: "drag" } as CSSProperties}
 			>
+				{/* Left cluster: wordmark, menu bar, project name + autosave indicator */}
 				<div
-					className="flex-1 flex items-center gap-1"
+					className="flex items-center gap-2 min-w-0"
 					style={{ WebkitAppRegion: "no-drag" } as CSSProperties}
 				>
-					<div
-						className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 ${isMac ? "ml-14" : "ml-2"}`}
+					<span
+						className={`font-extrabold text-[13.5px] tracking-tight text-foreground ${isMac ? "ml-16" : "ml-1"}`}
 					>
+						foxscreen
+					</span>
+					<span className="h-4 w-px bg-border" />
+					<nav className="flex items-center gap-0.5">
+						<TopMenu label={tm("file")} items={fileMenu} />
+						<TopMenu label={tm("edit")} items={editMenu} />
+						<TopMenu label={tm("view")} items={viewMenu} />
+						<TopMenu label={tm("help")} items={helpMenu} />
+					</nav>
+					<span className="h-4 w-px bg-border" />
+					<div className="flex items-center gap-1 min-w-0 text-[12px] font-medium text-muted-foreground">
+						<span className="truncate max-w-[180px]">{projectName}</span>
+						<span className="whitespace-nowrap text-[11px] text-muted-foreground/70">
+							· {hasUnsavedChanges ? tm("unsaved") : tm("autosaved")}
+						</span>
+					</div>
+				</div>
+
+				<span className="flex-1" />
+
+				{/* Right cluster: language, theme, undo/redo, recorder, load, save, export */}
+				<div
+					className="flex items-center gap-1"
+					style={{ WebkitAppRegion: "no-drag" } as CSSProperties}
+				>
+					<div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
 						<Languages size={14} />
 						<select
 							value={locale}
@@ -3470,10 +3705,30 @@ export default function VideoEditor() {
 						</select>
 					</div>
 					<ThemeToggle />
+					<div className="flex items-center gap-0.5">
+						<button
+							type="button"
+							title={tm("undo")}
+							aria-label={tm("undo")}
+							onClick={undo}
+							className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-foreground/[0.03] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+						>
+							<Undo2 size={15} />
+						</button>
+						<button
+							type="button"
+							title={tm("redo")}
+							aria-label={tm("redo")}
+							onClick={redo}
+							className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-foreground/[0.03] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+						>
+							<Redo2 size={15} />
+						</button>
+					</div>
 					<button
 						type="button"
 						onClick={() => setShowNewRecordingDialog(true)}
-						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
+						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors text-[11px] font-medium"
 					>
 						<Video size={14} />
 						{t("newRecording.title")}
@@ -3481,7 +3736,7 @@ export default function VideoEditor() {
 					<button
 						type="button"
 						onClick={handleLoadProject}
-						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
+						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors text-[11px] font-medium"
 					>
 						<FolderOpen size={14} />
 						{ts("project.load")}
@@ -3489,7 +3744,7 @@ export default function VideoEditor() {
 					<button
 						type="button"
 						onClick={handleSaveProject}
-						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
+						className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors text-[11px] font-medium"
 					>
 						<Save size={14} />
 						{ts("project.save")}
@@ -3500,7 +3755,7 @@ export default function VideoEditor() {
 							<button
 								type="button"
 								onClick={handleLoadCuttiDemo}
-								className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
+								className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors text-[11px] font-medium"
 							>
 								<Captions size={14} />
 								cutti 字幕
@@ -3508,7 +3763,7 @@ export default function VideoEditor() {
 							<button
 								type="button"
 								onClick={handleCuttiFirstCut}
-								className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
+								className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors text-[11px] font-medium"
 							>
 								<Scissors size={14} />
 								cutti 初剪
@@ -3516,13 +3771,21 @@ export default function VideoEditor() {
 							<button
 								type="button"
 								onClick={handleCuttiAiCut}
-								className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-foreground/50 hover:text-foreground/90 hover:bg-accent transition-all duration-150 text-[11px] font-medium"
+								className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors text-[11px] font-medium"
 							>
 								<Sparkles size={14} />
 								cutti AI 剪
 							</button>
 						</>
 					)}
+					<button
+						type="button"
+						onClick={handleOpenExportDialog}
+						className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-[12px] font-semibold shadow-[0_6px_16px_-8px_hsl(var(--primary)/0.7)]"
+					>
+						<Download size={14} />
+						{tm("exportButton")}
+					</button>
 				</div>
 			</div>
 
@@ -3890,8 +4153,11 @@ export default function VideoEditor() {
 						<Panel defaultSize={33} maxSize={54} minSize={24} className="min-h-[210px]">
 							<div className="editor-timeline-panel h-full overflow-hidden flex flex-col">
 								<ClipTimeline
+									ref={clipTimelineRef}
 									clips={clips}
 									transitions={transitions}
+									snapEnabled={snapEnabled}
+									onToggleSnap={toggleSnapEnabled}
 									onAddTransition={handleAddTransition}
 									onRemoveTransition={handleRemoveTransition}
 									onClipsChange={handleClipsChange}
@@ -3915,6 +4181,31 @@ export default function VideoEditor() {
 							</div>
 						</Panel>
 					</PanelGroup>
+				</div>
+			)}
+
+			{/* Full-width status bar: live track/clip counts + project output metrics. */}
+			{(videoPath || projectOpen) && (
+				<div className="flex h-7 flex-none items-center gap-3 border-t border-border bg-chrome px-4 font-mono text-[11px] text-muted-foreground">
+					<span className="inline-flex items-center gap-1.5">
+						<span className="h-1.5 w-1.5 rounded-full bg-primary" />
+						{sbT("ready")}
+					</span>
+					<span>
+						{sbT("tracksClips", { tracks: String(tracks.length), clips: String(clips.length) })}
+					</span>
+					<span className="flex-1" />
+					<span>
+						{outputWidth} × {outputHeight}
+					</span>
+					<span className="text-border">·</span>
+					<span>{statusFps} fps</span>
+					<span className="text-border">·</span>
+					<span>{statusCodec}</span>
+					<span className="text-border">·</span>
+					<span className="text-foreground/70">
+						{sbT("duration", { time: formatTimecode(timelineDuration) })}
+					</span>
 				</div>
 			)}
 
