@@ -70,6 +70,19 @@ cutti 引擎已抽成共享包,"导入视频 → 转写 → 真 keep/cut → 真
   `crossfadeAlpha` 线性。时间线在重叠区给 + 加 / 点 hatch 删(各一条 undo,进 `useEditorHistory`+持久化);
   导出 `sequenceExporter` 在窗口内解码两 clip 帧按 alpha 混合。**Pixi 实时预览暂不渲染转场**(headless 验不了)。均单测(29 例)。
 
+**编辑器 v2 改版**(对齐 `docs/design/editor-v2-mockup.dc.html`,分片 S1–S3 已落地,计划见 `docs/design/editor-v2-plan.md`):
+- **设计系统**:UI 字体 Plus Jakarta Sans、数字/时间码 IBM Plex Mono(`@fontsource/*` 本地打包,无 CDN);dark token 对齐
+  mockup(bg `#0d0e10`/panel `#121417`,新增 `--chrome`/`--panel` token,primary→`#ea7a52`);时间码/百分比全走 `font-mono`。
+- **顶部菜单栏**(`VideoEditor`):foxscreen 字标 + File/Edit/View/Help 真下拉(全部接现有 handler:新建/打开/保存/导出、
+  撤销/重做/分割/复制/删除、缩放/吸附、快捷键/教程)+ 项目名/已保存指示 + undo/redo 按钮 + 橙色 **Export** 主按钮。
+- **底部状态栏**(28px):就绪点 + `N tracks · M clips`(实时)+ 分辨率/fps/codec/时长(mono)。
+- **媒体库网格**(`MediaBin`):搜索 + 类型 chips(全部/视频/音频/图片)+ 2 列缩略图卡(时长徽标、音频波形卡)+ `N assets · 大小`
+  footer;保留拖到时间线;`MediaAsset` 加可选 `duration/size/thumbnail/peaks`(导入暂只填 id/path/name,缺省优雅降级)。
+- **分页 inspector**(`ClipInspector`):属性 / 颜色 / 音频 三 tab。clip 模型加 `posX/posY/scale/rotationDeg/opacity/blendMode`
+  + 校色 `exposure/contrast/saturation/temperature`(均可选默认 + 可撤销 + 持久化 + 单测;`buildClipCanvasFilter`/`clipTransform` 纯函数)。
+  **按转场先例:导出 `sequenceExporter.drawClipFrame` 应用 transform/globalAlpha/合成/`ctx.filter`,Pixi 预览留到 S4**。音频 tab 接现有 gain/mute/fade。
+- **S4(待做)**:Pixi 预览渲染 transform/composite/校色 + 转场(目前只导出生效);颜色直方图(暂略)。
+
 **主题**:terracotta 暖橙(取自 kobe Claude 品牌色 + codefox shadcn 变量结构);`ThemeContext` + 工具栏
 `ThemeToggle`(light/dark/system,持久化 localStorage `foxscreen.theme`)。light 模式已基本补齐(media/preview/
 时间线/面板都走变量);openscreen 个别深色面板仍有零星硬编码,见到即接变量(emerald→`--primary` 已扫多处)。
